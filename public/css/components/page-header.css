@@ -1,0 +1,10 @@
+.page-head {
+    width: 100%;
+}
+
+.page-head h2 {
+    margin: 0 0 4px;
+    color: var(--text);
+    font-size: 26px;
+    font-weight: 800;
+}

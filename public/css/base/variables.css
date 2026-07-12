@@ -1,0 +1,41 @@
+:root {
+    --navy: #061b3a;
+    --navy-2: #03162f;
+    --blue: #075eea;
+    --blue-dark: #064ec2;
+    --green: #12b76a;
+    --orange: #f79009;
+    --red: #f04438;
+    --purple: #7a35d8;
+
+    --text: #06102b;
+    --muted: #667085;
+    --line: #e7edf5;
+    --bg: #f6f8fc;
+    --card: #ffffff;
+
+    --shadow-sm: 0 2px 10px rgba(16, 24, 40, .05);
+    --shadow: 0 8px 22px rgba(16, 24, 40, .07);
+    --shadow-lg: 0 18px 50px rgba(15, 23, 42, .12);
+
+    --radius-sm: 8px;
+    --radius: 14px;
+    --radius-lg: 18px;
+
+    --sidebar-width: 220px;
+    --topbar-min-height: 78px;
+
+    /* Compatibilidade com os arquivos já existentes */
+    --nexus-primary: var(--blue);
+    --nexus-primary-dark: #1e3a8a;
+    --nexus-sidebar: var(--navy-2);
+    --nexus-bg: var(--bg);
+    --nexus-card: var(--card);
+    --nexus-border: var(--line);
+    --nexus-text: var(--text);
+    --nexus-muted: var(--muted);
+    --nexus-success: var(--green);
+    --nexus-danger: var(--red);
+    --nexus-warning: var(--orange);
+    --nexus-info: #0ea5e9;
+}

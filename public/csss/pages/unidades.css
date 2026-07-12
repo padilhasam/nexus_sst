@@ -1,0 +1,221 @@
+main.content {
+    background: #f8fafc;
+}
+
+.page-header-unidades {
+    border-radius: 1.25rem !important;
+}
+
+.unidades-app-toolbar {
+    border-radius: 1.25rem !important;
+}
+
+.unidades-app-search input {
+    font-size: 16px;
+    min-height: 44px;
+}
+
+.unidades-app-list {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 1rem;
+}
+
+.unidade-app-card {
+    background: #fff;
+    border: 1px solid #e9ecef;
+    border-radius: 1.25rem;
+    padding: 1rem;
+    box-shadow: 0 4px 14px rgba(15, 23, 42, .05);
+    transition: all .18s ease;
+}
+
+.unidade-app-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 10px 24px rgba(15, 23, 42, .08);
+}
+
+.unidade-app-card-main {
+    display: flex;
+    gap: .85rem;
+    align-items: flex-start;
+}
+
+.unidade-app-icon {
+    width: 46px;
+    height: 46px;
+    min-width: 46px;
+    border-radius: 15px;
+    background: linear-gradient(135deg, #0d6efd, #084298);
+    color: #fff;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.unidade-app-content {
+    flex: 1;
+    min-width: 0;
+}
+
+.unidade-app-content h5 {
+    font-size: 1rem;
+    font-weight: 800;
+    margin: 0;
+    color: #212529;
+    line-height: 1.25;
+}
+
+.unidade-app-empresa {
+    margin: .25rem 0 .75rem;
+    font-size: .8rem;
+    color: #6c757d;
+    line-height: 1.3;
+}
+
+.unidade-app-meta {
+    display: grid;
+    gap: .45rem;
+    font-size: .82rem;
+    color: #6c757d;
+}
+
+.unidade-app-meta span {
+    display: flex;
+    align-items: flex-start;
+    gap: .4rem;
+    line-height: 1.3;
+}
+
+.unidade-app-meta i {
+    width: 16px;
+    margin-top: .1rem;
+    color: #6c757d;
+}
+
+.unidade-app-actions {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: .5rem;
+    margin-top: .95rem;
+    padding-top: .85rem;
+    border-top: 1px solid #f1f3f5;
+}
+
+.unidade-app-actions .btn {
+    min-height: 42px;
+    font-size: .86rem;
+    font-weight: 600;
+}
+
+
+/* ==========================================
+   CORREÇÃO DOS INPUTS DO ENDEREÇO
+========================================== */
+
+.endereco-row > div {
+    min-width: 0;
+}
+
+.input-group {
+    width: 100%;
+    min-width: 0;
+}
+
+.input-group .form-control,
+.input-group .form-select {
+    min-width: 0;
+    width: 1%;
+}
+
+.form-control,
+.form-select {
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+#logradouro,
+#bairro,
+#cidade,
+#complemento {
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+
+/* ==========================================
+   TABLET
+========================================== */
+
+@media (max-width: 1199px) {
+
+    main.content {
+        padding: .85rem !important;
+    }
+
+    .page-header-unidades {
+        padding: 1rem !important;
+    }
+
+    .page-header-unidades h3 {
+        font-size: 1.15rem !important;
+        line-height: 1.3;
+    }
+
+    .page-header-actions {
+        width: 100%;
+        display: grid !important;
+        grid-template-columns: 1fr 1fr;
+        gap: .5rem !important;
+    }
+
+    .page-header-actions .btn {
+        width: 100%;
+        justify-content: center;
+        min-height: 42px;
+    }
+
+    .unidades-app-list {
+        grid-template-columns: repeat(2, 1fr);
+    }
+
+    .endereco-row > div {
+        width: 100%;
+    }
+}
+
+
+/* ==========================================
+   MOBILE
+========================================== */
+
+@media (max-width: 576px) {
+
+    .page-header-actions {
+        grid-template-columns: 1fr;
+    }
+
+    .unidades-app-list {
+        grid-template-columns: 1fr;
+    }
+
+    .unidade-app-card-main {
+        gap: .7rem;
+    }
+
+    .unidade-app-actions {
+        grid-template-columns: 1fr;
+    }
+
+    .toast-container {
+        left: 0 !important;
+        right: 0 !important;
+        padding: .75rem !important;
+    }
+
+    .toast {
+        width: 100%;
+    }
+
+}

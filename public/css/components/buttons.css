@@ -1,0 +1,20 @@
+.btn {
+    border-radius: 9px;
+    font-weight: 700;
+}
+
+.btn-primary {
+    border-color: var(--blue);
+    background: var(--blue);
+}
+
+.btn-primary:hover,
+.btn-primary:focus {
+    border-color: var(--blue-dark);
+    background: var(--blue-dark);
+}
+
+.btn-light {
+    border-color: var(--line);
+    background: #fff;
+}

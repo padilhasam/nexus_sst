@@ -1,0 +1,171 @@
+/* ==========================================================
+   CONTENT
+========================================================== */
+
+.content{
+    flex:1;
+    min-width:0;
+    min-height:0;
+    background:#f8fafc;
+    overflow-x:hidden;
+    overflow-y:auto;
+    padding:24px;
+    position:relative;
+    transition:all .25s ease;
+}
+
+.content-wrapper{
+    width:100%;
+    max-width:1800px;
+    margin:0 auto;
+}
+
+.content-grid{
+    display:grid;
+    gap:24px;
+}
+
+.content-row{
+    display:flex;
+    gap:24px;
+    flex-wrap:wrap;
+}
+
+.content-col{
+    flex:1;
+    min-width:280px;
+}
+
+/* ==========================================================
+   CARDS
+========================================================== */
+
+.card{
+    border:none;
+    border-radius:18px;
+    background:#ffffff;
+    box-shadow:0 4px 20px rgba(15,23,42,.05);
+    overflow:hidden;
+    transition:.18s ease;
+}
+
+.card:hover{
+    transform:translateY(-2px);
+    box-shadow:0 10px 30px rgba(15,23,42,.08);
+}
+
+.page-container{
+    display:flex;
+    flex-direction:column;
+    gap:24px;
+}
+
+/* ==========================================================
+   DRAWER
+========================================================== */
+
+.drawer{
+    position:fixed;
+    top:72px;
+    right:-520px;
+    width:520px;
+    max-width:100%;
+    height:calc(100vh - 72px);
+    background:#ffffff;
+    box-shadow:-8px 0 35px rgba(15,23,42,.15);
+    transition:right .25s ease;
+    z-index:1045;
+}
+
+.drawer.show{
+    right:0;
+}
+
+.drawer-overlay{
+    position:fixed;
+    inset:0;
+    background:rgba(15,23,42,.25);
+    backdrop-filter:blur(2px);
+    opacity:0;
+    visibility:hidden;
+    transition:.25s;
+    z-index:1040;
+}
+
+.drawer-overlay.show{
+    opacity:1;
+    visibility:visible;
+}
+
+/* ==========================================================
+   LOADING
+========================================================== */
+
+.loading-state{
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    min-height:220px;
+    color:#94a3b8;
+    font-weight:600;
+}
+
+/* ==========================================================
+   SCROLLBAR
+========================================================== */
+
+.content::-webkit-scrollbar{
+    width:10px;
+}
+
+.content::-webkit-scrollbar-track{
+    background:#f1f5f9;
+}
+
+.content::-webkit-scrollbar-thumb{
+    background:#cbd5e1;
+    border-radius:999px;
+}
+
+.content::-webkit-scrollbar-thumb:hover{
+    background:#94a3b8;
+}
+
+/* ==========================================================
+   RESPONSIVO
+========================================================== */
+
+@media (max-width:991px){
+
+    .content{
+        padding:18px;
+    }
+
+    .content-row{
+        gap:18px;
+    }
+
+    .drawer{
+        width:100%;
+        top:64px;
+        height:calc(100vh - 64px);
+    }
+
+}
+
+@media (max-width:576px){
+
+    .content{
+        padding:14px;
+    }
+
+    .content-row{
+        flex-direction:column;
+        gap:14px;
+    }
+
+    .page-container{
+        gap:16px;
+    }
+
+}

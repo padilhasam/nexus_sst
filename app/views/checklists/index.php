@@ -1,0 +1,5 @@
+<?php require_once dirname(__DIR__) . '/templates/header.php'; ?>
+<div class="mobile-header"><i class="fa-solid fa-arrow-left"></i><span>Check-list</span><i class="fa-regular fa-calendar"></i></div>
+<div class="panel" style="margin-bottom:16px"><div style="display:flex;justify-content:space-between;font-weight:800;font-size:12px"><span>Progresso</span><span>65%</span></div><div class="progress-line" style="margin-top:8px"><b style="width:65%"></b></div></div>
+<div class="panel"><nav class="check-tabs" style="display:block;margin:0;border:0"><a class="active"><i class="fa-regular fa-file-lines"></i>Dados da Visita</a><a><i class="fa-solid fa-sitemap"></i>Hierarquia</a><a><i class="fa-regular fa-user"></i>Funcionários</a><a><i class="fa-solid fa-triangle-exclamation"></i>GHE / Riscos</a><a><i class="fa-solid fa-shield"></i>EPI / EPC</a><a><i class="fa-regular fa-image"></i>Evidências</a><a><i class="fa-solid fa-pen"></i>Fiscalização / NC</a><a><i class="fa-solid fa-vial"></i>Quantificações</a><a><i class="fa-solid fa-signature"></i>Assinaturas</a></nav></div>
+<?php require_once dirname(__DIR__) . '/templates/footer.php'; ?>

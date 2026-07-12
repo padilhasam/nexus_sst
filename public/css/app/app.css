@@ -1,0 +1,20 @@
+.sst-app {
+    display: flex;
+    min-height: 100vh;
+}
+
+.sst-main {
+    flex: 1;
+    min-width: 0;
+    margin-left: var(--sidebar-width);
+}
+
+.topbar-spacer {
+    flex: 1;
+}
+
+@media (max-width: 1100px) {
+    .sst-main {
+        margin-left: 0;
+    }
+}

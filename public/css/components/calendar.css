@@ -1,0 +1,7 @@
+.fc .fc-button {
+    border: 0;
+    border-radius: 8px;
+    box-shadow: none;
+    font-weight: 700;
+    text-transform: capitalize;
+}

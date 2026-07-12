@@ -1,0 +1,203 @@
+.cargos-desktop-view {
+    display: none !important;
+}
+
+.cargos-app-view {
+    display: block;
+}
+
+main.content {
+    background: #f8fafc;
+}
+
+.page-header-cargos {
+    border-radius: 1.25rem !important;
+}
+
+.page-header-actions .btn {
+    min-height: 42px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.cargos-app-toolbar,
+.cargos-pagination {
+    border-radius: 1.25rem !important;
+}
+
+.cargos-app-search input {
+    font-size: 16px;
+    min-height: 44px;
+}
+
+.cargos-app-list {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 1rem;
+}
+
+.cargo-app-card {
+    background: #fff;
+    border: 1px solid #e9ecef;
+    border-radius: 1.25rem;
+    padding: 1rem;
+    box-shadow: 0 4px 14px rgba(15, 23, 42, .05);
+    transition: all .18s ease;
+    width: 100%;
+}
+
+.cargo-app-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 10px 24px rgba(15, 23, 42, .08);
+}
+
+.cargo-app-card-main {
+    display: flex;
+    gap: .85rem;
+    align-items: flex-start;
+}
+
+.cargo-app-icon {
+    width: 46px;
+    height: 46px;
+    min-width: 46px;
+    border-radius: 15px;
+    background: linear-gradient(135deg, #0d6efd, #084298);
+    color: #fff;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.cargo-app-content {
+    flex: 1;
+    min-width: 0;
+}
+
+.cargo-app-content h5 {
+    font-size: 1rem;
+    font-weight: 800;
+    margin: 0 0 .25rem;
+    color: #212529;
+    line-height: 1.25;
+}
+
+.cargo-app-subtitle {
+    margin: .25rem 0 .75rem;
+    font-size: .8rem;
+    color: #6c757d;
+    line-height: 1.3;
+}
+
+.cargo-app-meta {
+    display: grid;
+    gap: .45rem;
+    font-size: .82rem;
+    color: #6c757d;
+}
+
+.cargo-app-meta span {
+    display: flex;
+    align-items: flex-start;
+    gap: .4rem;
+    line-height: 1.3;
+}
+
+.cargo-app-meta i {
+    width: 16px;
+    margin-top: .1rem;
+    color: #6c757d;
+}
+
+.cargo-app-actions {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: .5rem;
+    margin-top: .95rem;
+    padding-top: .85rem;
+    border-top: 1px solid #f1f3f5;
+}
+
+.cargo-app-actions .btn {
+    width: 100%;
+    min-height: 42px;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: .45rem;
+
+    font-size: .86rem;
+    font-weight: 600;
+    text-align: center;
+}
+
+.cargos-pagination .btn:disabled {
+    opacity: .45;
+    cursor: not-allowed;
+}
+
+/* TABLET */
+@media (max-width: 1199px) {
+    main.content {
+        padding: .85rem !important;
+    }
+
+    .page-header-cargos {
+        padding: 1rem !important;
+    }
+
+    .page-header-cargos h3 {
+        font-size: 1.15rem !important;
+        line-height: 1.3;
+    }
+
+    .page-header-actions {
+        width: 100%;
+        display: grid !important;
+        grid-template-columns: 1fr 1fr;
+        gap: .5rem !important;
+    }
+
+    .page-header-actions .btn {
+        width: 100%;
+    }
+
+    .cargos-app-list {
+        grid-template-columns: repeat(2, 1fr);
+    }
+
+    .modal-body .col-6 {
+        width: 100%;
+    }
+}
+
+/* MOBILE */
+@media (max-width: 576px) {
+    .page-header-actions {
+        grid-template-columns: 1fr;
+    }
+
+    .cargos-app-list {
+        grid-template-columns: 1fr;
+    }
+
+    .cargo-app-card-main {
+        gap: .7rem;
+    }
+
+    .cargo-app-actions {
+        grid-template-columns: 1fr;
+    }
+
+    .toast-container {
+        left: 0 !important;
+        right: 0 !important;
+        padding: .75rem !important;
+    }
+
+    .toast {
+        width: 100%;
+    }
+}

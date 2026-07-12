@@ -1,0 +1,11 @@
+.form-control,
+.form-select {
+    border-color: var(--line);
+    border-radius: 9px;
+}
+
+.form-control:focus,
+.form-select:focus {
+    border-color: rgba(7, 94, 234, .45);
+    box-shadow: 0 0 0 3px rgba(7, 94, 234, .12);
+}

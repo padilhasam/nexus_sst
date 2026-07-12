@@ -1,0 +1,44 @@
+.btn{
+    font-weight:600;
+}
+
+.btn-nexus-primary{
+    background:var(--nexus-primary);
+    border-color:var(--nexus-primary);
+    color:#fff;
+}
+
+.btn-nexus-primary:hover{
+    background:var(--nexus-primary-dark);
+    border-color:var(--nexus-primary-dark);
+    color:#fff;
+}
+
+.nexus-card-actions{
+    display:grid;
+    grid-template-columns:repeat(3,1fr);
+    gap:.5rem;
+    margin-top:.95rem;
+    padding-top:.85rem;
+    border-top:1px solid #f1f3f5;
+}
+
+.nexus-card-actions .btn{
+    min-height:42px;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    gap:.4rem;
+    font-size:.86rem;
+}
+.btn-outline-primary {
+    color:#034596;
+    border-color:#034596;
+}
+
+.btn-outline-primary:hover,
+.btn-outline-primary:focus {
+    background-color:#034596;
+    border-color:#034596;
+    color:#fff;
+}

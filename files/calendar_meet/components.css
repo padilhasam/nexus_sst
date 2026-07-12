@@ -1,0 +1,209 @@
+/* ============================
+   PADRÃO GLOBAL - NEXUS / TOPBAR
+============================ */
+
+:root {
+    --app-primary: #034596;
+    --app-primary-light: #0d6efd;
+    --app-dark: #001c3f;
+    --app-bg: #f8fafc;
+    --app-card: #ffffff;
+    --app-border: #e5e7eb;
+    --app-muted: #64748b;
+    --app-text: #0f172a;
+}
+
+/* PAGE HEADER */
+.app-page-header {
+    background: var(--app-card);
+    border: 1px solid var(--app-border);
+    border-radius: 18px;
+    padding: 20px 24px;
+    box-shadow: 0 4px 14px rgba(15, 23, 42, 0.04);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+    flex-wrap: wrap;
+    margin-bottom: 1.5rem;
+}
+
+.app-page-title {
+    font-size: 1.45rem;
+    font-weight: 800;
+    color: var(--app-dark);
+    margin: 0;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.app-page-subtitle {
+    color: var(--app-muted);
+    font-size: 0.92rem;
+    margin: 6px 0 0;
+}
+
+.app-page-icon {
+    width: 40px;
+    height: 40px;
+    background: linear-gradient(135deg, var(--app-primary), var(--app-primary-light));
+    color: #fff;
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+/* CARDS */
+.app-card {
+    background: var(--app-card);
+    border: 1px solid var(--app-border);
+    border-radius: 18px;
+    box-shadow: 0 4px 14px rgba(15, 23, 42, 0.04);
+    overflow: hidden;
+}
+
+.app-card-header {
+    padding: 20px 24px 12px;
+    border-bottom: 1px solid #f1f5f9;
+}
+
+.app-card-title {
+    font-size: 1rem;
+    font-weight: 800;
+    color: var(--app-dark);
+    margin: 0;
+}
+
+.app-card-subtitle {
+    color: var(--app-muted);
+    font-size: 0.86rem;
+    margin: 5px 0 0;
+}
+
+.app-card-body {
+    padding: 24px;
+}
+
+/* TABS */
+.app-tabs-card {
+    background: var(--app-card);
+    border: 1px solid var(--app-border);
+    border-radius: 999px;
+    padding: 8px;
+    display: inline-flex;
+    box-shadow: 0 4px 14px rgba(15, 23, 42, 0.04);
+    margin-bottom: 1.5rem;
+}
+
+.app-tabs .nav-link {
+    color: var(--app-primary);
+    font-weight: 700;
+    border-radius: 999px;
+    padding: 9px 18px;
+}
+
+.app-tabs .nav-link.active {
+    background: var(--app-primary);
+    color: #fff;
+}
+
+/* TABLE */
+.app-table thead th {
+    background: #f8fafc;
+    color: #64748b;
+    font-size: 0.76rem;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    border-bottom: 1px solid var(--app-border);
+    white-space: nowrap;
+}
+
+.app-table tbody td {
+    color: #334155;
+    vertical-align: middle;
+    font-size: 0.9rem;
+}
+
+.app-table tbody tr:hover {
+    background: #f8fafc;
+}
+
+/* DROPDOWN AÇÕES */
+.app-actions-dropdown .btn {
+    white-space: nowrap;
+}
+
+.app-actions-dropdown .dropdown-menu {
+    border: none;
+    border-radius: 14px;
+    box-shadow: 0 12px 30px rgba(15, 23, 42, 0.14);
+    padding: 8px;
+    min-width: 210px;
+    z-index: 2000;
+}
+
+.app-actions-dropdown .dropdown-item {
+    border-radius: 10px;
+    padding: 9px 12px;
+    font-weight: 600;
+    font-size: 0.88rem;
+}
+
+.app-actions-dropdown .dropdown-item:hover {
+    background: #f1f5f9;
+}
+
+/* FORM */
+.app-form-section {
+    background: #f8fafc;
+    border: 1px solid var(--app-border);
+    border-radius: 16px;
+    padding: 18px;
+    margin-bottom: 1.5rem;
+}
+
+.app-form-section-title {
+    font-size: 0.95rem;
+    font-weight: 800;
+    color: var(--app-primary);
+    margin-bottom: 1rem;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+/* RESPONSIVO TABLET */
+@media (max-width: 992px) {
+    .app-page-header {
+        align-items: flex-start;
+    }
+
+    .app-page-header .btn {
+        width: 100%;
+    }
+
+    .app-tabs-card {
+        width: 100%;
+        display: block;
+        border-radius: 18px;
+    }
+
+    .app-tabs {
+        flex-direction: column;
+        width: 100%;
+    }
+
+    .app-tabs .nav-link {
+        width: 100%;
+    }
+
+    .app-card-body {
+        padding: 18px;
+    }
+
+    .app-table {
+        min-width: 900px;
+    }
+}

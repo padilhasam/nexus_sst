@@ -1,0 +1,128 @@
+/* ==========================================================================
+   GRID RESPONSIVO DOS CARDS
+   ========================================================================== */
+.riscos-grid {
+    max-width: 1600px;
+    margin: 0 auto;
+}
+
+/* Título Principal da Página Aumentado */
+.page-header-title {
+    letter-spacing: -0.5px;
+    font-size: 2rem; /* Aumentado de 1.75rem */
+}
+
+/* ==========================================================================
+   CARD BASE (ESTILO PREMIUM SAAS)
+   ========================================================================== */
+.riscos-grid .risco-card {
+    border: 1px solid rgba(0, 0, 0, 0.06) !important;
+    border-radius: 14px;
+    overflow: hidden;
+    background-color: #ffffff;
+    height: 100%;
+    position: relative;
+    transition: transform 0.25s cubic-bezier(0.4, 0, 0.2, 1), box-shadow 0.25s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* Linha decorativa no topo do card */
+.card-top-line {
+    height: 4px;
+    width: 100%;
+    position: absolute;
+    top: 0;
+    left: 0;
+}
+
+/* Efeito Hover Controlado e Fluido */
+.riscos-grid .risco-card:hover {
+    transform: translateY(-5px) !important;
+    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.06) !important;
+}
+
+/* ==========================================================================
+   ELEMENTOS INTERNOS DO CARD
+   ========================================================================== */
+.modern-icon-box {
+    width: 52px; /* Ligeiramente maior para acompanhar as fontes */
+    height: 52px;
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.3rem; /* Ícone levemente maior */
+    transition: transform 0.3s ease;
+}
+
+.risco-card:hover .modern-icon-box {
+    transform: scale(1.05) rotate(-3deg);
+}
+
+.go-arrow {
+    opacity: 0;
+    font-size: 0.95rem; /* Aumentado de 0.85rem */
+    transform: translateX(-6px);
+    transition: all 0.25s ease;
+}
+
+.risco-card:hover .go-arrow {
+    opacity: 1;
+    transform: translateX(0);
+}
+
+/* Métricas do rodapé aumentadas */
+.card-footer-metrics {
+    font-size: 0.9rem; /* Aumentado de 0.8rem */
+}
+
+/* ==========================================================================
+   CORES TEMÁTICAS (BACKGROUNDS PASTEL)
+   ========================================================================== */
+.bg-soft-primary   { background-color: rgba(13, 110, 253, 0.06); color: #0d6efd; }
+.bg-soft-danger    { background-color: rgba(220, 53, 69, 0.06); color: #dc3545; }
+.bg-soft-success   { background-color: rgba(25, 135, 84, 0.06); color: #198754; }
+.bg-soft-info      { background-color: rgba(13, 202, 240, 0.08); color: #0aa2c0; }
+.bg-soft-warning   { background-color: rgba(255, 193, 7, 0.08); color: #b58105; }
+.bg-soft-dark      { background-color: rgba(33, 37, 41, 0.06); color: #212529; }
+
+/* ==========================================================================
+   TIPOGRAFIA RECALIBRADA (FONTES MAIORES E DIRETAS)
+   ========================================================================== */
+.risco-card .central-card-title {
+    font-size: 1.4rem !important; /* Título do card bem nítido e encorpado */
+    letter-spacing: -0.2px;
+}
+
+.risco-card .central-card-text {
+    font-size: 1rem !important; /* Texto de leitura no tamanho padrão ideal (16px) */
+    line-height: 1.5;
+    color: #495057; /* Um tom de cinza sutilmente mais escuro para melhorar o contraste */
+}
+
+/* ==========================================================================
+   MEDIA QUERIES INTEGRADAS
+   ========================================================================== */
+@media (max-width: 576px) {
+    .page-header-title {
+        font-size: 1.65rem;
+    }
+    
+    .risco-card .central-card-title {
+        font-size: 1.25rem !important;
+    }
+
+    .risco-card .central-card-text {
+        font-size: 0.95rem !important;
+    }
+
+    .go-arrow {
+        opacity: 1;
+        transform: translateX(0);
+    }
+}
+
+@media (min-width: 1400px) {
+    .riscos-grid {
+        padding: 0 1rem;
+    }
+}

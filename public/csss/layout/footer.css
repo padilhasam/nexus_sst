@@ -1,0 +1,32 @@
+/* ============================
+   FOOTER
+============================ */
+.footer {
+    background-color: #f1f5f9;
+    border-top: 1px solid #e5e7eb;
+    color: #222830;
+    font-size: 0.85rem;
+}
+
+/* Texto */
+.footer small {
+    font-weight: 500;
+    color: #374151;
+}
+
+/* ============================
+   CONTAINER DO FOOTER
+============================ */
+.footer .container {
+    max-width: 1400px;
+}
+
+/* ============================
+   RESPONSIVIDADE
+============================ */
+@media (max-width: 576px) {
+    .footer {
+        padding: 14px 10px;
+        font-size: 0.8rem;
+    }
+}

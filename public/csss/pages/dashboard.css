@@ -1,0 +1,758 @@
+.dashboard-page{
+    padding:1.5rem;
+    background:var(--nexus-bg);
+}
+
+/* BASE VISUAL IGUAL TOPBAR */
+.dashboard-hero,
+.dashboard-panel,
+.operation-card{
+    background:#fff;
+    border:1px solid #e5e7eb;
+    border-radius:22px;
+    box-shadow:0 2px 10px rgba(15,23,42,.04);
+}
+
+/* HERO */
+.dashboard-hero{
+    padding:1.6rem;
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    gap:1rem;
+    margin-bottom:1rem;
+}
+
+.dashboard-eyebrow{
+    font-size:.72rem;
+    font-weight:800;
+    color:var(--nexus-primary);
+    text-transform:uppercase;
+    letter-spacing:.08em;
+}
+
+.dashboard-hero h3{
+    font-size:1.55rem;
+    font-weight:850;
+    margin:.25rem 0;
+    color:var(--nexus-text);
+}
+
+.dashboard-hero p{
+    margin:0;
+    color:var(--nexus-muted);
+    max-width:760px;
+}
+
+.dashboard-hero-actions{
+    display:grid;
+    grid-template-columns:1fr 1fr;
+    gap:.75rem;
+    min-width:460px;
+}
+
+.dashboard-hero-actions .btn{
+    height:46px;
+    border-radius:14px !important;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    font-weight:700;
+}
+
+/* CENTRAL DE OPERAÇÕES */
+.operation-grid{
+    display:grid;
+    grid-template-columns:repeat(4,1fr);
+    gap:1rem;
+    margin-bottom:1.2rem;
+}
+
+.operation-card{
+    padding:1.1rem;
+    display:flex;
+    align-items:center;
+    gap:.9rem;
+    text-decoration:none;
+    color:inherit;
+    transition:.18s ease;
+}
+
+.operation-card:hover{
+    background:#f8fafc;
+    transform:translateY(-2px);
+}
+
+.operation-icon{
+    width:42px;
+    height:42px;
+    min-width:42px;
+    border-radius:14px;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    background:#f8fafc;
+    border:1px solid #e5e7eb;
+    font-size:1.05rem;
+}
+
+.operation-card.primary .operation-icon{
+    color:#2563eb;
+    background:#eff6ff;
+    border-color:#bfdbfe;
+}
+
+.operation-card.success .operation-icon{
+    color:#16a34a;
+    background:#ecfdf5;
+    border-color:#bbf7d0;
+}
+
+.operation-card.warning .operation-icon{
+    color:#d97706;
+    background:#fffbeb;
+    border-color:#fde68a;
+}
+
+.operation-card.danger .operation-icon{
+    color:#dc2626;
+    background:#fef2f2;
+    border-color:#fecaca;
+}
+
+.operation-card span{
+    font-size:.78rem;
+    color:var(--nexus-muted);
+    display:block;
+}
+
+.operation-card strong{
+    font-size:1.65rem;
+    color:var(--nexus-text);
+    line-height:1;
+}
+
+.operation-card small{
+    font-size:.72rem;
+    color:var(--nexus-muted);
+}
+
+/* PAINÉIS */
+.dashboard-panel{
+    padding:1.25rem;
+    margin-bottom:1.2rem;
+}
+
+.dashboard-panel-header{
+    display:flex;
+    justify-content:space-between;
+    gap:.75rem;
+    align-items:center;
+    margin-bottom:1rem;
+}
+
+.dashboard-panel-header h5{
+    font-size:1rem;
+    font-weight:850;
+    margin:0;
+    color:var(--nexus-text);
+}
+
+.dashboard-panel-header p{
+    margin:.2rem 0 0;
+    font-size:.82rem;
+    color:var(--nexus-muted);
+}
+
+/* AÇÕES RÁPIDAS */
+.dashboard-actions-grid{
+    display:grid;
+    grid-template-columns:repeat(4,1fr);
+    gap:.75rem;
+}
+
+.action-card{
+    min-height:92px;
+    background:#fff;
+    border:1px solid #e5e7eb;
+    border-radius:18px;
+    padding:.9rem;
+    text-decoration:none;
+    color:inherit;
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    justify-content:center;
+    gap:.45rem;
+    font-weight:700;
+    text-align:center;
+    transition:.18s ease;
+}
+
+.action-card:hover{
+    background:#f8fafc;
+    transform:translateY(-2px);
+}
+
+.action-card i{
+    width:40px;
+    height:40px;
+    border-radius:14px;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    background:#f8fafc;
+    border:1px solid #e5e7eb;
+    font-size:1.05rem;
+}
+
+.action-card.primary i{
+    color:#2563eb;
+    background:#eff6ff;
+    border-color:#bfdbfe;
+}
+
+.action-card.success i{
+    color:#16a34a;
+    background:#ecfdf5;
+    border-color:#bbf7d0;
+}
+
+.action-card.warning i{
+    color:#d97706;
+    background:#fffbeb;
+    border-color:#fde68a;
+}
+
+.action-card.danger i{
+    color:#dc2626;
+    background:#fef2f2;
+    border-color:#fecaca;
+}
+
+/* GRIDS */
+.dashboard-grid-main,
+.dashboard-grid-secondary,
+.dashboard-charts{
+    display:grid;
+    grid-template-columns:repeat(2,1fr);
+    gap:1rem;
+}
+
+/* LISTAS */
+.dashboard-list,
+.pending-list,
+.work-list{
+    display:grid;
+    gap:.75rem;
+}
+
+.dashboard-visit-item,
+.pending-item,
+.work-card,
+.production-card,
+.client-card,
+.tecnico-card{
+    background:#f8fafc;
+    border:1px solid #e5e7eb;
+    border-radius:18px;
+}
+
+/* AGENDA */
+.dashboard-visit-item{
+    display:grid;
+    grid-template-columns:68px 1fr auto;
+    gap:.85rem;
+    align-items:center;
+    padding:.9rem;
+}
+
+.visit-time{
+    background:#eff6ff;
+    color:#2563eb;
+    font-weight:850;
+    border-radius:14px;
+    padding:.6rem .4rem;
+    text-align:center;
+    font-size:.9rem;
+    border:1px solid #bfdbfe;
+}
+
+.visit-content strong{
+    display:block;
+    font-size:.92rem;
+    color:var(--nexus-text);
+}
+
+.visit-content span{
+    font-size:.8rem;
+    color:var(--nexus-muted);
+}
+
+/* PENDÊNCIAS */
+.pending-item{
+    display:flex;
+    justify-content:space-between;
+    gap:.75rem;
+    align-items:center;
+    padding:.85rem;
+    text-decoration:none;
+    color:inherit;
+    transition:.18s ease;
+}
+
+.pending-item:hover{
+    background:#eff6ff;
+    transform:translateY(-2px);
+}
+
+.pending-item strong{
+    font-size:1.25rem;
+    color:var(--nexus-text);
+    display:block;
+    line-height:1;
+}
+
+.pending-item span{
+    font-size:.82rem;
+    color:var(--nexus-muted);
+}
+
+.pending-item i{
+    color:#94a3b8;
+}
+
+/* CHECKLISTS */
+.work-card{
+    display:grid;
+    grid-template-columns:1fr 220px auto;
+    gap:1rem;
+    align-items:center;
+    padding:1rem;
+}
+
+.work-card strong{
+    display:block;
+    color:var(--nexus-text);
+}
+
+.work-card span,
+.work-card small{
+    display:block;
+    color:var(--nexus-muted);
+    font-size:.82rem;
+}
+
+.work-progress{
+    display:grid;
+    gap:.35rem;
+}
+
+.work-progress span{
+    font-size:.78rem;
+    font-weight:700;
+    color:#16a34a;
+    text-align:right;
+}
+
+.progress{
+    height:8px;
+    border-radius:999px;
+    background:#e5e7eb;
+}
+
+.progress-bar{
+    background:#16a34a;
+    border-radius:999px;
+}
+
+/* PRODUÇÃO / CLIENTES */
+.production-grid,
+.client-grid{
+    display:grid;
+    grid-template-columns:repeat(4,1fr);
+    gap:.75rem;
+}
+
+.production-card,
+.client-card{
+    padding:.95rem;
+    text-decoration:none;
+    color:inherit;
+    transition:.18s ease;
+}
+
+.production-card:hover,
+.client-card:hover{
+    transform:translateY(-2px);
+    background:#eff6ff;
+}
+
+.production-card span,
+.client-card span{
+    display:block;
+    font-size:.78rem;
+    color:var(--nexus-muted);
+}
+
+.production-card strong,
+.client-card strong{
+    font-size:1.35rem;
+    color:var(--nexus-text);
+}
+
+/* EQUIPE */
+.tecnicos-list{
+    display:grid;
+    grid-template-columns:repeat(4,1fr);
+    gap:.85rem;
+}
+
+.tecnico-card{
+    padding:1rem;
+}
+
+.tecnico-header{
+    display:flex;
+    align-items:center;
+    gap:.75rem;
+    margin-bottom:.9rem;
+}
+
+.tecnico-avatar{
+    width:42px;
+    height:42px;
+    border-radius:14px;
+    background:#2563eb;
+    color:#fff;
+    font-weight:800;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+}
+
+.tecnico-header strong{
+    display:block;
+    color:var(--nexus-text);
+    font-size:.95rem;
+}
+
+.tecnico-header span{
+    font-size:.78rem;
+    color:var(--nexus-muted);
+}
+
+.tecnico-metrics{
+    display:grid;
+    grid-template-columns:repeat(3,1fr);
+    gap:.4rem;
+    margin-bottom:.85rem;
+}
+
+.tecnico-metrics div{
+    background:#fff;
+    border:1px solid #e5e7eb;
+    border-radius:14px;
+    padding:.55rem .35rem;
+    text-align:center;
+}
+
+.tecnico-metrics strong{
+    display:block;
+    font-size:1.1rem;
+    color:var(--nexus-text);
+}
+
+.tecnico-metrics span{
+    font-size:.7rem;
+    color:var(--nexus-muted);
+}
+
+/* EMPTY STATE */
+.dashboard-empty{
+    min-height:170px;
+    background:#f8fafc;
+    border:1px dashed #cbd5e1;
+    border-radius:20px;
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    justify-content:center;
+    gap:.35rem;
+    color:var(--nexus-muted);
+    text-align:center;
+    padding:1rem;
+}
+
+.dashboard-empty.compact{
+    min-height:120px;
+}
+
+.dashboard-empty i{
+    font-size:1.6rem;
+    opacity:.55;
+}
+
+.dashboard-empty strong{
+    color:var(--nexus-text);
+}
+
+.dashboard-empty span{
+    font-size:.82rem;
+}
+
+/* CHARTS */
+.chart-box{
+    position:relative;
+    min-height:260px;
+}
+
+.chart-box canvas{
+    max-height:280px;
+}
+
+    /* RESPONSIVO */
+    @media(max-width:1199px){
+        .operation-grid,
+        .dashboard-actions-grid,
+        .production-grid,
+        .client-grid,
+        .tecnicos-list{
+            grid-template-columns:repeat(2,1fr);
+        }
+
+        .dashboard-grid-main,
+        .dashboard-grid-secondary,
+        .dashboard-charts{
+            grid-template-columns:1fr;
+        }
+
+        .dashboard-hero{
+            align-items:flex-start;
+            flex-direction:column;
+        }
+
+        .dashboard-hero-actions{
+            min-width:100%;
+            width:100%;
+        }
+
+        .work-card{
+            grid-template-columns:1fr;
+        }
+
+        .work-progress span{
+            text-align:left;
+        }
+    }
+
+    @media(max-width:576px){
+        .dashboard-page{
+            padding:.85rem;
+        }
+
+        .dashboard-hero{
+            border-radius:18px;
+            padding:1.1rem;
+        }
+
+        .dashboard-hero h3{
+            font-size:1.3rem;
+        }
+
+        .dashboard-hero-actions,
+        .operation-grid,
+        .dashboard-actions-grid,
+        .production-grid,
+        .client-grid,
+        .tecnicos-list{
+            grid-template-columns:1fr;
+        }
+
+        .dashboard-visit-item{
+            grid-template-columns:58px 1fr;
+        }
+
+        .dashboard-visit-item .btn{
+            grid-column:1 / -1;
+            width:100%;
+        }
+
+        .chart-box{
+            min-height:230px;
+        }
+
+        /* ================================
+    TOPBAR MOBILE / TABLET
+    ================================ */
+
+    @media(max-width:768px){
+
+        .nexus-topbar .navbar{
+            min-height:60px;
+            padding-left:.5rem !important;
+            padding-right:.5rem !important;
+        }
+
+        .nexus-topbar .container-fluid{
+            gap:.5rem !important;
+        }
+
+        .logo-img{
+            max-height:36px;
+            max-width:130px;
+        }
+
+        .nexus-topbar-btn,
+        .nexus-icon-btn{
+            width:38px;
+            height:38px;
+            min-width:38px;
+            border-radius:12px;
+        }
+
+        .nexus-user-btn{
+            padding:0;
+        }
+
+        .nexus-user-btn .user-avatar{
+            width:38px;
+            height:38px;
+            min-width:38px;
+        }
+
+        .nexus-topbar .dropdown-toggle::after{
+            display:none;
+        }
+    }
+
+    @media(max-width:576px){
+
+        .logo-img{
+            max-height:32px;
+            max-width:115px;
+        }
+
+        .nexus-topbar-btn{
+            width:36px;
+            height:36px;
+            min-width:36px;
+        }
+
+        /* Esconde agenda no mobile, pois já existe no menu */
+        .nexus-topbar a[title="Agenda"]{
+            display:none !important;
+        }
+
+        /* Esconde mensagens no mobile pequeno */
+        .nexus-topbar a[title="Mensagens"]{
+            display:none !important;
+        }
+
+        .nexus-notification-badge{
+            top:-3px;
+            right:-3px;
+            min-width:16px;
+            height:16px;
+            font-size:.6rem;
+        }
+    }
+
+    /* ================================
+    DASHBOARD MOBILE
+    ================================ */
+
+    @media(max-width:768px){
+
+        .dashboard-page{
+            padding:.85rem;
+        }
+
+        .dashboard-hero{
+            flex-direction:column;
+            align-items:flex-start;
+            padding:1rem;
+            border-radius:18px;
+        }
+
+        .dashboard-hero-actions{
+            width:100%;
+            min-width:0;
+            grid-template-columns:1fr;
+        }
+
+        .dashboard-hero-actions .btn{
+            width:100%;
+            min-width:0;
+        }
+
+        .operation-grid,
+        .dashboard-actions-grid,
+        .production-grid,
+        .client-grid,
+        .tecnicos-list,
+        .dashboard-grid-main,
+        .dashboard-grid-secondary,
+        .dashboard-charts{
+            grid-template-columns:1fr;
+        }
+
+        .operation-card{
+            align-items:center;
+            padding:.9rem;
+        }
+
+        .dashboard-panel{
+            padding:1rem;
+            border-radius:18px;
+        }
+
+        .dashboard-panel-header{
+            flex-direction:column;
+            align-items:flex-start;
+        }
+
+        .dashboard-panel-header .btn{
+            width:100%;
+        }
+
+        .work-card{
+            grid-template-columns:1fr;
+        }
+
+        .dashboard-visit-item{
+            grid-template-columns:58px 1fr;
+        }
+
+        .dashboard-visit-item .btn{
+            grid-column:1 / -1;
+            width:100%;
+        }
+    }
+
+    @media(max-width:420px){
+
+        .operation-card{
+            gap:.65rem;
+        }
+
+        .operation-icon{
+            width:38px;
+            height:38px;
+            min-width:38px;
+            border-radius:12px;
+        }
+
+        .operation-card strong{
+            font-size:1.35rem;
+        }
+
+        .action-card{
+            min-height:82px;
+        }
+
+        .chart-box{
+            min-height:210px;
+        }
+    }
+}

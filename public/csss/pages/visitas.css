@@ -1,0 +1,165 @@
+.visitas-page-header {
+        background: #ffffff;
+        border: 1px solid #e5e7eb;
+        border-radius: 16px;
+        padding: 20px 24px;
+        box-shadow: 0 4px 14px rgba(15, 23, 42, 0.04);
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 16px;
+        flex-wrap: wrap;
+    }
+
+    .visitas-page-title {
+        font-size: 1.45rem;
+        font-weight: 700;
+        color: #001c3f;
+        margin: 0;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+    }
+
+    .visitas-page-subtitle {
+        color: #64748b;
+        font-size: 0.92rem;
+        margin: 6px 0 0;
+    }
+
+    .visitas-icon {
+        width: 38px;
+        height: 38px;
+        background: linear-gradient(135deg, #034596, #0d6efd);
+        color: #ffffff;
+        border-radius: 10px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    .visitas-tabs-card,
+    .visitas-card {
+        background: #ffffff;
+        border: 1px solid #e5e7eb;
+        border-radius: 16px;
+        box-shadow: 0 4px 14px rgba(15, 23, 42, 0.04);
+    }
+
+    .visitas-tabs-card {
+        padding: 8px;
+        display: inline-flex;
+    }
+
+    .visitas-tabs .nav-link {
+        color: #034596;
+        font-weight: 600;
+        border-radius: 999px;
+        padding: 9px 18px;
+    }
+
+    .visitas-tabs .nav-link.active {
+        background: #034596;
+        color: #ffffff;
+    }
+
+    .visitas-card-header {
+        padding: 20px 22px 12px;
+        border-bottom: 1px solid #f1f5f9;
+    }
+
+    .visitas-card-title {
+        font-size: 1rem;
+        font-weight: 700;
+        color: #001c3f;
+        margin: 0;
+    }
+
+    .visitas-card-subtitle {
+        color: #64748b;
+        font-size: 0.86rem;
+        margin: 5px 0 0;
+    }
+
+    .visitas-calendar-wrapper {
+        padding: 20px 22px 22px;
+    }
+
+    #calendar .fc-toolbar-title,
+    #calendar .fc-col-header-cell-cushion,
+    #calendar .fc-daygrid-day-number,
+    #calendar .fc-event,
+    #calendar .fc-event-title,
+    #calendar .fc-event-time {
+        color: #000000 !important;
+        text-shadow: none !important;
+    }
+
+    #calendar .fc-button {
+        border-radius: 999px !important;
+        font-weight: 600 !important;
+        padding: 6px 14px !important;
+    }
+
+    #calendar .fc-button-primary {
+        background-color: #034596 !important;
+        border-color: #034596 !important;
+    }
+
+    #calendar .fc-button-primary:hover {
+        background-color: #0d6efd !important;
+        border-color: #0d6efd !important;
+    }
+
+    #calendar .fc-event {
+        border: none !important;
+        border-radius: 8px !important;
+        padding: 4px 6px !important;
+        font-weight: 600 !important;
+    }
+
+    #tabelaVisitas thead th {
+        background: #f8fafc;
+        color: #64748b;
+        font-size: 0.78rem;
+        text-transform: uppercase;
+        letter-spacing: 0.03em;
+        border-bottom: 1px solid #e5e7eb;
+    }
+
+    #tabelaVisitas tbody td {
+        color: #334155;
+        vertical-align: middle;
+    }
+
+    #tabelaVisitas td:last-child {
+    white-space: nowrap;
+    min-width: 110px;
+    }
+
+    .dropdown-menu {
+        z-index: 2000;
+    }
+
+    @media (max-width: 768px) {
+        .visitas-page-header {
+            align-items: flex-start;
+        }
+
+        .visitas-page-header .btn {
+            width: 100%;
+        }
+
+        .visitas-tabs-card {
+            width: 100%;
+            display: block;
+        }
+
+        .visitas-tabs {
+            flex-direction: column;
+        }
+
+        .visitas-tabs .nav-link {
+            width: 100%;
+        }
+    }

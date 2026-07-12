@@ -1,0 +1,18 @@
+.badge-soft,
+.pill {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 999px;
+    font-size: 11px;
+    font-weight: 800;
+    white-space: nowrap;
+}
+
+.badge-soft { padding: 6px 9px; }
+.pill { padding: 5px 9px; }
+.b-blue { color: var(--blue); background: #e8f1ff; }
+.b-red { color: var(--red); background: #ffe7e5; }
+.p-low { color: #079455; background: #dcfae6; }
+.p-med { color: #b54708; background: #fff2cc; }
+.p-high { color: #d92d20; background: #ffe4e0; }

@@ -1,0 +1,8 @@
+body {
+    background: var(--bg);
+    color: var(--text);
+}
+
+::selection {
+    background: rgba(7, 94, 234, .18);
+}

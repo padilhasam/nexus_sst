@@ -1,0 +1,10 @@
+.user-avatar {
+    width: 42px;
+    height: 42px;
+    border-radius: 50%;
+    display: grid;
+    place-items: center;
+    color: #fff;
+    background: linear-gradient(135deg, var(--blue), #1d4ed8);
+    font-weight: 800;
+}

@@ -1,0 +1,215 @@
+.setores-desktop-view {
+    display: none !important;
+}
+
+.setores-app-view {
+    display: block;
+}
+
+main.content {
+    background: #f8fafc;
+}
+
+.page-header-setores {
+    border-radius: 1.25rem !important;
+}
+
+.page-header-actions .btn {
+    min-height: 42px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.setores-app-toolbar,
+.setores-pagination {
+    border-radius: 1.25rem !important;
+}
+
+.setores-app-search input {
+    font-size: 16px;
+    min-height: 44px;
+}
+
+.setores-app-list {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 1rem;
+}
+
+.setor-app-card {
+    background: #fff;
+    border: 1px solid #e9ecef;
+    border-radius: 1.25rem;
+    padding: 1rem;
+    box-shadow: 0 4px 14px rgba(15, 23, 42, .05);
+    transition: all .18s ease;
+    width: 100%;
+}
+
+.setor-app-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 10px 24px rgba(15, 23, 42, .08);
+}
+
+.setor-app-card-main {
+    display: flex;
+    gap: .85rem;
+    align-items: flex-start;
+}
+
+.setor-app-icon {
+    width: 46px;
+    height: 46px;
+    min-width: 46px;
+    border-radius: 15px;
+    background: linear-gradient(135deg, #0d6efd, #084298);
+    color: #fff;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.15rem;
+}
+
+.setor-app-content {
+    flex: 1;
+    min-width: 0;
+}
+
+.setor-app-content h5 {
+    font-size: 1rem;
+    font-weight: 800;
+    margin: 0;
+    color: #212529;
+    line-height: 1.25;
+}
+
+.setor-app-subtitle {
+    margin: .25rem 0 .75rem;
+    font-size: .8rem;
+    color: #6c757d;
+    line-height: 1.3;
+}
+
+.setor-app-meta {
+    display: grid;
+    gap: .45rem;
+    font-size: .82rem;
+    color: #6c757d;
+}
+
+.setor-app-meta span {
+    display: flex;
+    align-items: flex-start;
+    gap: .4rem;
+    line-height: 1.3;
+}
+
+.setor-app-meta i {
+    width: 16px;
+    margin-top: .1rem;
+    color: #6c757d;
+}
+
+.setor-app-actions {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: .5rem;
+    margin-top: .95rem;
+    padding-top: .85rem;
+    border-top: 1px solid #f1f3f5;
+}
+
+.setor-app-actions .btn {
+    width: 100%;
+    min-height: 42px;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: .45rem;
+
+    font-size: .86rem;
+    font-weight: 600;
+    text-align: center;
+}
+
+.setores-pagination .btn:disabled {
+    opacity: .45;
+    cursor: not-allowed;
+}
+
+/* ===========================
+   TABLET
+=========================== */
+
+@media (max-width:1199px){
+
+    main.content{
+        padding:.85rem !important;
+    }
+
+    .page-header-setores{
+        padding:1rem !important;
+    }
+
+    .page-header-setores h3{
+        font-size:1.15rem !important;
+        line-height:1.3;
+    }
+
+    .page-header-actions{
+        width:100%;
+        display:grid !important;
+        grid-template-columns:1fr 1fr;
+        gap:.5rem !important;
+    }
+
+    .page-header-actions .btn{
+        width:100%;
+        justify-content:center;
+    }
+
+    .setores-app-list{
+        grid-template-columns:repeat(2,1fr);
+    }
+
+    .modal-body .col-6{
+        width:100%;
+    }
+
+}
+
+/* ===========================
+   MOBILE
+=========================== */
+
+@media (max-width:576px){
+
+    .page-header-actions{
+        grid-template-columns:1fr;
+    }
+
+    .setores-app-list{
+        grid-template-columns:1fr;
+    }
+
+    .setor-app-card-main{
+        gap:.7rem;
+    }
+
+    .setor-app-actions{
+        grid-template-columns:1fr;
+    }
+
+    .toast-container{
+        left:0 !important;
+        right:0 !important;
+        padding:.75rem !important;
+    }
+
+    .toast{
+        width:100%;
+    }
+
+}

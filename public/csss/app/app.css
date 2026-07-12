@@ -1,0 +1,14 @@
+body{
+    background:var(--nexus-bg);
+}
+.app-wrapper {
+    display:flex;
+    flex-direction:column;
+    height:100vh;
+}
+
+.app-body {
+    display:flex;
+    flex:1;
+    min-height:0;
+}

@@ -1,0 +1,11 @@
+.u-flex { display: flex; }
+.u-grid { display: grid; }
+.u-items-center { align-items: center; }
+.u-justify-between { justify-content: space-between; }
+.u-gap-2 { gap: .5rem; }
+.u-gap-3 { gap: .75rem; }
+.u-gap-4 { gap: 1rem; }
+.u-w-full { width: 100%; }
+.u-text-muted { color: var(--muted); }
+.u-text-right { text-align: right; }
+.u-nowrap { white-space: nowrap; }
