@@ -259,23 +259,56 @@
 /* Botão sair */
 .sst-logout {
     flex: 0 0 auto;
-    flex-shrink: 0;
+    min-height: 54px;
+    margin: 12px 0 0;
+    padding: 10px 12px;
 
-    min-height: 58px;
-
-    margin: 8px 0 0;
-    padding: 14px 12px;
-
+    display: flex;
+    align-items: center;
     gap: 10px;
 
-    border-top: 1px solid rgba(255, 255, 255, .12);
-    border-radius: 0;
+    border: 1px solid rgba(255, 255, 255, .10);
+    border-radius: 12px;
 
     color: #cbd5e1;
-    background: #03162f;
+    background: rgba(255, 255, 255, .04);
+    text-decoration: none;
+    font-size: 13px;
+    font-weight: 700;
 
-    position: relative;
-    z-index: 2;
+    transition:
+        background-color .18s ease,
+        border-color .18s ease,
+        color .18s ease,
+        transform .18s ease;
+}
+
+.sst-logout > i {
+    width: 32px;
+    height: 32px;
+    min-width: 32px;
+
+    display: grid;
+    place-items: center;
+
+    border-radius: 9px;
+
+    color: #fda4af;
+    background: rgba(244, 63, 94, .14);
+
+    font-size: 14px;
+}
+
+.sst-logout:hover {
+    color: #ffffff;
+    border-color: rgba(244, 63, 94, .28);
+    background: rgba(244, 63, 94, .14);
+    transform: translateY(-1px);
+}
+
+.sst-logout:hover > i {
+    color: #ffffff;
+    background: #e11d48;
 }
 
 .sst-logout:hover {
@@ -338,15 +371,18 @@
     }
 
     .sst-logout {
-        flex: 0 0 58px;
-
+        flex: 0 0 auto;
         width: calc(100% + 28px);
-        min-height: 58px;
+        margin: 8px -14px 0;
+        padding:
+            10px
+            26px
+            max(10px, env(safe-area-inset-bottom));
 
-        margin: 0 -14px;
-        padding: 14px 26px max(14px, env(safe-area-inset-bottom));
-
-        border-top: 1px solid rgba(255, 255, 255, .12);
+        border-right: 0;
+        border-bottom: 0;
+        border-left: 0;
+        border-radius: 0;
         background: #03162f;
     }
 

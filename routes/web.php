@@ -80,6 +80,7 @@ $router->any('/riscos/excluir/{id}', 'RiscosController', 'excluir');
 $router->any('/agenda', 'AgendasController', 'index');
 $router->any('/agenda/criar', 'AgendasController', 'criar');
 $router->post('/agenda/salvar', 'AgendasController', 'salvar');
+$router->any('/agenda/visualizar/{id}', 'AgendasController', 'visualizar');
 $router->any('/agenda/editar/{id}', 'AgendasController', 'editar');
 $router->post('/agenda/atualizar/{id}', 'AgendasController', 'atualizar');
 $router->post('/agenda/cancelar/{id}', 'AgendasController', 'cancelar');

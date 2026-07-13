@@ -133,8 +133,7 @@ require_once dirname(__DIR__) . '/templates/header.php';
 
 <section class="dash-grid desktop-only">
 
-    <article class="panel">
-
+    <article class="panel dashboard-chart-card dashboard-status-card">
         <h2>Visitas por Status</h2>
 
         <div class="donut-row">
@@ -262,12 +261,10 @@ require_once dirname(__DIR__) . '/templates/header.php';
 
     </article>
 
-    <article class="panel">
-
+    <article class="panel dashboard-chart-card dashboard-gravity-card">
         <h2>Não Conformidades por Gravidade</h2>
 
         <div class="bar-chart">
-
             <div
                 class="bar"
                 style="height: 90px; background: #f04438;"

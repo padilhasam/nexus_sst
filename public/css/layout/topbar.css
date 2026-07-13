@@ -111,6 +111,11 @@
     text-decoration: none;
 }
 
+/* Deve ficar depois de .icon-btn */
+.sst-topbar .sst-menu-button {
+    display: none;
+}
+
 .icon-btn:hover {
     color: var(--blue);
     background: #f2f5fa;
@@ -126,6 +131,12 @@
     border: 2px solid #fff;
     border-radius: 50%;
     background: var(--red);
+}
+
+@media (max-width: 1100px) {
+    .sst-topbar .sst-menu-button {
+        display: inline-grid;
+    }
 }
 
 @media (max-width: 900px) {

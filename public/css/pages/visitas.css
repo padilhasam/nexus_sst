@@ -1,165 +1,615 @@
-.visitas-page-header {
-        background: #ffffff;
-        border: 1px solid #e5e7eb;
-        border-radius: 16px;
-        padding: 20px 24px;
-        box-shadow: 0 4px 14px rgba(15, 23, 42, 0.04);
-        display: flex;
-        align-items: center;
-        justify-content: space-between;
-        gap: 16px;
-        flex-wrap: wrap;
-    }
+.visitas-page {
+    width: 100%;
+}
 
-    .visitas-page-title {
-        font-size: 1.45rem;
-        font-weight: 700;
-        color: #001c3f;
-        margin: 0;
-        display: flex;
-        align-items: center;
-        gap: 10px;
-    }
+.visitas-toolbar {
+    margin-bottom: 18px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 18px;
+}
 
-    .visitas-page-subtitle {
-        color: #64748b;
-        font-size: 0.92rem;
-        margin: 6px 0 0;
-    }
+.visitas-toolbar-info p {
+    margin: 0;
+    color: var(--muted);
+    font-size: 13px;
+}
 
-    .visitas-icon {
-        width: 38px;
-        height: 38px;
-        background: linear-gradient(135deg, #034596, #0d6efd);
-        color: #ffffff;
-        border-radius: 10px;
-        display: flex;
-        align-items: center;
-        justify-content: center;
-    }
-
-    .visitas-tabs-card,
-    .visitas-card {
-        background: #ffffff;
-        border: 1px solid #e5e7eb;
-        border-radius: 16px;
-        box-shadow: 0 4px 14px rgba(15, 23, 42, 0.04);
-    }
-
-    .visitas-tabs-card {
-        padding: 8px;
-        display: inline-flex;
-    }
-
-    .visitas-tabs .nav-link {
-        color: #034596;
-        font-weight: 600;
-        border-radius: 999px;
-        padding: 9px 18px;
-    }
-
-    .visitas-tabs .nav-link.active {
-        background: #034596;
-        color: #ffffff;
-    }
-
-    .visitas-card-header {
-        padding: 20px 22px 12px;
-        border-bottom: 1px solid #f1f5f9;
-    }
-
-    .visitas-card-title {
-        font-size: 1rem;
-        font-weight: 700;
-        color: #001c3f;
-        margin: 0;
-    }
-
-    .visitas-card-subtitle {
-        color: #64748b;
-        font-size: 0.86rem;
-        margin: 5px 0 0;
-    }
-
-    .visitas-calendar-wrapper {
-        padding: 20px 22px 22px;
-    }
-
-    #calendar .fc-toolbar-title,
-    #calendar .fc-col-header-cell-cushion,
-    #calendar .fc-daygrid-day-number,
-    #calendar .fc-event,
-    #calendar .fc-event-title,
-    #calendar .fc-event-time {
-        color: #000000 !important;
-        text-shadow: none !important;
-    }
-
-    #calendar .fc-button {
-        border-radius: 999px !important;
-        font-weight: 600 !important;
-        padding: 6px 14px !important;
-    }
-
-    #calendar .fc-button-primary {
-        background-color: #034596 !important;
-        border-color: #034596 !important;
-    }
-
-    #calendar .fc-button-primary:hover {
-        background-color: #0d6efd !important;
-        border-color: #0d6efd !important;
-    }
-
-    #calendar .fc-event {
-        border: none !important;
-        border-radius: 8px !important;
-        padding: 4px 6px !important;
-        font-weight: 600 !important;
-    }
-
-    #tabelaVisitas thead th {
-        background: #f8fafc;
-        color: #64748b;
-        font-size: 0.78rem;
-        text-transform: uppercase;
-        letter-spacing: 0.03em;
-        border-bottom: 1px solid #e5e7eb;
-    }
-
-    #tabelaVisitas tbody td {
-        color: #334155;
-        vertical-align: middle;
-    }
-
-    #tabelaVisitas td:last-child {
+.visitas-toolbar-button {
+    min-height: 42px;
+    padding: 0 16px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    border-radius: 9px;
+    font-size: 13px;
+    font-weight: 700;
     white-space: nowrap;
-    min-width: 110px;
+}
+
+.visitas-tabs-wrapper {
+    margin-bottom: 18px;
+    overflow: hidden;
+    border: 1px solid var(--line);
+    border-radius: 12px;
+    background: #ffffff;
+    box-shadow: var(--shadow);
+}
+
+.visitas-tabs {
+    display: flex;
+    align-items: center;
+    padding: 0 14px;
+}
+
+.visitas-tabs a {
+    min-height: 52px;
+    padding: 0 18px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    border-bottom: 3px solid transparent;
+    color: var(--muted);
+    font-size: 13px;
+    font-weight: 700;
+    text-decoration: none;
+}
+
+.visitas-tabs a:hover {
+    color: var(--blue);
+}
+
+.visitas-tabs a.active {
+    color: var(--blue);
+    border-bottom-color: var(--blue);
+}
+
+.visitas-grid {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 16px;
+}
+
+.visita-card {
+    min-width: 0;
+    overflow: hidden;
+    border: 1px solid var(--line);
+    border-radius: 14px;
+    background: #ffffff;
+    box-shadow: var(--shadow);
+    transition:
+        transform .18s ease,
+        box-shadow .18s ease;
+}
+
+.visita-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 12px 26px rgba(16, 24, 40, .10);
+}
+
+.visita-card-header {
+    min-width: 0;
+    padding: 16px;
+    display: grid;
+    grid-template-columns: 48px minmax(0, 1fr) auto;
+    gap: 12px;
+    align-items: center;
+    border-bottom: 1px solid var(--line);
+}
+
+.visita-data {
+    width: 48px;
+    height: 48px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    border-radius: 11px;
+    background: #eef4ff;
+    color: var(--blue);
+}
+
+.visita-data strong {
+    font-size: 18px;
+    line-height: 1;
+}
+
+.visita-data span {
+    margin-top: 3px;
+    font-size: 9px;
+    font-weight: 800;
+}
+
+.visita-identificacao {
+    min-width: 0;
+}
+
+.visita-identificacao h3 {
+    margin: 0;
+    overflow: hidden;
+    color: var(--text);
+    font-size: 14px;
+    font-weight: 800;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.visita-identificacao p {
+    margin: 4px 0 0;
+    color: var(--muted);
+    font-size: 11px;
+}
+
+.visita-prioridade {
+    min-height: 26px;
+    padding: 4px 9px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 999px;
+    font-size: 10px;
+    font-weight: 800;
+    white-space: nowrap;
+}
+
+.visita-prioridade.padrao {
+    color: #075eea;
+    background: #e8f1ff;
+}
+
+.visita-prioridade.urgente {
+    color: #b54708;
+    background: #fff1e8;
+}
+
+.visita-prioridade.critica {
+    color: #d92d20;
+    background: #fee4e2;
+}
+
+.visita-card-body {
+    padding: 14px 16px;
+    display: grid;
+    gap: 12px;
+}
+
+.visita-info-item {
+    min-width: 0;
+    display: grid;
+    grid-template-columns: 30px minmax(0, 1fr);
+    gap: 10px;
+    align-items: center;
+}
+
+.visita-info-item > i {
+    width: 30px;
+    height: 30px;
+    display: grid;
+    place-items: center;
+    border-radius: 8px;
+    background: #f2f6fc;
+    color: var(--blue);
+    font-size: 12px;
+}
+
+.visita-info-item span {
+    display: block;
+    color: var(--muted);
+    font-size: 10px;
+}
+
+.visita-info-item strong {
+    display: block;
+    margin-top: 2px;
+    overflow: hidden;
+    color: var(--text);
+    font-size: 12px;
+    font-weight: 700;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.visita-card-actions {
+    padding: 14px 16px;
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    gap: 8px;
+    border-top: 1px solid var(--line);
+    background: #fbfcfe;
+}
+
+.visita-card-actions .btn {
+    min-height: 38px;
+    padding: 0 13px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 7px;
+    border-radius: 8px;
+    font-size: 11px;
+    font-weight: 700;
+}
+
+.visitas-empty-state {
+    grid-column: 1 / -1;
+    padding: 64px 20px;
+    border: 1px solid var(--line);
+    border-radius: 14px;
+    background: #ffffff;
+    box-shadow: var(--shadow);
+    text-align: center;
+}
+
+.visitas-empty-state > i {
+    margin-bottom: 14px;
+    color: #98a2b3;
+    font-size: 42px;
+}
+
+.visitas-empty-state h3 {
+    margin: 0 0 6px;
+    color: var(--text);
+    font-size: 17px;
+    font-weight: 800;
+}
+
+.visitas-empty-state p {
+    margin: 0 0 18px;
+    color: var(--muted);
+}
+
+.visitas-empty-state .btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 7px;
+    border-radius: 9px;
+}
+
+@media (max-width: 1280px) {
+    .visitas-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+}
+
+@media (max-width: 760px) {
+    .visitas-toolbar {
+        align-items: stretch;
+        flex-direction: column;
     }
 
-    .dropdown-menu {
-        z-index: 2000;
+    .visitas-toolbar-button {
+        width: 100%;
     }
 
-    @media (max-width: 768px) {
-        .visitas-page-header {
-            align-items: flex-start;
-        }
-
-        .visitas-page-header .btn {
-            width: 100%;
-        }
-
-        .visitas-tabs-card {
-            width: 100%;
-            display: block;
-        }
-
-        .visitas-tabs {
-            flex-direction: column;
-        }
-
-        .visitas-tabs .nav-link {
-            width: 100%;
-        }
+    .visitas-tabs {
+        padding: 0 6px;
     }
+
+    .visitas-tabs a {
+        flex: 1;
+        min-width: 0;
+        padding: 0 8px;
+        gap: 5px;
+        font-size: 11px;
+    }
+
+    .visitas-tabs a i {
+        display: none;
+    }
+
+    .visitas-grid {
+        grid-template-columns: 1fr;
+    }
+
+    .visita-card-header {
+        grid-template-columns: 44px minmax(0, 1fr);
+    }
+
+    .visita-prioridade {
+        grid-column: 1 / -1;
+        justify-self: start;
+    }
+
+    .visita-card-actions {
+        display: grid;
+        grid-template-columns: 1fr;
+    }
+
+    .visita-card-actions .btn {
+        width: 100%;
+    }
+}
+
+.agenda-detalhes-page {
+    width: 100%;
+}
+
+.agenda-detalhes-toolbar {
+    margin-bottom: 18px;
+
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 18px;
+}
+
+.agenda-detalhes-code {
+    display: block;
+
+    margin-bottom: 4px;
+
+    color: var(--blue);
+    font-size: 11px;
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: .04em;
+}
+
+.agenda-detalhes-toolbar h2 {
+    margin: 0;
+
+    color: var(--text);
+    font-size: 21px;
+    font-weight: 800;
+}
+
+.agenda-detalhes-toolbar p {
+    margin: 4px 0 0;
+
+    color: var(--muted);
+    font-size: 12px;
+}
+
+.visita-voltar-button {
+    min-height: 40px;
+    padding: 0 15px;
+
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 7px;
+
+    border-radius: 9px;
+
+    font-size: 12px;
+    font-weight: 700;
+}
+
+.agenda-detalhes-card {
+    overflow: hidden;
+
+    border: 1px solid var(--line);
+    border-radius: 14px;
+
+    background: #ffffff;
+    box-shadow: var(--shadow);
+}
+
+.agenda-detalhes-card-header {
+    min-height: 72px;
+    padding: 16px 20px;
+
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 18px;
+
+    border-bottom: 1px solid var(--line);
+}
+
+.agenda-detalhes-card-header > div {
+    min-width: 0;
+}
+
+.agenda-detalhes-header-label {
+    display: block;
+
+    margin-bottom: 3px;
+
+    color: var(--muted);
+    font-size: 10px;
+    font-weight: 700;
+    text-transform: uppercase;
+}
+
+.agenda-detalhes-card-header strong {
+    display: block;
+
+    overflow: hidden;
+
+    color: var(--text);
+    font-size: 15px;
+    font-weight: 800;
+
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.agenda-detalhes-grid {
+    padding: 20px;
+
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 16px;
+}
+
+.agenda-detalhes-item {
+    min-width: 0;
+    min-height: 76px;
+    padding: 14px;
+
+    display: grid;
+    grid-template-columns: 38px minmax(0, 1fr);
+    gap: 11px;
+    align-items: center;
+
+    border: 1px solid var(--line);
+    border-radius: 11px;
+
+    background: #fbfcfe;
+}
+
+.agenda-detalhes-icon {
+    width: 38px;
+    height: 38px;
+
+    display: grid;
+    place-items: center;
+
+    border-radius: 10px;
+
+    background: #e8f1ff;
+    color: var(--blue);
+}
+
+.agenda-detalhes-item span {
+    display: block;
+
+    color: var(--muted);
+    font-size: 10px;
+}
+
+.agenda-detalhes-item strong {
+    display: block;
+
+    margin-top: 3px;
+
+    overflow: hidden;
+
+    color: var(--text);
+    font-size: 12px;
+    font-weight: 800;
+
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.agenda-detalhes-textos {
+    padding: 0 20px 20px;
+
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+}
+
+.agenda-detalhes-texto {
+    padding: 16px;
+
+    border: 1px solid var(--line);
+    border-radius: 11px;
+
+    background: #f8fafc;
+}
+
+.agenda-detalhes-texto h3 {
+    margin: 0 0 10px;
+
+    color: var(--text);
+    font-size: 12px;
+    font-weight: 800;
+}
+
+.agenda-detalhes-texto h3 i {
+    margin-right: 6px;
+    color: var(--blue);
+}
+
+.agenda-detalhes-texto p {
+    margin: 0;
+
+    color: #475467;
+    font-size: 12px;
+    line-height: 1.6;
+}
+
+.agenda-detalhes-actions {
+    padding: 14px 20px;
+
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 14px;
+
+    border-top: 1px solid var(--line);
+    background: #fbfcfe;
+}
+
+.agenda-detalhes-actions form {
+    margin: 0;
+}
+
+.agenda-detalhes-actions-main,
+.agenda-detalhes-actions-danger {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.agenda-detalhes-actions .btn {
+    min-height: 40px;
+    padding: 0 14px;
+
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 7px;
+
+    border-radius: 9px;
+
+    font-size: 11px;
+    font-weight: 700;
+}
+
+@media (max-width: 991px) {
+    .agenda-detalhes-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+}
+
+@media (max-width: 640px) {
+    .agenda-detalhes-toolbar {
+        align-items: stretch;
+        flex-direction: column;
+    }
+
+    .visita-voltar-button {
+        width: 100%;
+    }
+
+    .agenda-detalhes-card-header {
+        align-items: flex-start;
+        flex-direction: column;
+    }
+
+    .agenda-detalhes-grid {
+        grid-template-columns: 1fr;
+        padding: 14px;
+    }
+
+    .agenda-detalhes-textos {
+        grid-template-columns: 1fr;
+        padding: 0 14px 14px;
+    }
+
+    .agenda-detalhes-actions {
+        align-items: stretch;
+        flex-direction: column-reverse;
+        padding: 14px;
+    }
+
+    .agenda-detalhes-actions-main,
+    .agenda-detalhes-actions-danger {
+        width: 100%;
+        display: grid;
+        grid-template-columns: 1fr;
+    }
+
+    .agenda-detalhes-actions form,
+    .agenda-detalhes-actions .btn {
+        width: 100%;
+    }
+}

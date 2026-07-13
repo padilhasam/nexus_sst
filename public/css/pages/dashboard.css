@@ -579,6 +579,116 @@
     .period-filter input {
         width: 120px;
     }
+
+    /* ==========================
+    Visitas por Status - Mobile
+    ========================== */
+
+    .donut-row {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        gap: 20px;
+    }
+
+    .donut {
+        margin: 0 auto;
+    }
+
+    .legend {
+        width: 100%;
+        max-width: 260px;
+
+        display: flex;
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 8px;
+        margin: 0 auto;
+    }
+
+    .legend span {
+        width: 100%;
+    }
+}
+
+/* Cards de gráficos */
+
+.dashboard-chart-card {
+    min-width: 0;
+    min-height: 280px;
+
+    display: flex;
+    flex-direction: column;
+}
+
+.dashboard-chart-card > h2 {
+    flex: 0 0 auto;
+}
+
+.dashboard-status-card .donut-row,
+.dashboard-gravity-card .bar-chart {
+    flex: 1;
+}
+
+/* Visitas por Status */
+
+.dashboard-status-card .donut-row {
+    width: 100%;
+    min-width: 0;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: clamp(18px, 2vw, 32px);
+}
+
+.dashboard-status-card .donut {
+    width: clamp(130px, 11vw, 158px);
+    height: clamp(130px, 11vw, 158px);
+    min-width: clamp(130px, 11vw, 158px);
+}
+
+.dashboard-status-card .donut::after {
+    inset: 28%;
+}
+
+.dashboard-status-card .legend {
+    min-width: 0;
+    max-width: 220px;
+
+    display: grid;
+    gap: 10px;
+
+    font-size: 11px;
+}
+
+.dashboard-status-card .legend span {
+    min-width: 0;
+    white-space: normal;
+    line-height: 1.25;
+}
+
+/* Não conformidades por gravidade */
+
+.dashboard-gravity-card .bar-chart {
+    width: 100%;
+    min-width: 0;
+    height: 210px;
+
+    margin: 6px 0 28px;
+    padding: 18px 8px 0;
+
+    display: flex;
+    align-items: flex-end;
+    justify-content: space-evenly;
+    gap: clamp(10px, 2vw, 26px);
+}
+
+.dashboard-gravity-card .bar {
+    width: clamp(28px, 3vw, 42px);
+    min-width: 24px;
+    max-width: 42px;
 }
 
 /* Responsividade */
@@ -597,6 +707,27 @@
     }
 }
 
+@media (max-width: 1280px) {
+    .dashboard-status-card .donut-row {
+        gap: 20px;
+    }
+
+    .dashboard-status-card .donut {
+        width: 138px;
+        height: 138px;
+        min-width: 138px;
+    }
+
+    .dashboard-status-card .legend {
+        max-width: 190px;
+        font-size: 10px;
+    }
+
+    .dashboard-gravity-card .bar-chart {
+        height: 220px;
+    }
+}
+
 @media (max-width: 1100px) {
     .kpi-grid {
         grid-template-columns: repeat(2, minmax(0, 1fr));
@@ -609,6 +740,62 @@
 
     .dash-grid .panel:last-child {
         grid-column: auto;
+    }
+}
+
+@media (max-width: 760px) {
+    .dashboard-chart-card {
+        min-height: auto;
+    }
+
+    .dashboard-chart-card > h2 {
+        text-align: center;
+    }
+
+    .dashboard-status-card .donut-row {
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        gap: 18px;
+    }
+
+    .dashboard-status-card .donut {
+        width: 150px;
+        height: 150px;
+        min-width: 150px;
+        margin: 0 auto;
+    }
+
+    .dashboard-status-card .legend {
+        width: 100%;
+        max-width: 245px;
+        margin: 0 auto;
+
+        gap: 8px;
+    }
+
+    .dashboard-status-card .legend span {
+        width: 100%;
+    }
+
+    .dashboard-gravity-card .bar-chart {
+        width: 100%;
+        height: 220px;
+
+        margin: 10px 0 28px;
+        padding: 18px 4px 0;
+
+        gap: 8px;
+    }
+
+    .dashboard-gravity-card .bar {
+        width: clamp(26px, 11vw, 38px);
+        min-width: 24px;
+    }
+
+    .dashboard-gravity-card .bar small {
+        width: 52px;
+        font-size: 9px;
     }
 }
 
