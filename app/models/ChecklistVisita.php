@@ -571,6 +571,239 @@ class ChecklistVisita extends Model
         return compact('hierarquias', 'funcionarios', 'ghes', 'riscos', 'percentual');
     }
 
+    public function obterSituacaoFinalizacao(int $checklistId, array $checklist): array
+    {
+        $status = strtoupper((string)($checklist['status'] ?? 'ABERTO'));
+        $pendencias = [];
+
+        if ($status === 'CONCLUIDO') {
+            return [
+                'pode_finalizar' => false,
+                'concluido' => true,
+                'pendencias' => [],
+            ];
+        }
+
+        if ($status === 'CANCELADO') {
+            return [
+                'pode_finalizar' => false,
+                'concluido' => false,
+                'pendencias' => ['O check-list está cancelado.'],
+            ];
+        }
+
+        if (empty($checklist['unidade_id'])) {
+            $pendencias[] = 'Definir a unidade da visita.';
+        }
+
+        $hierarquias = (int)$this->contarContexto('hierarquias', $checklist);
+        $funcionarios = (int)$this->contarContexto('funcionarios', $checklist, 'ativo = 1');
+
+        if ($hierarquias <= 0) {
+            $pendencias[] = 'Cadastrar ao menos um setor e cargo na hierarquia.';
+        }
+
+        if ($funcionarios <= 0) {
+            $pendencias[] = 'Cadastrar ao menos um funcionário ativo.';
+        }
+
+        $stmt = $this->db->prepare("
+            SELECT
+                COUNT(*) AS total_ghes,
+                SUM(
+                    CASE WHEN NOT EXISTS (
+                        SELECT 1 FROM ghe_cargos gc WHERE gc.ghe_id = g.id
+                    ) THEN 1 ELSE 0 END
+                ) AS ghes_sem_cargo,
+                SUM(
+                    CASE WHEN NOT EXISTS (
+                        SELECT 1 FROM ghe_riscos gr WHERE gr.ghe_id = g.id
+                    ) THEN 1 ELSE 0 END
+                ) AS ghes_sem_risco
+            FROM ghes g
+            WHERE g.checklist_id = :checklist_id
+              AND g.ativo = 1
+        ");
+        $stmt->execute([':checklist_id' => $checklistId]);
+        $resumoGhe = $stmt->fetch(PDO::FETCH_ASSOC) ?: [];
+
+        $totalGhes = (int)($resumoGhe['total_ghes'] ?? 0);
+        $ghesSemCargo = (int)($resumoGhe['ghes_sem_cargo'] ?? 0);
+        $ghesSemRisco = (int)($resumoGhe['ghes_sem_risco'] ?? 0);
+
+        if ($totalGhes <= 0) {
+            $pendencias[] = 'Criar ao menos um GHE.';
+        } else {
+            if ($ghesSemCargo > 0) {
+                $pendencias[] = 'Vincular cargos a todos os GHEs ativos.';
+            }
+            if ($ghesSemRisco > 0) {
+                $pendencias[] = 'Aplicar ao menos um risco em cada GHE ativo.';
+            }
+        }
+
+        return [
+            'pode_finalizar' => $pendencias === [],
+            'concluido' => false,
+            'pendencias' => $pendencias,
+            'hierarquias' => $hierarquias,
+            'funcionarios' => $funcionarios,
+            'ghes' => $totalGhes,
+        ];
+    }
+
+    public function finalizar(int $checklistId, int $usuarioId): bool
+    {
+        try {
+            $this->db->beginTransaction();
+
+            $stmt = $this->db->prepare("
+                SELECT
+                    cv.*,
+                    vt.status AS visita_status,
+                    vt.agenda_id,
+                    a.status AS agenda_status
+                FROM checklists_visita cv
+                INNER JOIN visitas_tecnicas vt ON vt.id = cv.visita_id
+                LEFT JOIN agendas a ON a.id = vt.agenda_id
+                WHERE cv.id = :id
+                LIMIT 1
+                FOR UPDATE
+            ");
+            $stmt->execute([':id' => $checklistId]);
+            $checklist = $stmt->fetch(PDO::FETCH_ASSOC);
+
+            if (!$checklist) {
+                throw new RuntimeException('Check-list não encontrado.');
+            }
+
+            $statusChecklist = strtoupper((string)$checklist['status']);
+            if ($statusChecklist === 'CONCLUIDO') {
+                $this->db->commit();
+                return true;
+            }
+
+            if ($statusChecklist === 'CANCELADO') {
+                throw new RuntimeException('Um check-list cancelado não pode ser finalizado.');
+            }
+
+            $situacao = $this->obterSituacaoFinalizacao($checklistId, $checklist);
+            if (!$situacao['pode_finalizar']) {
+                throw new RuntimeException(
+                    'Complete os itens obrigatórios antes de finalizar: ' .
+                    implode(' ', $situacao['pendencias'])
+                );
+            }
+
+            $stmt = $this->db->prepare("
+                UPDATE checklists_visita
+                SET status = 'CONCLUIDO',
+                    data_fim = NOW(),
+                    ultima_aba = 'dados',
+                    atualizado_em = NOW()
+                WHERE id = :id
+            ");
+            $stmt->execute([':id' => $checklistId]);
+
+            $stmt = $this->db->prepare("
+                UPDATE visitas_tecnicas
+                SET status = 'FINALIZADA',
+                    finalizado_em = NOW(),
+                    atualizado_por = :usuario_id,
+                    atualizado_em = NOW()
+                WHERE id = :visita_id
+            ");
+            $stmt->execute([
+                ':usuario_id' => $usuarioId,
+                ':visita_id' => (int)$checklist['visita_id'],
+            ]);
+
+            if (strtoupper((string)$checklist['visita_status']) !== 'FINALIZADA') {
+                $stmt = $this->db->prepare("
+                    INSERT INTO visita_historico (
+                        visita_id,
+                        usuario_id,
+                        acao,
+                        status_anterior,
+                        status_novo,
+                        motivo
+                    ) VALUES (
+                        :visita_id,
+                        :usuario_id,
+                        'FINALIZACAO_CHECKLIST',
+                        :status_anterior,
+                        'FINALIZADA',
+                        'Check-list concluído pelo técnico responsável.'
+                    )
+                ");
+                $stmt->execute([
+                    ':visita_id' => (int)$checklist['visita_id'],
+                    ':usuario_id' => $usuarioId,
+                    ':status_anterior' => (string)$checklist['visita_status'],
+                ]);
+            }
+
+            $agendaId = (int)($checklist['agenda_id'] ?? 0);
+            $statusAgenda = strtoupper((string)($checklist['agenda_status'] ?? ''));
+            if ($agendaId > 0 && !in_array($statusAgenda, ['CANCELADO', 'EXCLUIDO'], true)) {
+                $stmt = $this->db->prepare("
+                    UPDATE agendas
+                    SET status = 'CONCLUIDO',
+                        atualizado_por = :usuario_id,
+                        atualizado_em = NOW()
+                    WHERE id = :agenda_id
+                ");
+                $stmt->execute([
+                    ':usuario_id' => $usuarioId,
+                    ':agenda_id' => $agendaId,
+                ]);
+
+                if ($statusAgenda !== 'CONCLUIDO') {
+                    $stmt = $this->db->prepare("
+                        INSERT INTO agenda_historico (
+                            agenda_id,
+                            usuario_id,
+                            acao,
+                            descricao,
+                            dados_anteriores,
+                            dados_novos
+                        ) VALUES (
+                            :agenda_id,
+                            :usuario_id,
+                            'CONCLUIDA',
+                            'Check-list finalizado. A visita técnica foi concluída.',
+                            :dados_anteriores,
+                            :dados_novos
+                        )
+                    ");
+                    $stmt->execute([
+                        ':agenda_id' => $agendaId,
+                        ':usuario_id' => $usuarioId,
+                        ':dados_anteriores' => json_encode([
+                            'status_agenda' => $statusAgenda,
+                            'status_visita' => (string)$checklist['visita_status'],
+                            'status_checklist' => $statusChecklist,
+                        ], JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES),
+                        ':dados_novos' => json_encode([
+                            'status_agenda' => 'CONCLUIDO',
+                            'status_visita' => 'FINALIZADA',
+                            'status_checklist' => 'CONCLUIDO',
+                            'checklist_id' => $checklistId,
+                        ], JSON_UNESCAPED_UNICODE | JSON_UNESCAPED_SLASHES),
+                    ]);
+                }
+            }
+
+            $this->db->commit();
+            return true;
+        } catch (Throwable $erro) {
+            if ($this->db->inTransaction()) {
+                $this->db->rollBack();
+            }
+            throw $erro;
+        }
+    }
+
     private function buscarContextoOperacional(int $checklistId): array
     {
         $stmt = $this->db->prepare('SELECT * FROM checklists_visita WHERE id = :id LIMIT 1');

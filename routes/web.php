@@ -109,6 +109,7 @@ $router->post('/checklists/{id}/funcionarios/salvar', 'ChecklistsController', 's
 $router->post('/checklists/{id}/funcionarios/inativar/{funcionarioId}', 'ChecklistsController', 'inativarFuncionario');
 $router->post('/checklists/{id}/ghe/salvar', 'ChecklistsController', 'salvarGhe');
 $router->post('/checklists/{id}/ghe/{gheId}/riscos/salvar', 'ChecklistsController', 'salvarRiscoGhe');
+$router->post('/checklists/{id}/finalizar', 'ChecklistsController', 'finalizar');
 
 $router->any('/levantamentos', 'LevantamentosController', 'index');
 $router->any('/levantamentos/criar', 'LevantamentosController', 'criar');

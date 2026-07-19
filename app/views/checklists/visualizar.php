@@ -12,6 +12,13 @@ $visitaId = (int)($c['visita_id'] ?? 0);
 $percentual = max(0, min(100, (int)($progresso['percentual'] ?? 10)));
 $statusChecklist = strtoupper((string)($c['status'] ?? 'ABERTO'));
 $somenteLeitura = in_array($statusChecklist, ['CONCLUIDO', 'CANCELADO'], true);
+$finalizacao = $finalizacao ?? [
+    'pode_finalizar' => false,
+    'concluido' => $statusChecklist === 'CONCLUIDO',
+    'pendencias' => [],
+];
+$podeFinalizar = (bool)($finalizacao['pode_finalizar'] ?? false);
+$pendenciasFinalizacao = $finalizacao['pendencias'] ?? [];
 
 $empresaNome = !empty($c['empresa_fantasia'])
     ? $c['empresa_fantasia']
@@ -155,15 +162,32 @@ $abas = [
                 Voltar
             </a>
 
-            <button
-                class="btn btn-primary checklist-detail-finish"
-                type="button"
-                disabled
-                title="A finalização será habilitada após a implementação das demais etapas operacionais."
-            >
-                <i class="fa-solid fa-flag-checkered"></i>
-                Finalizar check-list
-            </button>
+            <?php if ($statusChecklist === 'CONCLUIDO'): ?>
+                <button class="btn btn-success checklist-detail-finish" type="button" disabled>
+                    <i class="fa-solid fa-circle-check"></i>
+                    Check-list concluído
+                </button>
+            <?php elseif ($podeFinalizar): ?>
+                <button
+                    class="btn btn-primary checklist-detail-finish"
+                    type="button"
+                    data-bs-toggle="modal"
+                    data-bs-target="#modalFinalizarChecklist"
+                >
+                    <i class="fa-solid fa-flag-checkered"></i>
+                    Finalizar check-list
+                </button>
+            <?php else: ?>
+                <button
+                    class="btn btn-primary checklist-detail-finish"
+                    type="button"
+                    disabled
+                    title="<?= htmlspecialchars(implode(' ', $pendenciasFinalizacao)) ?>"
+                >
+                    <i class="fa-solid fa-flag-checkered"></i>
+                    Finalizar check-list
+                </button>
+            <?php endif; ?>
         </div>
     </header>
 
@@ -179,6 +203,26 @@ $abas = [
                 </span>
             </div>
         </div>
+    <?php endif; ?>
+
+    <?php if ($estruturaPronta && !$somenteLeitura): ?>
+        <section class="checklist-finalization-state <?= $podeFinalizar ? 'is-ready' : 'is-pending' ?>">
+            <div class="checklist-finalization-state-icon">
+                <i class="fa-solid <?= $podeFinalizar ? 'fa-circle-check' : 'fa-list-check' ?>"></i>
+            </div>
+            <div>
+                <strong><?= $podeFinalizar ? 'Check-list pronto para finalização' : 'Itens necessários para finalizar' ?></strong>
+                <?php if ($podeFinalizar): ?>
+                    <p>Hierarquia, funcionários, GHEs, cargos e riscos mínimos foram preenchidos.</p>
+                <?php else: ?>
+                    <ul>
+                        <?php foreach ($pendenciasFinalizacao as $pendencia): ?>
+                            <li><?= htmlspecialchars($pendencia) ?></li>
+                        <?php endforeach; ?>
+                    </ul>
+                <?php endif; ?>
+            </div>
+        </section>
     <?php endif; ?>
 
     <section class="checklist-detail-context" aria-label="Resumo do check-list">
@@ -290,6 +334,43 @@ $abas = [
             ?>
         </main>
     </section>
+
+    <?php if ($podeFinalizar && !$somenteLeitura): ?>
+        <div class="modal fade" id="modalFinalizarChecklist" tabindex="-1" aria-hidden="true">
+            <div class="modal-dialog modal-dialog-centered">
+                <div class="modal-content checklist-action-modal">
+                    <div class="modal-header">
+                        <div>
+                            <span class="checklist-detail-eyebrow">CONFIRMAÇÃO</span>
+                            <h2 class="modal-title">Finalizar check-list?</h2>
+                        </div>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Fechar"></button>
+                    </div>
+                    <div class="modal-body">
+                        <div class="checklist-action-modal-icon is-success">
+                            <i class="fa-solid fa-flag-checkered"></i>
+                        </div>
+                        <p>
+                            Esta ação concluirá o check-list, finalizará a visita técnica e deixará o compromisso
+                            verde no calendário. Os dados passarão para modo somente leitura.
+                        </p>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">
+                            Continuar preenchendo
+                        </button>
+                        <form method="POST" action="<?= BASE_URL ?>/checklists/<?= $checklistId ?>/finalizar">
+                            <input type="hidden" name="_token" value="<?= htmlspecialchars($csrfToken ?? '') ?>">
+                            <button type="submit" class="btn btn-primary">
+                                <i class="fa-solid fa-circle-check"></i>
+                                Confirmar finalização
+                            </button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    <?php endif; ?>
 </div>
 
 <?php require_once dirname(__DIR__) . '/templates/footer.php'; ?>

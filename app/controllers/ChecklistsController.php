@@ -57,7 +57,6 @@ class ChecklistsController extends Controller
             ),
             'abaAtual' => $abaAtual,
             'filtros' => $filtros,
-            'usuarioAdministrador' => $this->usuarioAdministrador(),
         ]);
     }
 
@@ -116,9 +115,16 @@ class ChecklistsController extends Controller
             'riscos' => 0,
             'percentual' => strtoupper((string)$checklist['status']) === 'CONCLUIDO' ? 100 : 10,
         ];
+        $finalizacao = [
+            'pode_finalizar' => false,
+            'concluido' => strtoupper((string)$checklist['status']) === 'CONCLUIDO',
+            'pendencias' => [],
+        ];
 
         if ($estruturaPronta) {
-            $this->checklistModel->marcarUltimaAba($checklistId, $abaAtiva);
+            if (!in_array(strtoupper((string)$checklist['status']), ['CONCLUIDO', 'CANCELADO'], true)) {
+                $this->checklistModel->marcarUltimaAba($checklistId, $abaAtiva);
+            }
             $hierarquia = $this->checklistModel->listarHierarquiaContexto($checklist);
             $setores = $this->checklistModel->listarSetoresAtivos();
             $cargos = $this->checklistModel->listarCargosAtivos();
@@ -129,6 +135,7 @@ class ChecklistsController extends Controller
             $ghes = $this->gheModel->listarPorChecklist($checklistId);
             $riscos = $this->checklistModel->listarRiscosAtivos();
             $progresso = $this->checklistModel->calcularProgresso($checklistId, $checklist);
+            $finalizacao = $this->checklistModel->obterSituacaoFinalizacao($checklistId, $checklist);
         } elseif ($abaAtiva !== 'dados') {
             $abaAtiva = 'dados';
         }
@@ -144,6 +151,7 @@ class ChecklistsController extends Controller
             'ghes' => $ghes,
             'riscos' => $riscos,
             'progresso' => $progresso,
+            'finalizacao' => $finalizacao,
             'csrfToken' => $this->csrfToken(),
         ]);
     }
@@ -280,6 +288,26 @@ class ChecklistsController extends Controller
         }
 
         $this->redirecionarChecklist($checklistId, 'ghe-riscos');
+    }
+
+    public function finalizar($checklistId = null): never
+    {
+        $checklistId = $this->prepararPost($checklistId);
+        $this->carregarChecklistAutorizado($checklistId);
+
+        try {
+            $this->garantirEstruturaPronta();
+            $this->checklistModel->finalizar(
+                $checklistId,
+                $this->usuarioLogadoId()
+            );
+
+            $_SESSION['sucesso'] = 'Check-list finalizado. A visita e a agenda foram marcadas como concluídas.';
+        } catch (Throwable $erro) {
+            $this->tratarErroOperacional($erro, 'Não foi possível finalizar o check-list.');
+        }
+
+        $this->redirecionarChecklist($checklistId, 'dados');
     }
 
     private function carregarChecklistAutorizado(int $checklistId): array
