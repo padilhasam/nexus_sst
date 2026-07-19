@@ -104,7 +104,7 @@ CREATE TABLE `agendas` (
   CONSTRAINT `fk_agendas_unidade` FOREIGN KEY (`unidade_id`) REFERENCES `unidades` (`id`) ON DELETE SET NULL,
   CONSTRAINT `fk_agendas_veiculo` FOREIGN KEY (`veiculo_id`) REFERENCES `veiculos` (`id`) ON DELETE SET NULL,
   CONSTRAINT `fk_agendas_visita` FOREIGN KEY (`visita_tecnica_id`) REFERENCES `visitas_tecnicas` (`id`) ON DELETE SET NULL
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
+) ENGINE=InnoDB AUTO_INCREMENT=27 DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_0900_ai_ci;
 /*!40101 SET character_set_client = @saved_cs_client */;
 
 --
@@ -113,6 +113,7 @@ CREATE TABLE `agendas` (
 
 LOCK TABLES `agendas` WRITE;
 /*!40000 ALTER TABLE `agendas` DISABLE KEYS */;
+INSERT INTO `agendas` VALUES (1,9,1,17,2,'2026-06-18','10:00:00','11:00:00','Visita técnica','Visita técnica',NULL,'Luciano','PADRAO','AGENDADO',NULL,17,NULL,NULL,NULL,NULL,NULL,'2026-06-18 00:18:54',NULL,NULL,NULL),(2,10,1,13,2,'2026-06-18','14:00:00','15:00:00','Teste','Teste',NULL,'Robson','PADRAO','AGENDADO',NULL,13,NULL,NULL,NULL,NULL,NULL,'2026-06-18 00:24:14',NULL,NULL,NULL),(3,9,NULL,17,2,'2026-06-27','10:00:00','11:00:00','Visita Técnica','','','','PADRAO','CANCELADO',NULL,17,NULL,NULL,NULL,NULL,NULL,'2026-06-18 00:28:49',NULL,NULL,NULL),(4,9,1,13,2,'2026-06-20','09:00:00','10:00:00','Teste3','Teste3',NULL,'Fernanda','PADRAO','AGENDADO',NULL,13,NULL,NULL,NULL,NULL,NULL,'2026-06-18 00:32:48',NULL,NULL,NULL),(5,10,1,13,2,'2026-06-21','13:00:00','14:00:00','Teste','Teste',NULL,'Fer','PADRAO','AGENDADO',NULL,13,NULL,NULL,NULL,NULL,NULL,'2026-06-18 00:37:23',NULL,NULL,NULL),(6,10,NULL,17,2,'2026-06-19','14:00:00','15:00:00','Teste','Teste',NULL,'Fernanda','PADRAO','CONCLUIDO',NULL,17,NULL,NULL,NULL,NULL,NULL,'2026-06-18 00:59:09',NULL,NULL,NULL),(7,9,NULL,13,2,'2026-07-01','10:00:00','11:00:00','Visita Técnica','','','','PADRAO','CANCELADO',NULL,13,NULL,NULL,NULL,NULL,NULL,'2026-06-22 13:30:58',NULL,NULL,NULL),(8,9,1,13,2,'2026-06-22','15:00:00','16:00:00','Teste','Teste',NULL,'Teste','PADRAO','AGENDADO',NULL,13,NULL,NULL,NULL,NULL,NULL,'2026-06-22 16:24:28',NULL,NULL,NULL),(9,10,1,13,2,'2026-06-22','15:00:00','16:00:00','Teste novo','Teste novo',NULL,'Hoje','PADRAO','CONCLUIDO',NULL,13,NULL,NULL,NULL,NULL,NULL,'2026-06-22 16:58:22',NULL,NULL,NULL),(10,9,NULL,17,3,'2026-06-25','16:30:00','17:30:00','Visita Técnica','','','','PADRAO','CANCELADO',NULL,17,NULL,NULL,NULL,NULL,NULL,'2026-06-22 17:23:14',NULL,NULL,NULL),(11,9,1,17,2,'2026-06-22','17:45:00','18:45:00','Teste','Teste','Teste','Teste','PADRAO','AGENDADO',NULL,17,NULL,NULL,NULL,NULL,NULL,'2026-06-22 17:27:28',NULL,NULL,NULL),(18,11,NULL,13,2,'2026-07-15','13:00:00','14:00:00','Levantamento',NULL,NULL,'Teste','PADRAO','CANCELADO',NULL,13,13,13,NULL,'Teste',NULL,'2026-07-13 01:10:20','2026-07-13 17:57:18','2026-07-13 14:57:18',NULL),(19,10,NULL,17,4,'2026-07-13','09:00:00','10:00:00','Teste',NULL,NULL,'Teste','URGENTE','CANCELADO',NULL,13,13,13,NULL,'Teste',NULL,'2026-07-13 01:16:15','2026-07-13 17:03:20','2026-07-13 14:03:20',NULL),(20,12,NULL,13,3,'2026-07-14','10:00:00','11:00:00','Teste',NULL,NULL,'Teste','URGENTE','CONCLUIDO',NULL,13,13,NULL,NULL,NULL,NULL,'2026-07-13 14:41:41','2026-07-13 17:26:49',NULL,NULL),(21,12,NULL,13,3,'2026-07-17','10:00:00','11:00:00','Teste',NULL,NULL,'Teste','URGENTE','CANCELADO',NULL,13,13,13,NULL,'Teste',NULL,'2026-07-13 14:48:34','2026-07-13 15:20:57','2026-07-13 12:20:57',NULL),(22,9,NULL,13,4,'2026-07-20','14:00:00','15:00:00','Teste',NULL,NULL,'Teste','CRITICA','AGENDADO',NULL,13,NULL,NULL,NULL,NULL,NULL,'2026-07-13 15:35:47',NULL,NULL,NULL),(23,11,NULL,17,4,'2026-07-20','10:00:00','11:00:00','Teste',NULL,NULL,'teste','PADRAO','AGENDADO',NULL,13,NULL,NULL,NULL,NULL,NULL,'2026-07-13 15:36:44',NULL,NULL,NULL),(24,9,NULL,17,4,'2026-07-21','14:00:00','15:00:00','Teste',NULL,NULL,'Teste','CRITICA','CANCELADO',NULL,13,13,13,NULL,'Teste',NULL,'2026-07-14 13:55:20','2026-07-19 13:32:16','2026-07-19 10:32:16',NULL),(25,11,NULL,13,2,'2026-07-21','14:00:00','15:00:00','Visita Técnica',NULL,NULL,'Teste','PADRAO','AGENDADO',NULL,13,NULL,NULL,NULL,NULL,NULL,'2026-07-14 14:26:50',NULL,NULL,NULL),(26,12,NULL,17,4,'2026-07-21','16:00:00','17:00:00','Teste',NULL,NULL,'Teste','URGENTE','AGENDADO',NULL,13,NULL,NULL,NULL,NULL,NULL,'2026-07-15 13:17:36',NULL,NULL,NULL);
 /*!40000 ALTER TABLE `agendas` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -944,7 +945,7 @@ CREATE TABLE `usuarios` (
 
 LOCK TABLES `usuarios` WRITE;
 /*!40000 ALTER TABLE `usuarios` DISABLE KEYS */;
-INSERT INTO `usuarios` VALUES (13,'Administrador','admin@seudominio.com','$2y$10$D.E3MbeG.DRI2bgc2X2sdewXTr32gDnAE9hCDMIqbk9gnoY7ocaL.',NULL,'ADMIN',NULL,NULL,NULL,NULL,1,NULL,'2026-06-14 17:24:31','2026-07-08 16:49:44'),(17,'Marcos Guilherme Rutz','tecnico1@ssosantiago.com.br','$2y$10$BycBeSMajVIaTKGWnkItq.eVRNx/dnsK6eSEjWjKzf9CjDYaJEsMO',NULL,'TECNICO',NULL,NULL,NULL,NULL,1,NULL,'2026-06-17 17:07:09',NULL);
+INSERT INTO `usuarios` VALUES (13,'Administrador','admin@seudominio.com','$2y$10$D.E3MbeG.DRI2bgc2X2sdewXTr32gDnAE9hCDMIqbk9gnoY7ocaL.',NULL,'ADMIN',NULL,NULL,NULL,NULL,1,NULL,'2026-06-14 17:24:31','2026-07-12 17:11:19'),(17,'Marcos Guilherme Rutz','tecnico1@ssosantiago.com.br','$2y$10$BycBeSMajVIaTKGWnkItq.eVRNx/dnsK6eSEjWjKzf9CjDYaJEsMO',NULL,'TECNICO',NULL,NULL,NULL,NULL,1,NULL,'2026-06-17 17:07:09',NULL);
 /*!40000 ALTER TABLE `usuarios` ENABLE KEYS */;
 UNLOCK TABLES;
 
@@ -1019,6 +1020,7 @@ DROP TABLE IF EXISTS `visitas_tecnicas`;
 /*!50503 SET character_set_client = utf8mb4 */;
 CREATE TABLE `visitas_tecnicas` (
   `id` int NOT NULL AUTO_INCREMENT,
+  `agenda_id` int DEFAULT NULL,
   `empresa_id` int NOT NULL,
   `unidade_id` int DEFAULT NULL,
   `usuario_id` int NOT NULL,
@@ -1028,17 +1030,27 @@ CREATE TABLE `visitas_tecnicas` (
   `responsavel_acompanhamento` varchar(150) DEFAULT NULL,
   `objetivo` text,
   `observacoes` text,
-  `latitude` varchar(50) DEFAULT NULL,
-  `longitude` varchar(50) DEFAULT NULL,
+  `latitude` decimal(10,8) DEFAULT NULL,
+  `longitude` decimal(11,8) DEFAULT NULL,
   `assinatura_cliente` text,
   `assinatura_tecnico` text,
   `status` enum('ABERTA','AGENDADA','CONFIRMADA','EM_ANDAMENTO','CHECKLIST_INICIADO','FINALIZADA','CANCELADA','EXCLUIDA') DEFAULT 'ABERTA',
+  `iniciado_em` datetime DEFAULT NULL,
+  `finalizado_em` datetime DEFAULT NULL,
+  `atualizado_por` int DEFAULT NULL,
+  `atualizado_em` datetime DEFAULT NULL,
   `criado_em` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
   PRIMARY KEY (`id`),
+  UNIQUE KEY `uk_visita_agenda` (`agenda_id`),
   KEY `empresa_id` (`empresa_id`),
   KEY `unidade_id` (`unidade_id`),
   KEY `visitas_tecnicas_ibfk_4` (`veiculo_id`),
   KEY `visitas_tecnicas_ibfk_3` (`usuario_id`),
+  KEY `idx_visita_status_data` (`status`,`data_visita`,`hora_visita`),
+  KEY `idx_visita_usuario_status` (`usuario_id`,`status`),
+  KEY `fk_visita_atualizado_por` (`atualizado_por`),
+  CONSTRAINT `fk_visita_agenda` FOREIGN KEY (`agenda_id`) REFERENCES `agendas` (`id`) ON DELETE RESTRICT ON UPDATE CASCADE,
+  CONSTRAINT `fk_visita_atualizado_por` FOREIGN KEY (`atualizado_por`) REFERENCES `usuarios` (`id`) ON DELETE SET NULL ON UPDATE CASCADE,
   CONSTRAINT `visitas_tecnicas_ibfk_1` FOREIGN KEY (`empresa_id`) REFERENCES `empresas` (`id`),
   CONSTRAINT `visitas_tecnicas_ibfk_2` FOREIGN KEY (`unidade_id`) REFERENCES `unidades` (`id`),
   CONSTRAINT `visitas_tecnicas_ibfk_3` FOREIGN KEY (`usuario_id`) REFERENCES `usuarios` (`id`),
@@ -1052,7 +1064,6 @@ CREATE TABLE `visitas_tecnicas` (
 
 LOCK TABLES `visitas_tecnicas` WRITE;
 /*!40000 ALTER TABLE `visitas_tecnicas` DISABLE KEYS */;
-INSERT INTO `visitas_tecnicas` VALUES (3,9,1,17,'2026-06-18','10:00:00',2,'Luciano','Visita técnica',NULL,NULL,NULL,NULL,NULL,'ABERTA','2026-06-18 00:18:54'),(4,10,1,13,'2026-06-18','14:00:00',2,'Robson','Teste',NULL,NULL,NULL,NULL,NULL,'ABERTA','2026-06-18 00:24:14'),(5,9,NULL,17,'2026-06-27','10:00:00',2,'','','',NULL,NULL,NULL,NULL,'CANCELADA','2026-06-18 00:28:49'),(6,9,1,13,'2026-06-20','09:00:00',2,'Fernanda','Teste3',NULL,NULL,NULL,NULL,NULL,'ABERTA','2026-06-18 00:32:48'),(7,10,1,13,'2026-06-21','13:00:00',2,'Fer','Teste',NULL,NULL,NULL,NULL,NULL,'ABERTA','2026-06-18 00:37:23'),(8,10,NULL,17,'2026-06-19','14:00:00',2,'Fernanda','Teste',NULL,NULL,NULL,NULL,NULL,'FINALIZADA','2026-06-18 00:59:09'),(9,9,NULL,13,'2026-07-01','10:00:00',2,'','','',NULL,NULL,NULL,NULL,'CANCELADA','2026-06-22 13:30:58'),(10,9,1,13,'2026-06-22','15:00:00',2,'Teste','Teste',NULL,NULL,NULL,NULL,NULL,'ABERTA','2026-06-22 16:24:28'),(11,10,1,13,'2026-06-22','15:00:00',2,'Hoje','Teste novo',NULL,NULL,NULL,NULL,NULL,'FINALIZADA','2026-06-22 16:58:22'),(12,9,NULL,17,'2026-06-25','16:30:00',3,'','','',NULL,NULL,NULL,NULL,'CANCELADA','2026-06-22 17:23:14'),(13,9,1,17,'2026-06-22','17:45:00',2,'Teste','Teste','Teste',NULL,NULL,NULL,NULL,'ABERTA','2026-06-22 17:27:28');
 /*!40000 ALTER TABLE `visitas_tecnicas` ENABLE KEYS */;
 UNLOCK TABLES;
 /*!40103 SET TIME_ZONE=@OLD_TIME_ZONE */;
@@ -1065,4 +1076,4 @@ UNLOCK TABLES;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
 /*!40111 SET SQL_NOTES=@OLD_SQL_NOTES */;
 
--- Dump completed on 2026-07-12 13:42:05
+-- Dump completed on 2026-07-19 13:35:36

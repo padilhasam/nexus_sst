@@ -4,43 +4,47 @@ $css = 'dashboard.css';
 require_once dirname(__DIR__) . '/templates/header.php';
 ?>
 
-<div class="dashboard-toolbar">
+<form
+    method="GET"
+    action="<?= BASE_URL ?>/dashboard"
+    class="dashboard-filter-bar"
+>
+    <div class="dashboard-filter-label">
+        <i class="fa-regular fa-calendar"></i>
 
-    <div class="dashboard-title">
-        <h2>Indicadores</h2>
-        <small>Acompanhamento operacional em tempo real</small>
+        <span>Período de análise</span>
     </div>
 
-    <div class="dashboard-actions">
+    <div class="dashboard-filter-fields">
+        <input
+            type="date"
+            name="data_inicio"
+            value="<?= htmlspecialchars(
+                $_GET['data_inicio'] ?? date('Y-m-01')
+            ) ?>"
+            aria-label="Data inicial"
+        >
 
-        <div class="period-filter">
+        <span>até</span>
 
-            <i class="fa-regular fa-calendar"></i>
+        <input
+            type="date"
+            name="data_fim"
+            value="<?= htmlspecialchars(
+                $_GET['data_fim'] ?? date('Y-m-t')
+            ) ?>"
+            aria-label="Data final"
+        >
 
-            <input
-                type="date"
-                name="data_inicio"
-                value="<?= date('Y-m-01') ?>"
-            >
-
-            <span>até</span>
-
-            <input
-                type="date"
-                name="data_fim"
-                value="<?= date('Y-m-t') ?>"
-            >
-
-        </div>
-
-        <button class="btn btn-primary">
+        <button
+            type="submit"
+            class="btn btn-primary"
+        >
             <i class="fa-solid fa-filter"></i>
-            Atualizar
+            <span>Atualizar</span>
         </button>
-
     </div>
-
-</div>
+</form>
 
 <section class="kpi-grid">
 

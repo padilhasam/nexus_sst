@@ -43,12 +43,14 @@ $router->any('/cargos/editar/{id}', 'CargosController', 'editar');
 $router->post('/cargos/atualizar/{id}', 'CargosController', 'atualizar');
 $router->any('/cargos/excluir/{id}', 'CargosController', 'excluir');
 
-$router->any('/funcionarios', 'FuncionariosController', 'index');
-$router->any('/funcionarios/criar', 'FuncionariosController', 'criar');
+$router->get('/funcionarios', 'FuncionariosController', 'index');
+$router->get('/funcionarios/criar', 'FuncionariosController', 'criar');
 $router->post('/funcionarios/salvar', 'FuncionariosController', 'salvar');
-$router->any('/funcionarios/editar/{id}', 'FuncionariosController', 'editar');
+$router->get('/funcionarios/editar/{id}', 'FuncionariosController', 'editar');
 $router->post('/funcionarios/atualizar/{id}', 'FuncionariosController', 'atualizar');
-$router->any('/funcionarios/excluir/{id}', 'FuncionariosController', 'excluir');
+$router->post('/funcionarios/inativar/{id}', 'FuncionariosController', 'inativar');
+$router->post('/funcionarios/reativar/{id}', 'FuncionariosController', 'reativar');
+$router->post('/funcionarios/excluir/{id}', 'FuncionariosController', 'excluir');
 
 $router->any('/veiculos', 'VeiculosController', 'index');
 $router->any('/veiculos/criar', 'VeiculosController', 'criar');
@@ -77,38 +79,51 @@ $router->any('/riscos/editar/{id}', 'RiscosController', 'editar');
 $router->post('/riscos/atualizar/{id}', 'RiscosController', 'atualizar');
 $router->any('/riscos/excluir/{id}', 'RiscosController', 'excluir');
 
-$router->any('/agenda', 'AgendasController', 'index');
-$router->any('/agenda/criar', 'AgendasController', 'criar');
+$router->get('/agenda', 'AgendasController', 'index');
+$router->get('/agenda/criar', 'AgendasController', 'criar');
 $router->post('/agenda/salvar', 'AgendasController', 'salvar');
-$router->any('/agenda/visualizar/{id}', 'AgendasController', 'visualizar');
-$router->any('/agenda/editar/{id}', 'AgendasController', 'editar');
+$router->get('/agenda/visualizar/{id}', 'AgendasController', 'visualizar');
+$router->get('/agenda/editar/{id}', 'AgendasController', 'editar');
+$router->post('/agenda/concluir/{id}', 'AgendasController', 'concluir');
 $router->post('/agenda/atualizar/{id}', 'AgendasController', 'atualizar');
+$router->post('/agenda/reagendar/{id}', 'AgendasController', 'reagendar');
 $router->post('/agenda/cancelar/{id}', 'AgendasController', 'cancelar');
 $router->post('/agenda/excluir/{id}', 'AgendasController', 'excluir');
 
-$router->any('/visitas', 'VisitasController', 'index');
-$router->any('/visitas/criar', 'VisitasController', 'criar');
+$router->get('/visitas', 'VisitasController', 'index');
+$router->get('/visitas/criar', 'VisitasController', 'criar');
 $router->post('/visitas/salvar', 'VisitasController', 'salvar');
-$router->any('/visitas/visualizar', 'VisitasController', 'visualizar');
-$router->any('/visitas/visualizar/{id}', 'VisitasController', 'visualizar');
-$router->any('/visitas/editar', 'VisitasController', 'editar');
-$router->any('/visitas/editar/{id}', 'VisitasController', 'editar');
-$router->post('/visitas/atualizar', 'VisitasController', 'atualizar');
+$router->get('/visitas/visualizar/{id}', 'VisitasController', 'visualizar');
+$router->get('/visitas/editar/{id}', 'VisitasController', 'editar');
 $router->post('/visitas/atualizar/{id}', 'VisitasController', 'atualizar');
 $router->post('/visitas/atualizarData', 'VisitasController', 'atualizarData');
 $router->post('/visitas/atualizarStatus', 'VisitasController', 'atualizarStatus');
-$router->any('/visitas/cancelar', 'VisitasController', 'cancelar');
-$router->any('/visitas/excluir', 'VisitasController', 'excluir');
+$router->post('/visitas/cancelar/{id}', 'VisitasController', 'cancelar');
+$router->post('/visitas/excluir/{id}', 'VisitasController', 'excluir');
 
-$router->any('/checklists', 'ChecklistsController', 'index');
-$router->any('/checklists/iniciar/{id}', 'ChecklistsController', 'iniciar');
-$router->any('/checklists/visualizar/{id}', 'ChecklistsController', 'visualizar');
+$router->get('/checklists', 'ChecklistsController', 'index');
+$router->post('/checklists/iniciar/{id}', 'ChecklistsController', 'iniciar');
+$router->get('/checklists/visualizar/{id}', 'ChecklistsController', 'visualizar');
+$router->post('/checklists/{id}/hierarquia/salvar', 'ChecklistsController', 'salvarHierarquia');
+$router->post('/checklists/{id}/funcionarios/salvar', 'ChecklistsController', 'salvarFuncionario');
+$router->post('/checklists/{id}/funcionarios/inativar/{funcionarioId}', 'ChecklistsController', 'inativarFuncionario');
+$router->post('/checklists/{id}/ghe/salvar', 'ChecklistsController', 'salvarGhe');
+$router->post('/checklists/{id}/ghe/{gheId}/riscos/salvar', 'ChecklistsController', 'salvarRiscoGhe');
 
 $router->any('/levantamentos', 'LevantamentosController', 'index');
 $router->any('/levantamentos/criar', 'LevantamentosController', 'criar');
 $router->post('/levantamentos/salvar', 'LevantamentosController', 'salvar');
 
-$router->any('/ghe', 'GHEController', 'index');
+$router->get('/ghe', 'GHEController', 'index');
+$router->get('/ghe/criar', 'GHEController', 'criar');
+$router->post('/ghe/salvar', 'GHEController', 'salvar');
+$router->get('/ghe/visualizar/{id}', 'GHEController', 'visualizar');
+$router->get('/ghe/editar/{id}', 'GHEController', 'editar');
+$router->post('/ghe/atualizar/{id}', 'GHEController', 'atualizar');
+$router->post('/ghe/inativar/{id}', 'GHEController', 'inativar');
+$router->post('/ghe/reativar/{id}', 'GHEController', 'reativar');
+$router->post('/ghe/{id}/riscos/salvar', 'GHEController', 'salvarRisco');
+$router->post('/ghe/{id}/riscos/remover/{riscoId}', 'GHEController', 'removerRisco');
 
 $router->any('/quantificacoes', 'QuantificacoesController', 'index');
 $router->any('/quantificacoes/criar', 'QuantificacoesController', 'criar');

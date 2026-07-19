@@ -16,7 +16,18 @@
   <a href="<?= BASE_URL ?>/usuarios"><i class="fa-regular fa-user"></i><span>Perfil</span></a>
 </nav>
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
-<?php if (!empty($js) && is_array($js)): foreach ($js as $arquivoJs): ?><script src="<?= BASE_URL ?>/js/pages/<?= $arquivoJs ?>"></script><?php endforeach; endif; ?>
+
+<?php if (!empty($js) && is_array($js)): ?>
+    <?php foreach ($js as $arquivoJs): ?>
+        <script
+            src="<?= BASE_URL ?>/js/pages/<?= htmlspecialchars($arquivoJs) ?>"
+        ></script>
+    <?php endforeach; ?>
+<?php endif; ?>
+
 <script src="<?= BASE_URL ?>/js/core/app.js?v=<?= time() ?>"></script>
+
+<?php ToastHelper::render(); ?>
+
 </body>
 </html>

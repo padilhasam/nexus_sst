@@ -10,22 +10,44 @@ $usuarios = $usuarios ?? [];
 $filtros = $filtros ?? [];
 $eventosJson = $eventosJson ?? '[]';
 
-$totalAgendamentos = count($agendamentos);
+$indicadores = $indicadores ?? [];
+$paginacao = $paginacao ?? [];
 
-$totalAgendados = count(array_filter(
-    $agendamentos,
-    static fn(array $item): bool => ($item['status'] ?? '') === 'AGENDADO'
-));
+$totalAgendamentos = (int)($indicadores['total'] ?? count($agendamentos));
+$totalAgendados = (int)($indicadores['agendados'] ?? 0);
+$totalConfirmados = (int)($indicadores['confirmados'] ?? 0);
+$totalCancelados = (int)($indicadores['cancelados'] ?? 0);
 
-$totalConfirmados = count(array_filter(
-    $agendamentos,
-    static fn(array $item): bool => ($item['status'] ?? '') === 'CONFIRMADO'
-));
+$paginaAtual = max(1, (int)($paginacao['pagina_atual'] ?? 1));
+$porPagina = (int)($paginacao['por_pagina'] ?? 10);
+$totalRegistros = (int)($paginacao['total_registros'] ?? $totalAgendamentos);
+$totalPaginas = max(1, (int)($paginacao['total_paginas'] ?? 1));
+$opcoesPorPagina = $paginacao['opcoes_por_pagina'] ?? [10, 20, 50];
 
-$totalCancelados = count(array_filter(
-    $agendamentos,
-    static fn(array $item): bool => ($item['status'] ?? '') === 'CANCELADO'
-));
+$primeiroRegistro = $totalRegistros > 0
+    ? (($paginaAtual - 1) * $porPagina) + 1
+    : 0;
+
+$ultimoRegistro = min(
+    $paginaAtual * $porPagina,
+    $totalRegistros
+);
+
+$queryBase = array_filter([
+    'status' => $filtros['status'] ?? '',
+    'data_inicio' => $filtros['data_inicio'] ?? '',
+    'data_fim' => $filtros['data_fim'] ?? '',
+    'empresa_id' => $filtros['empresa_id'] ?? '',
+    'tecnico_id' => $filtros['tecnico_id'] ?? '',
+    'por_pagina' => $porPagina,
+    'aba' => 'lista',
+], static fn($valor): bool => $valor !== '' && $valor !== null);
+
+$urlPagina = static function (int $pagina) use ($queryBase): string {
+    return BASE_URL . '/agenda?' . http_build_query(
+        array_merge($queryBase, ['pagina' => $pagina])
+    );
+};
 
 function badgeStatusAgenda(string $status): string
 {
@@ -34,6 +56,7 @@ function badgeStatusAgenda(string $status): string
         'CONFIRMADO' => 'agenda-status agenda-status-confirmado',
         'REAGENDADO' => 'agenda-status agenda-status-reagendado',
         'CANCELADO'  => 'agenda-status agenda-status-cancelado',
+        'EM_ANDAMENTO' => 'agenda-status agenda-status-em-andamento',
         'CONCLUIDO'  => 'agenda-status agenda-status-concluido',
         'EXCLUIDO'   => 'agenda-status agenda-status-excluido',
         default      => 'agenda-status agenda-status-padrao',
@@ -47,9 +70,60 @@ function labelStatusAgenda(string $status): string
         'CONFIRMADO' => 'Confirmado',
         'REAGENDADO' => 'Reagendado',
         'CANCELADO'  => 'Cancelado',
+        'EM_ANDAMENTO' => 'Em andamento',
         'CONCLUIDO'  => 'Concluído',
         'EXCLUIDO'   => 'Excluído',
         default      => ucfirst(strtolower($status)),
+    };
+}
+
+
+function agendaMesAbreviado(int $mes): string
+{
+    return [
+        1 => 'JAN', 2 => 'FEV', 3 => 'MAR', 4 => 'ABR',
+        5 => 'MAI', 6 => 'JUN', 7 => 'JUL', 8 => 'AGO',
+        9 => 'SET', 10 => 'OUT', 11 => 'NOV', 12 => 'DEZ',
+    ][$mes] ?? '---';
+}
+
+function agendaPrioridadeLabel(string $prioridade): string
+{
+    return match (strtoupper($prioridade)) {
+        'CRITICA' => 'Crítica',
+        'URGENTE' => 'Urgente',
+        default => 'Padrão',
+    };
+}
+
+function agendaPrioridadeClasse(string $prioridade): string
+{
+    return match (strtoupper($prioridade)) {
+        'CRITICA' => 'critica',
+        'URGENTE' => 'urgente',
+        default => 'padrao',
+    };
+}
+
+function agendaStatusCardClasse(string $status): string
+{
+    return match (strtoupper($status)) {
+        'EM_ANDAMENTO' => 'andamento',
+        'CONCLUIDO' => 'concluida',
+        'CANCELADO', 'EXCLUIDO' => 'cancelada',
+        'REAGENDADO' => 'reagendada',
+        default => 'aguardando',
+    };
+}
+
+function agendaStatusIcone(string $classe): string
+{
+    return match ($classe) {
+        'concluida' => 'fa-circle-check',
+        'andamento' => 'fa-spinner',
+        'cancelada' => 'fa-circle-xmark',
+        'reagendada' => 'fa-calendar-days',
+        default => 'fa-hourglass-half',
     };
 }
 ?>
@@ -269,166 +343,316 @@ function labelStatusAgenda(string $status): string
                 role="tabpanel"
             >
                 <div class="agenda-list-card">
+                    <div class="visitas-list-toolbar">
+                        <div>
+                            <strong><?= count($agendamentos) ?> agendamento<?= count($agendamentos) === 1 ? '' : 's' ?> exibido<?= count($agendamentos) === 1 ? '' : 's' ?></strong>
+                            <span>Compromissos organizados por data, prioridade e horário.</span>
+                        </div>
 
-                    <div class="table-responsive">
-                        <table class="table agenda-table align-middle">
-                            <thead>
-                                <tr>
-                                    <th>Data</th>
-                                    <th>Horário</th>
-                                    <th>Empresa / Unidade</th>
-                                    <th>Técnico</th>
-                                    <th>Prioridade</th>
-                                    <th>Status</th>
-                                    <th class="text-end">Ações</th>
-                                </tr>
-                            </thead>
+                        <span class="visitas-scope-badge">
+                            <i class="fa-solid fa-layer-group"></i>
+                            Lista completa
+                        </span>
+                    </div>
 
-                            <tbody>
-                                <?php foreach ($agendamentos as $item): ?>
-                                    <?php
-                                    $empresa = !empty($item['empresa_fantasia'])
-                                        ? $item['empresa_fantasia']
-                                        : ($item['empresa_nome'] ?? 'Empresa não informada');
+                    <div class="visitas-grid">
+                        <?php foreach ($agendamentos as $item): ?>
+                            <?php
+                            $empresa = trim((string)($item['empresa_fantasia'] ?? ''));
+                            if ($empresa === '') {
+                                $empresa = trim((string)($item['empresa_nome'] ?? 'Empresa não informada'));
+                            }
 
-                                    $unidade = !empty($item['unidade_nome'])
-                                        ? $item['unidade_nome']
-                                        : 'Matriz';
+                            $unidade = trim((string)($item['unidade_nome'] ?? ''));
+                            if ($unidade === '') {
+                                $unidade = 'Matriz / unidade principal';
+                            }
 
-                                    $status = $item['status'] ?? '';
-                                    $prioridade = $item['prioridade'] ?? 'PADRAO';
-                                    ?>
+                            $statusOriginal = strtoupper((string)($item['status'] ?? 'AGENDADO'));
+                            $statusVisual = strtoupper((string)($item['status_visual'] ?? $statusOriginal));
+                            $statusClasse = agendaStatusCardClasse($statusVisual);
+                            $prioridade = strtoupper((string)($item['prioridade'] ?? 'PADRAO'));
+                            $prioridadeClasse = agendaPrioridadeClasse($prioridade);
 
-                                    <tr>
-                                        <td>
-                                            <div class="agenda-date-cell">
-                                                <strong>
-                                                    <?= !empty($item['data_agendada'])
-                                                        ? date('d/m/Y', strtotime($item['data_agendada']))
-                                                        : '-' ?>
-                                                </strong>
+                            $timestamp = !empty($item['data_agendada'])
+                                ? strtotime((string)$item['data_agendada'])
+                                : false;
+                            $dia = $timestamp ? date('d', $timestamp) : '--';
+                            $mes = $timestamp ? agendaMesAbreviado((int)date('n', $timestamp)) : '---';
+                            $dataCompleta = $timestamp ? date('d/m/Y', $timestamp) : 'Data não informada';
 
-                                                <?php if (!empty($item['data_agendada'])): ?>
-                                                    <span>
-                                                        <?= date(
-                                                            'D',
-                                                            strtotime($item['data_agendada'])
-                                                        ) ?>
-                                                    </span>
-                                                <?php endif; ?>
-                                            </div>
-                                        </td>
+                            $horaInicio = !empty($item['hora_inicio'])
+                                ? substr((string)$item['hora_inicio'], 0, 5)
+                                : '--:--';
+                            $horaFim = !empty($item['hora_fim'])
+                                ? substr((string)$item['hora_fim'], 0, 5)
+                                : '';
+                            $periodo = $horaInicio . ($horaFim !== '' ? ' às ' . $horaFim : '');
 
-                                        <td>
-                                            <div class="agenda-time-cell">
-                                                <i class="fa-regular fa-clock"></i>
+                            $titulo = trim((string)($item['titulo'] ?? ''));
+                            if ($titulo === '') {
+                                $titulo = trim((string)($item['objetivo'] ?? 'Visita técnica programada'));
+                            }
 
-                                                <span>
-                                                    <?= !empty($item['hora_inicio'])
-                                                        ? substr($item['hora_inicio'], 0, 5)
-                                                        : '-' ?>
+                            $objetivo = trim((string)($item['objetivo'] ?? ''));
+                            if ($objetivo === '') {
+                                $objetivo = 'Levantamento de riscos ocupacionais';
+                            }
 
-                                                    <?= !empty($item['hora_fim'])
-                                                        ? ' às ' . substr($item['hora_fim'], 0, 5)
-                                                        : '' ?>
-                                                </span>
-                                            </div>
-                                        </td>
+                            $tecnico = trim((string)($item['tecnico_nome'] ?? 'Técnico não informado'));
+                            $responsavel = trim((string)($item['responsavel_acompanhamento'] ?? ''));
+                            $veiculo = trim((string)($item['veiculo_modelo'] ?? ''));
+                            $placa = trim((string)($item['veiculo_placa'] ?? ''));
+                            $veiculoResumo = $veiculo !== ''
+                                ? $veiculo . ($placa !== '' ? ' · ' . $placa : '')
+                                : 'Não definido';
 
-                                        <td>
-                                            <div class="agenda-company-cell">
-                                                <strong><?= htmlspecialchars($empresa) ?></strong>
-                                                <span><?= htmlspecialchars($unidade) ?></span>
-                                            </div>
-                                        </td>
+                            $editavel = !in_array(
+                                $statusOriginal,
+                                ['CANCELADO', 'EXCLUIDO', 'CONCLUIDO'],
+                                true
+                            ) && !in_array($statusVisual, ['EM_ANDAMENTO', 'CONCLUIDO'], true);
+                            ?>
 
-                                        <td>
-                                            <div class="agenda-technician-cell">
-                                                <div class="agenda-technician-avatar">
-                                                    <?= strtoupper(substr(
-                                                        $item['tecnico_nome'] ?? 'T',
-                                                        0,
-                                                        1
-                                                    )) ?>
-                                                </div>
+                            <article class="visita-card prioridade-<?= htmlspecialchars($prioridadeClasse) ?> status-<?= htmlspecialchars($statusClasse) ?>">
+                                <header class="visita-card-header">
+                                    <time class="visita-data" datetime="<?= htmlspecialchars((string)($item['data_agendada'] ?? '')) ?>">
+                                        <strong><?= htmlspecialchars($dia) ?></strong>
+                                        <span><?= htmlspecialchars($mes) ?></span>
+                                    </time>
 
-                                                <span>
-                                                    <?= htmlspecialchars(
-                                                        $item['tecnico_nome'] ?? '-'
-                                                    ) ?>
-                                                </span>
-                                            </div>
-                                        </td>
-
-                                        <td>
-                                            <span class="agenda-priority agenda-priority-<?= strtolower($prioridade) ?>">
-                                                <?= htmlspecialchars(
-                                                    $prioridade === 'PADRAO'
-                                                        ? 'Padrão'
-                                                        : ucfirst(strtolower($prioridade))
-                                                ) ?>
+                                    <div class="visita-identificacao">
+                                        <div class="visita-card-title-row">
+                                            <h3 title="<?= htmlspecialchars($empresa) ?>"><?= htmlspecialchars($empresa) ?></h3>
+                                            <span class="visita-prioridade <?= htmlspecialchars($prioridadeClasse) ?>">
+                                                <i class="fa-solid fa-flag"></i>
+                                                <?= htmlspecialchars(agendaPrioridadeLabel($prioridade)) ?>
                                             </span>
-                                        </td>
+                                        </div>
 
-                                        <td>
-                                            <span class="<?= badgeStatusAgenda($status) ?>">
-                                                <?= htmlspecialchars(labelStatusAgenda($status)) ?>
-                                            </span>
-                                        </td>
+                                        <p title="<?= htmlspecialchars($titulo) ?>"><?= htmlspecialchars($titulo) ?></p>
+                                    </div>
+                                </header>
 
-                                        <td class="text-end">
-                                            <div class="agenda-actions">
-                                                <a
-                                                    href="<?= BASE_URL ?>/agenda/visualizar/<?= (int)$item['id'] ?>"
-                                                    class="btn btn-sm btn-light"
-                                                    title="Visualizar"
-                                                >
-                                                    <i class="fa-regular fa-eye"></i>
-                                                </a>
+                                <div class="visita-status-line">
+                                    <span class="visita-status <?= htmlspecialchars($statusClasse) ?>">
+                                        <i class="fa-solid <?= htmlspecialchars(agendaStatusIcone($statusClasse)) ?>"></i>
+                                        <?= htmlspecialchars(labelStatusAgenda($statusVisual)) ?>
+                                    </span>
+                                    <small>#<?= str_pad((string)(int)$item['id'], 4, '0', STR_PAD_LEFT) ?></small>
+                                </div>
 
-                                                <?php if (!in_array(
-                                                    $status,
-                                                    ['CANCELADO', 'EXCLUIDO', 'CONCLUIDO'],
-                                                    true
-                                                )): ?>
-                                                    <a
-                                                        href="<?= BASE_URL ?>/agenda/editar/<?= (int)$item['id'] ?>"
-                                                        class="btn btn-sm btn-primary"
-                                                        title="Editar"
-                                                    >
-                                                        <i class="fa-regular fa-pen-to-square"></i>
-                                                    </a>
-                                                <?php endif; ?>
-                                            </div>
-                                        </td>
-                                    </tr>
+                                <div class="visita-card-body">
+                                    <div class="visita-info-item visita-info-wide">
+                                        <i class="fa-regular fa-building"></i>
+                                        <div>
+                                            <span>Unidade</span>
+                                            <strong title="<?= htmlspecialchars($unidade) ?>"><?= htmlspecialchars($unidade) ?></strong>
+                                        </div>
+                                    </div>
+
+                                    <div class="visita-info-item">
+                                        <i class="fa-regular fa-calendar"></i>
+                                        <div>
+                                            <span>Data</span>
+                                            <strong><?= htmlspecialchars($dataCompleta) ?></strong>
+                                        </div>
+                                    </div>
+
+                                    <div class="visita-info-item">
+                                        <i class="fa-regular fa-clock"></i>
+                                        <div>
+                                            <span>Horário</span>
+                                            <strong><?= htmlspecialchars($periodo) ?></strong>
+                                        </div>
+                                    </div>
+
+                                    <div class="visita-info-item">
+                                        <i class="fa-solid fa-user-shield"></i>
+                                        <div>
+                                            <span>Técnico responsável</span>
+                                            <strong title="<?= htmlspecialchars($tecnico) ?>"><?= htmlspecialchars($tecnico) ?></strong>
+                                        </div>
+                                    </div>
+
+                                    <div class="visita-info-item">
+                                        <i class="fa-solid fa-user-tie"></i>
+                                        <div>
+                                            <span>Acompanhante</span>
+                                            <strong title="<?= htmlspecialchars($responsavel !== '' ? $responsavel : 'Não informado') ?>">
+                                                <?= htmlspecialchars($responsavel !== '' ? $responsavel : 'Não informado') ?>
+                                            </strong>
+                                        </div>
+                                    </div>
+
+                                    <div class="visita-info-item visita-info-wide">
+                                        <i class="fa-solid fa-bullseye"></i>
+                                        <div>
+                                            <span>Objetivo</span>
+                                            <strong title="<?= htmlspecialchars($objetivo) ?>"><?= htmlspecialchars($objetivo) ?></strong>
+                                        </div>
+                                    </div>
+
+                                    <div class="visita-info-item visita-info-wide visita-vehicle-row">
+                                        <i class="fa-solid fa-car-side"></i>
+                                        <div>
+                                            <span>Veículo</span>
+                                            <strong><?= htmlspecialchars($veiculoResumo) ?></strong>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <footer class="visita-card-actions <?= $editavel ? '' : 'is-single' ?>">
+                                    <a
+                                        href="<?= BASE_URL ?>/agenda/visualizar/<?= (int)$item['id'] ?>"
+                                        class="btn btn-outline-secondary visita-action-secondary"
+                                    >
+                                        <i class="fa-regular fa-eye"></i>
+                                        Visualizar
+                                    </a>
+
+                                    <?php if ($editavel): ?>
+                                        <a
+                                            href="<?= BASE_URL ?>/agenda/editar/<?= (int)$item['id'] ?>"
+                                            class="btn btn-primary visita-action-primary"
+                                        >
+                                            <i class="fa-regular fa-pen-to-square"></i>
+                                            Editar agenda
+                                        </a>
+                                    <?php endif; ?>
+                                </footer>
+                            </article>
+                        <?php endforeach; ?>
+
+                        <?php if (empty($agendamentos)): ?>
+                            <div class="visitas-empty-state">
+                                <span class="visitas-empty-icon">
+                                    <i class="fa-regular fa-calendar-xmark"></i>
+                                </span>
+                                <h3>Nenhum agendamento encontrado</h3>
+                                <p>Não existem agendamentos correspondentes aos filtros selecionados.</p>
+
+                                <div class="visitas-empty-actions">
+                                    <a href="<?= BASE_URL ?>/agenda/criar" class="btn btn-primary">
+                                        <i class="fa-solid fa-plus"></i>
+                                        Criar agendamento
+                                    </a>
+                                </div>
+                            </div>
+                        <?php endif; ?>
+                    </div>
+
+                    <?php if ($totalRegistros > 0): ?>
+                        <div class="agenda-pagination-bar">
+                            <div class="agenda-pagination-summary">
+                                Exibindo
+                                <strong><?= $primeiroRegistro ?></strong>
+                                a
+                                <strong><?= $ultimoRegistro ?></strong>
+                                de
+                                <strong><?= $totalRegistros ?></strong>
+                                agendamentos
+                            </div>
+
+                            <form
+                                method="GET"
+                                action="<?= BASE_URL ?>/agenda"
+                                class="agenda-page-size"
+                            >
+                                <?php foreach ($filtros as $nome => $valor): ?>
+                                    <?php if ($valor !== null && $valor !== ''): ?>
+                                        <input
+                                            type="hidden"
+                                            name="<?= htmlspecialchars($nome) ?>"
+                                            value="<?= htmlspecialchars((string)$valor) ?>"
+                                        >
+                                    <?php endif; ?>
                                 <?php endforeach; ?>
 
-                                <?php if (empty($agendamentos)): ?>
-                                    <tr>
-                                        <td colspan="7">
-                                            <div class="agenda-empty-state">
-                                                <i class="fa-regular fa-calendar-xmark"></i>
-                                                <h3>Nenhum agendamento encontrado</h3>
-                                                <p>
-                                                    Não existem agendamentos correspondentes
-                                                    aos filtros selecionados.
-                                                </p>
+                                <input type="hidden" name="aba" value="lista">
 
-                                                <a
-                                                    href="<?= BASE_URL ?>/agenda/criar"
-                                                    class="btn btn-primary"
-                                                >
-                                                    <i class="fa-solid fa-plus"></i>
-                                                    Criar agendamento
+                                <label for="por_pagina">Itens por página</label>
+                                <select
+                                    name="por_pagina"
+                                    id="por_pagina"
+                                    class="form-select form-select-sm"
+                                    onchange="this.form.submit()"
+                                >
+                                    <?php foreach ($opcoesPorPagina as $opcao): ?>
+                                        <option
+                                            value="<?= (int)$opcao ?>"
+                                            <?= $porPagina === (int)$opcao ? 'selected' : '' ?>
+                                        >
+                                            <?= (int)$opcao ?>
+                                        </option>
+                                    <?php endforeach; ?>
+                                </select>
+                            </form>
+
+                            <?php if ($totalPaginas > 1): ?>
+                                <nav aria-label="Paginação dos agendamentos">
+                                    <ul class="pagination agenda-pagination mb-0">
+                                        <li class="page-item <?= $paginaAtual <= 1 ? 'disabled' : '' ?>">
+                                            <a
+                                                class="page-link"
+                                                href="<?= $paginaAtual > 1 ? $urlPagina($paginaAtual - 1) : '#' ?>"
+                                                aria-label="Página anterior"
+                                            >
+                                                <i class="fa-solid fa-chevron-left"></i>
+                                            </a>
+                                        </li>
+
+                                        <?php
+                                        $inicioPagina = max(1, $paginaAtual - 2);
+                                        $fimPagina = min($totalPaginas, $paginaAtual + 2);
+                                        ?>
+
+                                        <?php if ($inicioPagina > 1): ?>
+                                            <li class="page-item">
+                                                <a class="page-link" href="<?= $urlPagina(1) ?>">1</a>
+                                            </li>
+                                            <?php if ($inicioPagina > 2): ?>
+                                                <li class="page-item disabled">
+                                                    <span class="page-link">…</span>
+                                                </li>
+                                            <?php endif; ?>
+                                        <?php endif; ?>
+
+                                        <?php for ($pagina = $inicioPagina; $pagina <= $fimPagina; $pagina++): ?>
+                                            <li class="page-item <?= $pagina === $paginaAtual ? 'active' : '' ?>">
+                                                <a class="page-link" href="<?= $urlPagina($pagina) ?>">
+                                                    <?= $pagina ?>
                                                 </a>
-                                            </div>
-                                        </td>
-                                    </tr>
-                                <?php endif; ?>
-                            </tbody>
-                        </table>
-                    </div>
+                                            </li>
+                                        <?php endfor; ?>
+
+                                        <?php if ($fimPagina < $totalPaginas): ?>
+                                            <?php if ($fimPagina < $totalPaginas - 1): ?>
+                                                <li class="page-item disabled">
+                                                    <span class="page-link">…</span>
+                                                </li>
+                                            <?php endif; ?>
+                                            <li class="page-item">
+                                                <a class="page-link" href="<?= $urlPagina($totalPaginas) ?>">
+                                                    <?= $totalPaginas ?>
+                                                </a>
+                                            </li>
+                                        <?php endif; ?>
+
+                                        <li class="page-item <?= $paginaAtual >= $totalPaginas ? 'disabled' : '' ?>">
+                                            <a
+                                                class="page-link"
+                                                href="<?= $paginaAtual < $totalPaginas ? $urlPagina($paginaAtual + 1) : '#' ?>"
+                                                aria-label="Próxima página"
+                                            >
+                                                <i class="fa-solid fa-chevron-right"></i>
+                                            </a>
+                                        </li>
+                                    </ul>
+                                </nav>
+                            <?php endif; ?>
+                        </div>
+                    <?php endif; ?>
 
                 </div>
             </div>
@@ -447,6 +671,16 @@ function labelStatusAgenda(string $status): string
 
 <script>
 document.addEventListener('DOMContentLoaded', function () {
+    const parametros = new URLSearchParams(window.location.search);
+
+    if (parametros.get('aba') === 'lista') {
+        const listaTab = document.getElementById('lista-tab');
+
+        if (listaTab && typeof bootstrap !== 'undefined') {
+            bootstrap.Tab.getOrCreateInstance(listaTab).show();
+        }
+    }
+
     const calendarElement = document.getElementById('agendaCalendar');
 
     if (!calendarElement || typeof FullCalendar === 'undefined') {

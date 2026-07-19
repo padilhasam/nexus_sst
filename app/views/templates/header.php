@@ -1,6 +1,8 @@
 <?php
 if (session_status() === PHP_SESSION_NONE) { session_start(); }
 
+require_once dirname(__DIR__, 2) . '/helpers/ToastHelper.php';
+
 $rotaAtual = $rotaAtual ?? 'dashboard';
 
 $usuario = $_SESSION['nome'] ?? 'Usuário Desconhecido';
@@ -10,6 +12,7 @@ $pageTitle = $pageTitle ?? [
     'agenda' => 'Agenda',
     'visitas' => 'Visitas Técnicas',
     'checklists' => 'Check-list de Visita',
+    'ghe' => 'Grupos Homogêneos de Exposição',
     'quantificacoes' => 'Quantificações',
     'nao_conformidades' => 'Não Conformidades',
     'empresas' => 'Empresas',
@@ -84,7 +87,7 @@ function activeClass(string $rota, string $rotaAtual): string {
                 <span>Dashboard</span>
             </a>
 
-            <?php $opAberto = menuAtivo(['agenda','visitas','checklists'], $rotaAtual); ?>
+            <?php $opAberto = menuAtivo(['agenda','visitas','checklists','ghe'], $rotaAtual); ?>
             <button class="menu-toggle <?= $opAberto ? '' : 'collapsed' ?>" data-bs-toggle="collapse" data-bs-target="#menuOperacao">
                 <span><i class="fa-solid fa-tablet-screen-button"></i> Operação</span>
                 <i class="fa-solid fa-chevron-down"></i>
@@ -94,6 +97,7 @@ function activeClass(string $rota, string $rotaAtual): string {
                 <a class="<?= activeClass('agenda', $rotaAtual) ?>" href="<?= BASE_URL ?>/agenda"><i class="fa-regular fa-calendar"></i><span>Agenda</span></a>
                 <a class="<?= activeClass('visitas', $rotaAtual) ?>" href="<?= BASE_URL ?>/visitas"><i class="fa-solid fa-route"></i><span>Visitas Técnicas</span></a>
                 <a class="<?= activeClass('checklists', $rotaAtual) ?>" href="<?= BASE_URL ?>/checklists"><i class="fa-regular fa-square-check"></i><span>Check-lists</span></a>
+                <a class="<?= activeClass('ghe', $rotaAtual) ?>" href="<?= BASE_URL ?>/ghe"><i class="fa-solid fa-people-group"></i><span>GHEs</span></a>
             </div>
 
             <?php $cadAberto = menuAtivo(['empresas','unidades','setores','cargos','funcionarios','hierarquias'], $rotaAtual); ?>

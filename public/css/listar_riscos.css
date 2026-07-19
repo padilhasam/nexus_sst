@@ -1,0 +1,187 @@
+main.content {
+    background: #f8fafc;
+}
+
+.page-header-riscos {
+    border-radius: 1.25rem !important;
+}
+
+.page-header-actions .btn {
+    min-height: 42px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.riscos-app-toolbar,
+.riscos-pagination {
+    border-radius: 1.25rem !important;
+}
+
+.riscos-app-search input {
+    font-size: 16px;
+    min-height: 44px;
+}
+
+.riscos-app-list {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 1rem;
+}
+
+.risco-app-card {
+    background: #fff;
+    border: 1px solid #e9ecef;
+    border-radius: 1.25rem;
+    padding: 1rem;
+    box-shadow: 0 4px 14px rgba(15, 23, 42, .05);
+    transition: all .18s ease;
+    width: 100%;
+}
+
+.risco-app-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 10px 24px rgba(15, 23, 42, .08);
+}
+
+.risco-app-card-main {
+    display: flex;
+    gap: .85rem;
+    align-items: flex-start;
+}
+
+.risco-app-icon {
+    width: 46px;
+    height: 46px;
+    min-width: 46px;
+    border-radius: 15px;
+    background: linear-gradient(135deg, #0d6efd, #084298);
+    color: #fff;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.risco-app-content {
+    flex: 1;
+    min-width: 0;
+}
+
+.risco-app-content h5 {
+    font-size: 1rem;
+    font-weight: 800;
+    margin: 0 0 .25rem;
+    color: #212529;
+    line-height: 1.25;
+}
+
+.risco-app-subtitle {
+    margin: .25rem 0 .75rem;
+    font-size: .8rem;
+    color: #6c757d;
+    line-height: 1.3;
+}
+
+.risco-app-meta {
+    display: grid;
+    gap: .45rem;
+    font-size: .82rem;
+    color: #6c757d;
+}
+
+.risco-app-meta span {
+    display: flex;
+    align-items: flex-start;
+    gap: .4rem;
+    line-height: 1.3;
+}
+
+.risco-app-meta i {
+    width: 16px;
+    margin-top: .1rem;
+    color: #6c757d;
+}
+
+.risco-app-actions {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: .5rem;
+    margin-top: .95rem;
+    padding-top: .85rem;
+    border-top: 1px solid #f1f3f5;
+}
+
+.risco-app-actions .btn {
+    width: 100%;
+    min-height: 42px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: .45rem;
+    font-size: .86rem;
+    font-weight: 600;
+    text-align: center;
+}
+
+.riscos-pagination .btn:disabled {
+    opacity: .45;
+    cursor: not-allowed;
+}
+
+@media (max-width: 1199px) {
+    main.content {
+        padding: .85rem !important;
+    }
+
+    .page-header-riscos {
+        padding: 1rem !important;
+    }
+
+    .page-header-riscos h3 {
+        font-size: 1.15rem !important;
+        line-height: 1.3;
+    }
+
+    .page-header-actions {
+        width: 100%;
+        display: grid !important;
+        grid-template-columns: 1fr 1fr;
+        gap: .5rem !important;
+    }
+
+    .page-header-actions .btn {
+        width: 100%;
+    }
+
+    .riscos-app-list {
+        grid-template-columns: repeat(2, 1fr);
+    }
+}
+
+@media (max-width: 576px) {
+    .page-header-actions {
+        grid-template-columns: 1fr;
+    }
+
+    .riscos-app-list {
+        grid-template-columns: 1fr;
+    }
+
+    .risco-app-card-main {
+        gap: .7rem;
+    }
+
+    .risco-app-actions {
+        grid-template-columns: 1fr;
+    }
+
+    .toast-container {
+        left: 0 !important;
+        right: 0 !important;
+        padding: .75rem !important;
+    }
+
+    .toast {
+        width: 100%;
+    }
+}

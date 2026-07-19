@@ -1,344 +1,232 @@
 <?php
 
-class VisitasController extends Controller {
+class VisitasController extends Controller
+{
+    private Visita $visitaModel;
 
-    private $visitaModel;
+    private const ABAS_VALIDAS = [
+        'abertas',
+        'concluidas',
+        'todas',
+    ];
 
-    public function __construct() {
-        if (session_status() === PHP_SESSION_NONE) session_start();
-        
-        if (!isset($_SESSION['usuario_id'])) {
+    public function __construct()
+    {
+        if (session_status() === PHP_SESSION_NONE) {
+            session_start();
+        }
+
+        if (empty($_SESSION['usuario_id'])) {
             header('Location: ' . BASE_URL . '/login');
             exit;
         }
-        
+
         $this->visitaModel = $this->model('Visita');
     }
 
-    public function index() {
-        $visitas = $this->visitaModel->listarTodos();
-        $this->view('visitas/index', ['visitas' => $visitas]);
-    }
+    public function index(): void
+    {
+        $aba = strtolower(trim((string)($_GET['aba'] ?? 'abertas')));
+        if (!in_array($aba, self::ABAS_VALIDAS, true)) {
+            $aba = 'abertas';
+        }
 
-    public function criar() {
-        $empresaModel = $this->model('Empresa');
-        $database = new Database();
-        $db = $database->getConnection();
+        $filtros = [
+            'prioridade' => strtoupper(trim((string)($_GET['prioridade'] ?? ''))),
+            'data_inicio' => $this->normalizarData((string)($_GET['data_inicio'] ?? '')),
+            'data_fim' => $this->normalizarData((string)($_GET['data_fim'] ?? '')),
+        ];
 
-        $this->view('visitas/criar', [
-            'usuarios' => $db->query("SELECT id, nome FROM usuarios ORDER BY nome ASC")->fetchAll(PDO::FETCH_ASSOC),
-            'empresas' => $empresaModel->listar(),
-            'veiculos' => $db->query("SELECT id, modelo, placa FROM veiculos ORDER BY modelo ASC")->fetchAll(PDO::FETCH_ASSOC),
-            'unidades' => $db->query("SELECT id, nome FROM unidades ORDER BY nome ASC")->fetchAll(PDO::FETCH_ASSOC)
+        $usuarioId = $this->usuarioLogadoId();
+        $tipoUsuario = $this->tipoUsuario();
+
+        $this->view('visitas/index', [
+            'visitas' => $this->visitaModel->listarFila(
+                $usuarioId,
+                $tipoUsuario,
+                $aba,
+                $filtros
+            ),
+            'indicadores' => $this->visitaModel->obterIndicadores(
+                $usuarioId,
+                $tipoUsuario
+            ),
+            'abaAtual' => $aba,
+            'filtros' => $filtros,
+            'usuarioAdministrador' => $this->usuarioAdministrador(),
         ]);
     }
 
-    public function salvar() {
-        if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
-            header('Location: ' . BASE_URL . '/visitas');
-            exit;
-        }
-            
-        $dados = [
-            'usuario_id'               => filter_input(INPUT_POST, 'usuario_id', FILTER_VALIDATE_INT),
-            'veiculo_id'               => filter_input(INPUT_POST, 'veiculo_id', FILTER_VALIDATE_INT),
-            'empresa_id'               => filter_input(INPUT_POST, 'empresa_id', FILTER_VALIDATE_INT),
-            'unidade_id'               => filter_input(INPUT_POST, 'unidade_id', FILTER_VALIDATE_INT),
-            'data_visita'              => trim($_POST['data_visita'] ?? ''),
-            'hora_inicio' => trim($_POST['hora_inicio'] ?? ''),
-            'hora_fim'    => trim($_POST['hora_fim'] ?? ''),
-            'responsavel_acompanhamento' => trim($_POST['responsavel_acompanhamento'] ?? ''),
-            'objetivo'                 => trim($_POST['objetivo'] ?? ''),
-            'observacoes'              => trim($_POST['observacoes'] ?? '')
-        ];
-
-        if (empty($dados['hora_inicio']) || empty($dados['hora_fim'])) {
-            $_SESSION['erro'] = "Informe horário de início e fim da visita.";
-            header('Location: ' . BASE_URL . '/visitas/criar');
-            exit;
-        }
-
-        if ($dados['hora_inicio'] >= $dados['hora_fim']) {
-            $_SESSION['erro'] = "O horário final deve ser maior que o horário inicial.";
-            header('Location: ' . BASE_URL . '/visitas/criar');
-            exit;
-        }
-
-        $conflito = $this->visitaModel->existeConflitoIntervalo(
-            $dados['usuario_id'],
-            $dados['veiculo_id'],
-            $dados['data_visita'],
-            $dados['hora_inicio'],
-            $dados['hora_fim']
-        );
-
-        if ($conflito) {
-            $_SESSION['erro'] = "Conflito de agenda: já existe uma visita para este técnico ou veículo neste intervalo.";
-            header('Location: ' . BASE_URL . '/visitas/criar');
-            exit;
-        }
-
-        // Validação idêntica ao padrão adotado em UsuariosController
-        if (empty($dados['usuario_id']) || empty($dados['empresa_id']) || empty($dados['data_visita'])) {
-            $_SESSION['erro'] = "Preencha todos os campos obrigatórios.";
-            header('Location: ' . BASE_URL . '/visitas/criar');
-            exit;
-        }
-
-        $conflito = $this->visitaModel->existeConflitoIntervalo(
-            $dados['usuario_id'],
-            $dados['veiculo_id'],
-            $dados['data_visita'],
-            $dados['hora_inicio'],
-            $dados['hora_fim']
-        );
-
-        if ($this->visitaModel->salvar($dados)) {
-            $_SESSION['sucesso'] = "Visita agendada com sucesso!";
-        } else {
-            $_SESSION['erro'] = "Erro ao salvar o agendamento.";
-        }
-        
-        header('Location: ' . BASE_URL . '/visitas');
-        exit;
-    }
-
-    public function editar($id = null) {
-        // Se o ID não foi passado como argumento, tenta obter via GET da URL
-        if ($id === null) {
-            $id = filter_input(INPUT_GET, 'id', FILTER_VALIDATE_INT);
-        }
-        
-        // Validação de segurança: se não houver ID, interrompe a execução
-        if (!$id) {
-            $_SESSION['erro'] = "ID do agendamento não informado.";
-            header('Location: ' . BASE_URL . '/visitas');
-            exit;
-        }
-
-        $visita = $this->visitaModel->buscarPorId((int)$id);
-        
-        if (!$visita) {
-            $_SESSION['erro'] = "Agendamento não encontrado.";
-            header('Location: ' . BASE_URL . '/visitas');
-            exit;
-        }
-        
-        $empresaModel = $this->model('Empresa');
-        $db = (new Database())->getConnection();
-        
-        $this->view('visitas/editar', [
-            'visita'   => $visita,
-            'usuarios' => $db->query("SELECT id, nome FROM usuarios ORDER BY nome ASC")->fetchAll(PDO::FETCH_ASSOC),
-            'empresas' => $empresaModel->listar(),
-            'veiculos' => $db->query("SELECT id, modelo, placa FROM veiculos ORDER BY modelo ASC")->fetchAll(PDO::FETCH_ASSOC),
-            'unidades' => $db->query("SELECT id, nome FROM unidades ORDER BY nome ASC")->fetchAll(PDO::FETCH_ASSOC)
-        ]);
-    }
-
-    public function atualizar($id = null) {
-        if ($id === null) {
-            $id = filter_input(INPUT_GET, 'id', FILTER_VALIDATE_INT);
-        }
-
-        if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
-            header('Location: ' . BASE_URL . '/visitas');
-            exit;
-        }
-
-        if (!$id || !$this->visitaModel->buscarPorId((int)$id)) {
-            $_SESSION['erro'] = "Agendamento não encontrado.";
-            header('Location: ' . BASE_URL . '/visitas');
-            exit;
-        }
-
-        $dados = [
-            'usuario_id'                 => filter_input(INPUT_POST, 'usuario_id', FILTER_VALIDATE_INT),
-            'veiculo_id'                 => filter_input(INPUT_POST, 'veiculo_id', FILTER_VALIDATE_INT),
-            'empresa_id'                 => filter_input(INPUT_POST, 'empresa_id', FILTER_VALIDATE_INT),
-            'unidade_id'                 => filter_input(INPUT_POST, 'unidade_id', FILTER_VALIDATE_INT),
-            'data_visita'                => trim($_POST['data_visita'] ?? ''),
-            'hora_inicio'                => trim($_POST['hora_inicio'] ?? ''),
-            'hora_fim'                   => trim($_POST['hora_fim'] ?? ''),
-            'responsavel_acompanhamento' => trim($_POST['responsavel_acompanhamento'] ?? ''),
-            'objetivo'                   => trim($_POST['objetivo'] ?? ''),
-            'observacoes'                => trim($_POST['observacoes'] ?? '')
-        ];
-
-        if (
-            empty($dados['usuario_id']) ||
-            empty($dados['empresa_id']) ||
-            empty($dados['data_visita']) ||
-            empty($dados['hora_inicio']) ||
-            empty($dados['hora_fim'])
-        ) {
-            $_SESSION['erro'] = "Preencha todos os campos obrigatórios.";
-            header('Location: ' . BASE_URL . '/visitas/editar?id=' . (int)$id);
-            exit;
-        }
-
-        if ($dados['hora_inicio'] >= $dados['hora_fim']) {
-            $_SESSION['erro'] = "O horário final deve ser maior que o horário inicial.";
-            header('Location: ' . BASE_URL . '/visitas/editar?id=' . (int)$id);
-            exit;
-        }
-
-        $conflito = $this->visitaModel->existeConflitoIntervalo(
-            $dados['usuario_id'],
-            $dados['veiculo_id'],
-            $dados['data_visita'],
-            $dados['hora_inicio'],
-            $dados['hora_fim'],
-            (int)$id
-        );
-
-        if ($conflito) {
-            $_SESSION['erro'] = "Conflito de agenda: já existe uma visita para este técnico ou veículo neste intervalo.";
-            header('Location: ' . BASE_URL . '/visitas/editar?id=' . (int)$id);
-            exit;
-        }
-
-        if ($this->visitaModel->atualizar((int)$id, $dados)) {
-            $_SESSION['sucesso'] = "Agendamento atualizado com sucesso!";
-        } else {
-            $_SESSION['erro'] = "Erro ao atualizar agendamento.";
-        }
-
-        header('Location: ' . BASE_URL . '/visitas');
-        exit;
-    }
-
-    public function atualizarData() {
-        if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-            $id = filter_input(INPUT_POST, 'id', FILTER_VALIDATE_INT);
-            $novaData = trim($_POST['nova_data'] ?? '');
-
-            if (!$id || empty($novaData)) {
-                http_response_code(400);
-                echo json_encode(['status' => 'error', 'message' => 'Dados inválidos']);
-                return;
-            }
-
-            // CORREÇÃO: Usar $this->visitaModel em vez de $this->model
-            $resultado = $this->visitaModel->updateData($id, $novaData);
-
-            if ($resultado) {
-                echo json_encode(['status' => 'success']);
-            } else {
-                http_response_code(500);
-                echo json_encode(['status' => 'error', 'message' => 'Erro ao atualizar no banco']);
-            }
-        }
-    }
-
-    public function excluir($id)
+    /**
+     * A visita nasce automaticamente no módulo Agenda.
+     */
+    public function criar(): never
     {
-        $visita = $this->visitaModel->buscarPorId((int)$id);
-
-        if (!$visita) {
-            $_SESSION['erro'] = "Agendamento não encontrado.";
-            header('Location: ' . BASE_URL . '/visitas');
-            exit;
-        }
-
-        $usuarioId = $_SESSION['usuario_id'] ?? null;
-        $motivo = trim($_POST['motivo'] ?? 'Exclusão realizada pelo usuário.');
-
-        if ($this->visitaModel->deletar((int)$id)) {
-            $this->visitaModel->registrarHistorico(
-                (int)$id,
-                $usuarioId,
-                'EXCLUSAO',
-                $visita['status'],
-                'EXCLUIDA',
-                $motivo
-            );
-
-            $_SESSION['sucesso'] = "Visita excluída com sucesso!";
-        } else {
-            $_SESSION['erro'] = "Erro ao excluir agendamento.";
-        }
-
-        header('Location: ' . BASE_URL . '/visitas');
-        exit;
+        $_SESSION['info'] = 'Cadastre o compromisso pela Agenda. A visita técnica será criada automaticamente.';
+        $this->redirecionar('/agenda/criar');
     }
 
-    public function cancelar()
+    public function salvar(): never
     {
-        $id = filter_input(INPUT_GET, 'id', FILTER_VALIDATE_INT);
-        $motivo = trim($_POST['motivo'] ?? 'Cancelamento realizado pelo usuário.');
-
-        $visita = $this->visitaModel->buscarPorId((int)$id);
-
-        if (!$id || !$visita) {
-            $_SESSION['erro'] = "Agendamento não encontrado.";
-            header('Location: ' . BASE_URL . '/visitas');
-            exit;
-        }
-
-        $usuarioId = $_SESSION['usuario_id'] ?? null;
-
-        if ($this->visitaModel->atualizarStatus((int)$id, 'CANCELADA')) {
-            $this->visitaModel->registrarHistorico(
-                (int)$id,
-                $usuarioId,
-                'CANCELAMENTO',
-                $visita['status'],
-                'CANCELADA',
-                $motivo
-            );
-
-            $_SESSION['sucesso'] = "Visita cancelada com sucesso!";
-        } else {
-            $_SESSION['erro'] = "Erro ao cancelar agendamento.";
-        }
-
-        header('Location: ' . BASE_URL . '/visitas');
-        exit;
+        $_SESSION['erro'] = 'A criação direta de visitas foi desativada. Utilize o módulo Agenda.';
+        $this->redirecionar('/agenda/criar');
     }
 
-    public function visualizar() {
-        $id = filter_input(INPUT_GET, 'id', FILTER_VALIDATE_INT);
-        if (!$id) {
-            header('Location: ' . BASE_URL . '/visitas');
-            exit;
-        }
-        
+    public function visualizar($id = null): void
+    {
+        $id = $this->validarId($id ?? $_GET['id'] ?? null);
         $visita = $this->visitaModel->buscarPorId($id);
+
         if (!$visita) {
-            $_SESSION['erro'] = "Agendamento não encontrado.";
-            header('Location: ' . BASE_URL . '/visitas');
-            exit;
+            $_SESSION['erro'] = 'Visita técnica não encontrada.';
+            $this->redirecionar('/visitas');
         }
-        
-        $this->view('visitas/visualizar', ['visita' => $visita]);
+
+        if (!$this->visitaModel->usuarioPodeAcessar(
+            $visita,
+            $this->usuarioLogadoId(),
+            $this->tipoUsuario()
+        )) {
+            $_SESSION['erro'] = 'Você não possui permissão para acessar esta visita técnica.';
+            $this->redirecionar('/visitas');
+        }
+
+        $this->view('visitas/visualizar', [
+            'visita' => $visita,
+            'historico' => $this->visitaModel->listarHistorico($id),
+            'podeIniciarChecklist' => $this->visitaModel->podeIniciarChecklist($visita),
+        ]);
     }
 
-    public function atualizarStatus()
+    /**
+     * Os dados da visita vinculada são administrados pela Agenda, evitando
+     * duas fontes diferentes para data, técnico, empresa e veículo.
+     */
+    public function editar($id = null): never
     {
-        $id = filter_input(INPUT_GET, 'id', FILTER_VALIDATE_INT);
+        $id = $this->validarId($id ?? $_GET['id'] ?? null);
+        $visita = $this->visitaModel->buscarPorId($id);
 
-        if (!$id) {
-            $_SESSION['erro'] = 'ID da visita não informado.';
-            header('Location: ' . BASE_URL . '/visitas');
-            exit;
+        if (!$visita) {
+            $_SESSION['erro'] = 'Visita técnica não encontrada.';
+            $this->redirecionar('/visitas');
         }
 
-        $status = trim($_POST['status'] ?? '');
-
-        if (empty($status)) {
-            $_SESSION['erro'] = 'Status não informado.';
-            header('Location: ' . BASE_URL . '/visitas');
-            exit;
+        if (!$this->visitaModel->usuarioPodeAcessar(
+            $visita,
+            $this->usuarioLogadoId(),
+            $this->tipoUsuario()
+        )) {
+            $_SESSION['erro'] = 'Você não possui permissão para alterar esta visita técnica.';
+            $this->redirecionar('/visitas');
         }
 
-        if ($this->visitaModel->atualizarStatus($id, $status)) {
-            $_SESSION['sucesso'] = 'Status atualizado com sucesso!';
-        } else {
-            $_SESSION['erro'] = 'Erro ao atualizar status.';
+        if (!empty($visita['agenda_ref_id'])) {
+            $this->redirecionar('/agenda/editar/' . (int)$visita['agenda_ref_id']);
         }
 
-        header('Location: ' . BASE_URL . '/visitas');
+        $_SESSION['erro'] = 'Esta visita antiga não está vinculada a um agendamento.';
+        $this->redirecionar('/visitas/visualizar/' . $id);
+    }
+
+    public function atualizar($id = null): never
+    {
+        $_SESSION['erro'] = 'Atualize os dados pelo módulo Agenda para manter a sincronização.';
+
+        if ($id !== null && filter_var($id, FILTER_VALIDATE_INT)) {
+            $this->redirecionar('/visitas/editar/' . (int)$id);
+        }
+
+        $this->redirecionar('/visitas');
+    }
+
+    public function atualizarData(): never
+    {
+        http_response_code(409);
+        header('Content-Type: application/json; charset=utf-8');
+        echo json_encode([
+            'status' => 'error',
+            'message' => 'A data deve ser alterada pela operação Reagendar da Agenda.',
+        ], JSON_UNESCAPED_UNICODE);
+        exit;
+    }
+
+    public function atualizarStatus(): never
+    {
+        $_SESSION['erro'] = 'O status da visita é alterado automaticamente pelo fluxo do check-list.';
+        $this->redirecionar('/visitas');
+    }
+
+    public function cancelar($id = null): never
+    {
+        $id = $this->validarId($id ?? $_GET['id'] ?? null);
+        $visita = $this->visitaModel->buscarPorId($id);
+
+        if ($visita && !empty($visita['agenda_ref_id'])) {
+            $_SESSION['info'] = 'O cancelamento deve ser realizado na Agenda, com motivo e histórico.';
+            $this->redirecionar('/agenda/visualizar/' . (int)$visita['agenda_ref_id']);
+        }
+
+        $_SESSION['erro'] = 'Não foi possível localizar o agendamento vinculado.';
+        $this->redirecionar('/visitas');
+    }
+
+    public function excluir($id = null): never
+    {
+        $id = $this->validarId($id ?? $_GET['id'] ?? null);
+        $visita = $this->visitaModel->buscarPorId($id);
+
+        if ($visita && !empty($visita['agenda_ref_id'])) {
+            $_SESSION['info'] = 'A exclusão deve ser realizada na Agenda, com motivo e histórico.';
+            $this->redirecionar('/agenda/visualizar/' . (int)$visita['agenda_ref_id']);
+        }
+
+        $_SESSION['erro'] = 'Não foi possível localizar o agendamento vinculado.';
+        $this->redirecionar('/visitas');
+    }
+
+    private function validarId($id): int
+    {
+        $id = filter_var($id, FILTER_VALIDATE_INT);
+        if (!$id || $id <= 0) {
+            $_SESSION['erro'] = 'Identificador da visita técnica inválido.';
+            $this->redirecionar('/visitas');
+        }
+
+        return (int)$id;
+    }
+
+    private function normalizarData(string $data): string
+    {
+        $data = trim($data);
+        if ($data === '') {
+            return '';
+        }
+
+        $objeto = DateTime::createFromFormat('Y-m-d', $data);
+        return $objeto !== false && $objeto->format('Y-m-d') === $data
+            ? $data
+            : '';
+    }
+
+    private function usuarioLogadoId(): int
+    {
+        return (int)$_SESSION['usuario_id'];
+    }
+
+    private function tipoUsuario(): string
+    {
+        return strtoupper(trim((string)($_SESSION['tipo'] ?? '')));
+    }
+
+    private function usuarioAdministrador(): bool
+    {
+        return in_array($this->tipoUsuario(), ['ADMIN', 'ADMINISTRADOR'], true);
+    }
+
+    private function redirecionar(string $rota): never
+    {
+        header('Location: ' . BASE_URL . $rota);
         exit;
     }
 }

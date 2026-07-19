@@ -1,0 +1,154 @@
+/* ============================
+   RESET / BASE GLOBAL
+============================ */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+html, body {
+    height: 100%;
+}
+
+body {
+    font-family: "Segoe UI", Arial, sans-serif;
+    background-color: #f8fafc;
+    color: #052b75;
+}
+
+/* ============================
+   LAYOUT PRINCIPAL
+============================ */
+.app-wrapper {
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+}
+
+.app-body {
+    flex: 1;
+    display: flex;
+    width: 100%;
+}
+
+/* ============================
+   CONTEÚDO
+============================ */
+main.content {
+    flex: 1;
+    background-color: #f8fafc;
+}
+
+/* ============================
+   TIPOGRAFIA
+============================ */
+h1, h2, h3, h4, h5, h6 {
+    color: #034596;
+    font-weight: 600;
+}
+
+.text-muted {
+    color: #6b7280 !important;
+}
+
+/* ============================
+   CONTAINER
+============================ */
+.container {
+    max-width: 1400px;
+}
+
+/* ============================
+   DASHBOARD / CHARTS
+============================ */
+.chart-box {
+    position: relative;
+    height: 180px;
+    overflow: hidden;
+}
+
+.chart-small {
+    width: 100% !important;
+    height: 100% !important;
+}
+
+/* ============================
+   TABLET / RESPONSIVO
+============================ */
+@media (max-width: 992px) {
+
+    table.table td,
+    table.table th {
+        padding: 6px 8px;
+        font-size: 0.85rem;
+        vertical-align: middle;
+    }
+
+    table {
+        width: 100%;
+        table-layout: auto;
+    }
+
+    .col-id {
+        width: 60px;
+        max-width: 60px;
+        text-align: center;
+        white-space: nowrap;
+    }
+
+    .badge {
+        font-size: 0.75rem;
+        padding: 4px 8px;
+    }
+
+    td.small div {
+        white-space: normal;
+        word-break: break-word;
+        line-height: 1.2;
+    }
+}
+
+/* ============================
+   SWITCH / STATUS
+============================ */
+.switch-lg {
+    width: 3.4em;
+    height: 1.7em;
+    cursor: pointer;
+    transition: all 0.2s ease-in-out;
+}
+
+.switch-lg:checked {
+    background-color: #198754;
+    border-color: #198754;
+}
+
+.switch-lg:focus {
+    box-shadow: none;
+}
+
+.status-switch {
+    padding: 6px 10px;
+    border-radius: 10px;
+    background: #f8f9fa;
+    border: 1px solid #e9ecef;
+}
+
+.status-text {
+    transition: all 0.2s ease;
+}
+
+/* ============================
+   TOASTS (CORRIGIDO)
+============================ */
+.toast {
+    border-radius: 16px;
+    min-width: 320px;
+    backdrop-filter: blur(10px);
+}
+
+.toast-body {
+    font-weight: 500;
+    padding: 14px 18px;
+}

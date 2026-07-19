@@ -1,0 +1,182 @@
+:root{
+    --nexus-primary:#2563eb;
+    --nexus-primary-dark:#1e3a8a;
+    --nexus-sidebar:#0f172a;
+    --nexus-bg:#f8fafc;
+    --nexus-card:#ffffff;
+    --nexus-border:#e5e7eb;
+    --nexus-text:#0f172a;
+    --nexus-muted:#64748b;
+    --nexus-success:#22c55e;
+    --nexus-danger:#ef4444;
+    --nexus-warning:#f59e0b;
+    --nexus-info:#0ea5e9;
+}
+
+body{
+    background:var(--nexus-bg);
+}
+
+.card,
+.empresa-app-card,
+.unidade-app-card,
+.setor-app-card,
+.cargo-app-card,
+.risco-app-card{
+    border-radius:1.25rem;
+    border:1px solid var(--nexus-border);
+    box-shadow:0 4px 14px rgba(15,23,42,.05);
+}
+
+.page-header-empresas,
+.page-header-unidades,
+.page-header-setores,
+.page-header-cargos,
+.page-header-riscos{
+    border-radius:1.25rem !important;
+}
+
+.btn{
+    font-weight:600;
+}
+
+.btn-nexus-primary{
+    background:var(--nexus-primary);
+    border-color:var(--nexus-primary);
+    color:#fff;
+}
+
+.btn-nexus-primary:hover{
+    background:var(--nexus-primary-dark);
+    border-color:var(--nexus-primary-dark);
+    color:#fff;
+}
+
+.nexus-card-actions{
+    display:grid;
+    grid-template-columns:repeat(3,1fr);
+    gap:.5rem;
+    margin-top:.95rem;
+    padding-top:.85rem;
+    border-top:1px solid #f1f3f5;
+}
+
+.nexus-card-actions .btn{
+    min-height:42px;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    gap:.4rem;
+    font-size:.86rem;
+}
+
+.nexus-topbar{
+    background:#fff;
+    border-bottom:1px solid #e5e7eb;
+    box-shadow:0 2px 10px rgba(15,23,42,.04);
+    position:sticky;
+    top:0;
+    z-index:1030;
+}
+
+.nexus-topbar .navbar{
+    min-height:70px;
+}
+
+.nexus-global-search{
+    max-width:520px;
+}
+
+.nexus-global-search .form-control,
+.nexus-global-search .input-group-text{
+    min-height:42px;
+    border-color:#e5e7eb;
+}
+
+.nexus-topbar-btn,
+.nexus-icon-btn{
+    width:42px;
+    height:42px;
+    border-radius:14px;
+    display:inline-flex;
+    align-items:center;
+    justify-content:center;
+}
+
+.nexus-topbar-btn{
+    color:#475569;
+    background:#f8fafc;
+    border:1px solid #e5e7eb;
+}
+
+.nexus-topbar-btn:hover{
+    color:#2563eb;
+    background:#eff6ff;
+    border-color:#bfdbfe;
+}
+
+.nexus-notification-badge{
+    position:absolute;
+    top:-4px;
+    right:-4px;
+    min-width:18px;
+    height:18px;
+    padding:0 5px;
+    border-radius:999px;
+    color:#fff;
+    font-size:.65rem;
+    font-weight:800;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    border:2px solid #fff;
+}
+
+.nexus-dropdown-lg{
+    min-width:280px;
+    border:0;
+    border-radius:16px;
+    overflow:hidden;
+}
+
+.nexus-user-btn{
+    padding:.25rem .35rem;
+    border-radius:16px;
+}
+
+.nexus-user-btn:hover{
+    background:#f8fafc;
+}
+
+@media(max-width:768px){
+    .nexus-topbar .navbar{
+        min-height:62px;
+    }
+
+    .logo-img{
+        max-height:40px;
+    }
+
+    .nexus-topbar-btn,
+    .nexus-icon-btn{
+        width:40px;
+        height:40px;
+        border-radius:12px;
+    }
+}
+
+@media(max-width:576px){
+    .nexus-topbar{
+        position:sticky;
+    }
+
+    .nexus-topbar-btn:nth-of-type(1){
+        display:none;
+    }
+}
+
+@media(max-width:576px){
+    .nexus-card-actions{
+        grid-template-columns:1fr;
+    }
+}

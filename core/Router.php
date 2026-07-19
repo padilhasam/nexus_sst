@@ -36,24 +36,12 @@ class Router
 
     public function dispatch(): void
     {
-        $httpMethod = $_SERVER['REQUEST_METHOD'];
-        $requestPath = parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH);
-
-        $basePath = rtrim(dirname($_SERVER['SCRIPT_NAME']), '/');
-        $route = $requestPath;
-
-        if ($basePath !== '/' && str_starts_with($route, $basePath)) {
-            $route = substr($route, strlen($basePath));
-        }
-
-        $route = '/' . trim($route, '/');
-
-        if ($route === '//') {
-            $route = '/';
-        }
+        $httpMethod = strtoupper($_SERVER['REQUEST_METHOD'] ?? 'GET');
+        $requestUri = $_SERVER['REQUEST_URI'] ?? '/';
+        $requestPath = parse_url($requestUri, PHP_URL_PATH) ?: '/';
+        $route = $this->normalizeRequestPath($requestPath);
 
         $routes = $this->routes[$httpMethod] ?? [];
-
         $match = $this->matchRoute($routes, $route);
 
         if (!$match) {
@@ -88,6 +76,57 @@ class Router
         }
 
         $controller->$methodName(...$params);
+    }
+
+    /**
+     * Remove da URL o caminho público da aplicação antes de procurar a rota.
+     *
+     * Exemplo:
+     * /orcamento/public/dashboard -> /dashboard
+     *
+     * O BASE_URL é usado primeiro porque alguns servidores/proxies informam
+     * SCRIPT_NAME apenas como /index.php, mesmo quando a aplicação está em
+     * uma subpasta.
+     */
+    private function normalizeRequestPath(string $requestPath): string
+    {
+        $route = '/' . ltrim($requestPath, '/');
+
+        $basePaths = [];
+
+        if (defined('BASE_URL')) {
+            $configuredBasePath = parse_url((string) BASE_URL, PHP_URL_PATH);
+
+            if (is_string($configuredBasePath) && $configuredBasePath !== '') {
+                $basePaths[] = '/' . trim($configuredBasePath, '/');
+            }
+        }
+
+        $scriptName = str_replace('\\', '/', $_SERVER['SCRIPT_NAME'] ?? '');
+        $scriptBasePath = rtrim(dirname($scriptName), '/');
+
+        if ($scriptBasePath !== '' && $scriptBasePath !== '.' && $scriptBasePath !== '/') {
+            $basePaths[] = '/' . trim($scriptBasePath, '/');
+        }
+
+        $basePaths = array_values(array_unique(array_filter($basePaths)));
+        usort($basePaths, static fn(string $a, string $b): int => strlen($b) <=> strlen($a));
+
+        foreach ($basePaths as $basePath) {
+            if ($route === $basePath) {
+                $route = '/';
+                break;
+            }
+
+            if (str_starts_with($route, $basePath . '/')) {
+                $route = substr($route, strlen($basePath));
+                break;
+            }
+        }
+
+        $route = '/' . trim($route, '/');
+
+        return $route === '//' ? '/' : $route;
     }
 
     private function matchRoute(array $routes, string $route): ?array
