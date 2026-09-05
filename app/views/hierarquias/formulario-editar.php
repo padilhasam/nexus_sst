@@ -1,0 +1,15 @@
+<?php $dados = $hierarquia ?? []; ?>
+<input type="hidden" name="_token" value="<?= htmlspecialchars($csrfToken) ?>">
+<div class="org-callout"><i class="fa-solid fa-shield-halved"></i><div>A edição altera somente esta combinação. Linhas com Funcionários ou GHEs vinculados não podem ser remanejadas.</div></div>
+<section class="org-form-section">
+    <div class="org-section-title"><div class="org-section-icon"><i class="fa-solid fa-sitemap"></i></div><div><h2>Composição da linha</h2><p>Selecione Empresa, Unidade, Setor e Cargo.</p></div></div>
+    <div class="org-form-grid">
+        <div class="org-field org-col-6"><label for="empresa_id">Empresa *</label><select class="form-select" name="empresa_id" id="empresa_id" required><option value="">Selecione a empresa</option><?php foreach($empresas as $empresa): ?><option value="<?= (int)$empresa['id'] ?>" <?= (string)($dados['empresa_id']??'')===(string)$empresa['id']?'selected':'' ?>><?= htmlspecialchars($empresa['nome_fantasia'] ?: $empresa['razao_social']) ?></option><?php endforeach; ?></select></div>
+        <div class="org-field org-col-6"><label for="unidade_id">Unidade *</label><select class="form-select" name="unidade_id" id="unidade_id" required><option value="">Selecione a unidade</option><?php foreach($unidades as $unidade): ?><option value="<?= (int)$unidade['id'] ?>" data-empresa="<?= (int)$unidade['empresa_id'] ?>" <?= (string)($dados['unidade_id']??'')===(string)$unidade['id']?'selected':'' ?>><?= htmlspecialchars($unidade['nome']) ?></option><?php endforeach; ?></select><small>Somente unidades da empresa escolhida serão exibidas.</small></div>
+        <div class="org-field org-col-6"><label for="setor_id">Setor global *</label><select class="form-select" name="setor_id" id="setor_id" required><option value="">Selecione o setor</option><?php foreach($setores as $setor): ?><option value="<?= (int)$setor['id'] ?>" <?= (string)($dados['setor_id']??'')===(string)$setor['id']?'selected':'' ?>><?= htmlspecialchars($setor['nome']) ?></option><?php endforeach; ?></select></div>
+        <div class="org-field org-col-6"><label for="cargo_id">Cargo global *</label><select class="form-select" name="cargo_id" id="cargo_id" required><option value="">Selecione o cargo</option><?php foreach($cargos as $cargo): ?><option value="<?= (int)$cargo['id'] ?>" <?= (string)($dados['cargo_id']??'')===(string)$cargo['id']?'selected':'' ?>><?= htmlspecialchars($cargo['nome'] . (!empty($cargo['cbo']) ? ' — CBO '.$cargo['cbo'] : '')) ?></option><?php endforeach; ?></select></div>
+    </div>
+</section>
+<script>
+document.addEventListener('DOMContentLoaded',function(){const empresa=document.getElementById('empresa_id'),unidade=document.getElementById('unidade_id');function filtrar(){const id=empresa?.value||'';Array.from(unidade?.options||[]).forEach(function(option){if(!option.value)return;option.hidden=id!==''&&option.dataset.empresa!==id;option.disabled=option.hidden;if(option.hidden&&option.selected)unidade.value='';});}empresa?.addEventListener('change',function(){if(unidade)unidade.value='';filtrar();});filtrar();});
+</script>

@@ -1,0 +1,62 @@
+VALIDAÇÃO — TELA DE EMPRESAS NO PADRÃO ORGANIZACIONAL
+Data: 22/07/2026
+
+ESCOPO
+- app/views/empresas/index.php
+- app/views/empresas/criar.php
+- app/views/empresas/editar.php
+- app/views/empresas/formulario.php (novo componente compartilhado)
+- app/controllers/EmpresasController.php
+- public/js/app.js (correção de declaração duplicada encontrada na validação global)
+
+PADRONIZAÇÃO APLICADA
+1. INDEX
+- Cabeçalho org-header igual aos módulos Unidades, Setores e Cargos.
+- Quatro indicadores no componente org-kpis.
+- Barra de busca e filtros no componente org-toolbar.
+- Cards no componente org-grid/org-card.
+- Ações Ficha, Editar e Desativar no mesmo padrão das Unidades.
+- Modal de ficha no componente org-modal.
+- Responsividade herdada de cadastros-organizacionais.css.
+
+2. CRIAR E EDITAR
+- Mesmo org-header utilizado pelos demais cadastros organizacionais.
+- Mesmo layout org-form-layout com formulário e painel lateral.
+- Mesmo cartão org-form-card.
+- Mesmo sistema de seções org-form-section e grade de 12 colunas.
+- Um único formulario.php compartilhado entre criação e edição.
+- Remoção de estilos inline e do formulário Bootstrap antigo.
+
+3. FUNCIONALIDADES PRESERVADAS
+- Todos os campos existentes no banco e no controller foram mantidos.
+- Consulta pública de CNPJ preservada.
+- Consulta de CEP preservada.
+- Máscaras de CNPJ, CEP e telefone preservadas.
+- Geração de códigos padrão preservada.
+- Endereço consolidado gerado automaticamente.
+- Endereço legado preservado quando não existem campos estruturados.
+- Validação de CNPJ e código duplicados preservada.
+
+4. MELHORIAS TÉCNICAS
+- Token CSRF incluído em criar e editar.
+- Dados digitados são recuperados após erro no cadastro.
+- Validação de e-mail e UF no servidor.
+- Tratamento padronizado de exceções e mensagens.
+- Corrigida declaração duplicada de tempoInformado em public/js/app.js.
+
+VALIDAÇÕES EXECUTADAS
+- 222 arquivos PHP: sem erros de sintaxe.
+- 24 arquivos JavaScript: sem erros de sintaxe.
+- 2 scripts JavaScript inline modificados: sem erros de sintaxe.
+- Renderização isolada de index.php: aprovada, sem avisos PHP.
+- Renderização isolada de criar.php: aprovada, sem avisos PHP.
+- Renderização isolada de editar.php: aprovada, sem avisos PHP.
+- Cobertura dos 29 campos esperados do formulário: aprovada.
+- Ausência de estilos inline e estruturas antigas nas views de Empresas: aprovada.
+
+BANCO DE DADOS
+- Nenhuma migration nova é necessária.
+- A estrutura atual da tabela empresas já suporta todos os campos utilizados.
+
+OBSERVAÇÃO
+- A validação integrada com servidor web, sessão real e MySQL deve ser executada no ambiente de homologação.

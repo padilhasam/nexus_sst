@@ -1,0 +1,27 @@
+NEXUS SST - VALIDAÇÃO DA ETAPA 3
+Data: 21/07/2026
+
+Validações executadas:
+- 220 arquivos PHP verificados com php -l: sem erros de sintaxe.
+- public/js/pages/checklists.js verificado com node --check: sem erros.
+- Renderização isolada das abas Hierarquia, Funcionários e GHE/Riscos com dados simulados: concluída.
+- Conferência das rotas POST de inativação de GHE e remoção de risco: concluída.
+- Migration 2026_07_21_checklist_hierarquia_funcionarios_ghe.sql incluída e referenciada pela interface.
+
+Funcionalidades desta etapa:
+- Hierarquia funcional.
+- Funcionários funcionais, com inativação histórica.
+- GHE e riscos funcionais, com inativação e remoção controlada.
+- Proteção CSRF e bloqueio de alterações em check-list concluído/cancelado.
+
+Limite da validação no ambiente:
+- Não foi executado teste integrado contra MySQL e servidor web, pois o ambiente de validação não possui uma instância MySQL configurada.
+- A migration foi revisada estaticamente para MySQL 8.x.
+
+Módulos ainda pendentes:
+- EPI/EPC.
+- Evidências fotográficas.
+- Fiscalização e não conformidades dentro do check-list.
+- Assinaturas.
+- Geração automática e gestão completa das quantificações.
+- Relatório final em PDF.

@@ -1,194 +1,234 @@
 <?php
 
-class HierarquiasController
+class HierarquiasController extends Controller
 {
-    private Hierarquia $hierarquia;
+    private Hierarquia $hierarquiaModel;
+    private Empresa $empresaModel;
+    private Unidade $unidadeModel;
+    private Setor $setorModel;
+    private Cargo $cargoModel;
 
     public function __construct()
     {
         if (session_status() === PHP_SESSION_NONE) {
             session_start();
         }
-
-        if (!isset($_SESSION['usuario_id'])) {
+        if (empty($_SESSION['usuario_id'])) {
             header('Location: ' . BASE_URL . '/login');
             exit;
         }
 
-        $this->hierarquia = new Hierarquia();
+        $this->hierarquiaModel = $this->model('Hierarquia');
+        $this->empresaModel = $this->model('Empresa');
+        $this->unidadeModel = $this->model('Unidade');
+        $this->setorModel = $this->model('Setor');
+        $this->cargoModel = $this->model('Cargo');
     }
 
-    public function index()
+    public function index(): void
     {
-        $empresasEstruturadas = $this->hierarquia->listarEmpresasEstruturadas();
-
-        $total_empresas = $this->hierarquia->contarEmpresas();
-        $total_setores = $this->hierarquia->contarSetores();
-        $total_cargos = $this->hierarquia->contarCargos();
-
-        require '../app/views/hierarquias/index.php';
-    }
-
-    public function criar()
-    {
-        require '../app/views/hierarquias/criar.php';
-    }
-
-    public function salvar()
-    {
-        $empresaId = $_POST['empresa_id'] ?? null;
-        $unidadeId = $_POST['unidade_id'] ?? null;
-        $setorId = $_POST['setor_id'] ?? null;
-        $cargoId = $_POST['cargo_id'] ?? null;
-
-        if (empty($empresaId) || empty($unidadeId) || empty($setorId) || empty($cargoId)) {
-            $_SESSION['erro'] = 'Preencha todos os campos.';
-            header('Location: ' . BASE_URL . '/hierarquias/criar');
-            exit;
-        }
-
-        if ($this->hierarquia->existe((int)$empresaId, (int)$unidadeId, (int)$setorId, (int)$cargoId)) {
-            $_SESSION['erro'] = 'Esta hierarquia já está cadastrada.';
-            header('Location: ' . BASE_URL . '/hierarquias/criar');
-            exit;
-        }
-
-        $this->hierarquia->salvar([
-            'empresa_id' => $empresaId,
-            'unidade_id' => $unidadeId,
-            'setor_id' => $setorId,
-            'cargo_id' => $cargoId
+        $this->view('hierarquias/index', [
+            'empresasEstruturadas' => $this->hierarquiaModel->listarEmpresasEstruturadas(),
+            'total_empresas' => $this->hierarquiaModel->contarEmpresas(),
+            'total_unidades' => $this->hierarquiaModel->contarUnidades(),
+            'total_setores' => $this->hierarquiaModel->contarSetores(),
+            'total_cargos' => $this->hierarquiaModel->contarCargos(),
         ]);
-
-        $_SESSION['sucesso'] = 'Hierarquia cadastrada com sucesso.';
-
-        header('Location: ' . BASE_URL . '/hierarquias');
-        exit;
     }
 
-    public function editar($id)
+    public function criar(): void
     {
-        $hierarquia = $this->hierarquia->buscarPorId((int)$id);
+        $this->view('hierarquias/criar', $this->dadosFormulario());
+    }
 
+    public function salvar(): never
+    {
+        $this->prepararPost();
+        try {
+            $resultado = $this->hierarquiaModel->salvarEmLote($_POST);
+            $mensagem = sprintf(
+                '%d vínculo(s) criado(s) com sucesso.',
+                (int)$resultado['inseridos']
+            );
+            if ((int)$resultado['existentes'] > 0) {
+                $mensagem .= sprintf(
+                    ' %d vínculo(s) já existiam e foram preservados.',
+                    (int)$resultado['existentes']
+                );
+            }
+            $_SESSION['sucesso'] = $mensagem;
+            $this->redirecionar('/hierarquias/estrutura/' . (int)$resultado['empresa_id']);
+        } catch (Throwable $erro) {
+            $this->registrarErro($erro);
+            $_SESSION['erro'] = $erro instanceof RuntimeException
+                ? $erro->getMessage()
+                : 'Não foi possível montar a hierarquia.';
+            $_SESSION['form_hierarquia'] = $_POST;
+            $this->redirecionar('/hierarquias/criar');
+        }
+    }
+
+    public function editar($id = null): void
+    {
+        $id = $this->validarId($id);
+        $hierarquia = $this->hierarquiaModel->buscarCompletaPorId($id);
         if (!$hierarquia) {
             $_SESSION['erro'] = 'Hierarquia não encontrada.';
-            header('Location: ' . BASE_URL . '/hierarquias');
-            exit;
+            $this->redirecionar('/hierarquias');
         }
-
-        require '../app/views/hierarquias/editar.php';
+        $this->view('hierarquias/editar', array_merge(
+            $this->dadosFormulario(),
+            ['hierarquia' => $hierarquia]
+        ));
     }
 
-    public function atualizar($id)
+    public function atualizar($id = null): never
     {
-        $this->hierarquia->atualizar((int)$id, [
-            'empresa_id' => $_POST['empresa_id'],
-            'unidade_id' => $_POST['unidade_id'],
-            'setor_id' => $_POST['setor_id'],
-            'cargo_id' => $_POST['cargo_id']
-        ]);
-
-        $_SESSION['sucesso'] = 'Hierarquia atualizada com sucesso.';
-
-        header('Location: ' . BASE_URL . '/hierarquias');
-        exit;
+        $this->prepararPost();
+        $id = $this->validarId($id);
+        try {
+            $this->hierarquiaModel->atualizar($id, $_POST);
+            $_SESSION['sucesso'] = 'Hierarquia atualizada com sucesso.';
+            $this->redirecionar('/hierarquias');
+        } catch (Throwable $erro) {
+            $this->registrarErro($erro);
+            $_SESSION['erro'] = $erro instanceof RuntimeException
+                ? $erro->getMessage()
+                : 'Não foi possível atualizar a hierarquia.';
+            $this->redirecionar('/hierarquias/editar/' . $id);
+        }
     }
 
-    public function excluir($id)
+    public function excluir($id = null): never
     {
-        $this->hierarquia->excluir((int)$id);
-
-        $_SESSION['sucesso'] = 'Hierarquia excluída com sucesso.';
-
-        header('Location: ' . BASE_URL . '/hierarquias');
-        exit;
+        $id = $this->validarId($id);
+        try {
+            $this->hierarquiaModel->excluir($id);
+            $_SESSION['sucesso'] = 'Hierarquia excluída com sucesso.';
+        } catch (Throwable $erro) {
+            $this->registrarErro($erro);
+            $_SESSION['erro'] = $erro instanceof RuntimeException
+                ? $erro->getMessage()
+                : 'Não foi possível excluir a hierarquia.';
+        }
+        $this->redirecionar('/hierarquias');
     }
 
-    public function importar()
+    public function estrutura($empresaId = null): void
     {
-        require '../app/views/hierarquias/importar.php';
-    }
-
-    public function processarImportacao()
-    {
-        $_SESSION['sucesso'] = 'Importação ainda será implementada.';
-
-        header('Location: ' . BASE_URL . '/hierarquias');
-        exit;
-    }
-
-    public function estrutura($empresaId)
-    {
-        $empresaId = (int)$empresaId;
-
-        $estrutura = $this->hierarquia->listarEstruturaPorEmpresa($empresaId);
-        $empresa = $this->hierarquia->buscarEmpresaNaHierarquia($empresaId);
-
+        $empresaId = $this->validarId($empresaId);
+        $empresa = $this->hierarquiaModel->buscarEmpresaNaHierarquia($empresaId);
         if (!$empresa) {
-            $_SESSION['erro'] = 'Empresa não encontrada na estrutura.';
-            header('Location: ' . BASE_URL . '/hierarquias');
-            exit;
+            $_SESSION['erro'] = 'Empresa não encontrada.';
+            $this->redirecionar('/hierarquias');
+        }
+        $this->view('hierarquias/estrutura', [
+            'empresa' => $empresa,
+            'estrutura' => $this->hierarquiaModel->listarEstruturaPorEmpresa($empresaId),
+            'funcionariosEmpresa' => $this->hierarquiaModel->listarFuncionariosPorEmpresa($empresaId),
+            'csrfToken' => $this->csrfToken(),
+        ]);
+    }
+
+    public function alocarFuncionarios($hierarquiaId = null): never
+    {
+        $this->prepararPost();
+        $hierarquiaId = $this->validarId($hierarquiaId);
+        $hierarquia = $this->hierarquiaModel->buscarPorId($hierarquiaId);
+
+        if (!$hierarquia) {
+            $_SESSION['erro'] = 'Cargo da hierarquia não encontrado.';
+            $this->redirecionar('/hierarquias');
         }
 
-        require '../app/views/hierarquias/estrutura.php';
+        try {
+            $total = $this->hierarquiaModel->alocarFuncionarios(
+                $hierarquiaId,
+                is_array($_POST['funcionarios'] ?? null) ? $_POST['funcionarios'] : []
+            );
+            $_SESSION['sucesso'] = sprintf(
+                '%d funcionário(s) alocado(s) ao cargo selecionado.',
+                $total
+            );
+        } catch (Throwable $erro) {
+            $this->registrarErro($erro);
+            $_SESSION['erro'] = $erro instanceof RuntimeException
+                ? $erro->getMessage()
+                : 'Não foi possível alocar os funcionários.';
+        }
+
+        $this->redirecionar('/hierarquias/estrutura/' . (int)$hierarquia['empresa_id']);
     }
 
-    public function listarEmpresasEstruturadas()
+    public function importar(): void
     {
-        $sql = "
-            SELECT
-                e.id,
-                COALESCE(e.nome_fantasia, e.razao_social, e.nome) AS empresa_nome,
-                COUNT(DISTINCT h.unidade_id) AS total_unidades,
-                COUNT(DISTINCT h.setor_id) AS total_setores,
-                COUNT(DISTINCT h.cargo_id) AS total_cargos,
-                COUNT(h.id) AS total_hierarquias
-            FROM hierarquias h
-            INNER JOIN empresas e ON e.id = h.empresa_id
-            GROUP BY e.id, empresa_nome
-            ORDER BY empresa_nome ASC
-        ";
-
-        $stmt = $this->db->query($sql);
-        return $stmt->fetchAll(PDO::FETCH_ASSOC);
+        $this->view('hierarquias/importar');
     }
 
-    public function buscarEmpresaNaHierarquia(int $empresaId)
+    public function processarImportacao(): never
     {
-        $sql = "
-            SELECT
-                e.id,
-                COALESCE(e.nome_fantasia, e.razao_social, e.nome) AS empresa_nome
-            FROM empresas e
-            WHERE e.id = :id
-            LIMIT 1
-        ";
-
-        $stmt = $this->db->prepare($sql);
-        $stmt->execute([':id' => $empresaId]);
-
-        return $stmt->fetch(PDO::FETCH_ASSOC);
+        $_SESSION['erro'] = 'A importação será reconstruída após a validação do modelo manual.';
+        $this->redirecionar('/hierarquias/importar');
     }
 
-    public function listarEstruturaPorEmpresa(int $empresaId)
+    private function dadosFormulario(): array
     {
-        $sql = "
-            SELECT
-                h.*,
-                u.nome AS unidade_nome,
-                s.nome AS setor_nome,
-                c.nome AS cargo_nome
-            FROM hierarquias h
-            INNER JOIN unidades u ON u.id = h.unidade_id
-            INNER JOIN setores s ON s.id = h.setor_id
-            INNER JOIN cargos c ON c.id = h.cargo_id
-            WHERE h.empresa_id = :empresa_id
-            ORDER BY u.nome ASC, s.nome ASC, c.nome ASC
-        ";
+        $dadosAnteriores = $_SESSION['form_hierarquia'] ?? [];
+        unset($_SESSION['form_hierarquia']);
+        if ($dadosAnteriores === [] && !empty($_GET['empresa_id'])) {
+            $dadosAnteriores['empresa_id'] = max(0, (int)$_GET['empresa_id']);
+        }
+        return [
+            'empresas' => $this->empresaModel->listarAtivas(),
+            'unidades' => $this->unidadeModel->listarAtivas(),
+            'setores' => $this->setorModel->listarAtivos(),
+            'cargos' => $this->cargoModel->listarAtivos(),
+            'vinculosExistentes' => $this->hierarquiaModel->listarTudo(),
+            'dadosAnteriores' => $dadosAnteriores,
+            'csrfToken' => $this->csrfToken(),
+        ];
+    }
 
-        $stmt = $this->db->prepare($sql);
-        $stmt->execute([':empresa_id' => $empresaId]);
+    private function prepararPost(): void
+    {
+        if (($_SERVER['REQUEST_METHOD'] ?? 'GET') !== 'POST') {
+            $_SESSION['erro'] = 'Método de requisição não permitido.';
+            $this->redirecionar('/hierarquias');
+        }
+        $recebido = (string)($_POST['_token'] ?? '');
+        $esperado = (string)($_SESSION['csrf_hierarquias'] ?? '');
+        if ($esperado === '' || !hash_equals($esperado, $recebido)) {
+            $_SESSION['erro'] = 'A sessão do formulário expirou. Recarregue a página.';
+            $this->redirecionar('/hierarquias');
+        }
+    }
 
-        return $stmt->fetchAll(PDO::FETCH_ASSOC);
+    private function csrfToken(): string
+    {
+        if (empty($_SESSION['csrf_hierarquias'])) {
+            $_SESSION['csrf_hierarquias'] = bin2hex(random_bytes(32));
+        }
+        return (string)$_SESSION['csrf_hierarquias'];
+    }
+
+    private function validarId(mixed $id): int
+    {
+        $id = filter_var($id, FILTER_VALIDATE_INT);
+        if (!$id || $id <= 0) {
+            $_SESSION['erro'] = 'Identificador inválido.';
+            $this->redirecionar('/hierarquias');
+        }
+        return (int)$id;
+    }
+
+    private function registrarErro(Throwable $erro): void
+    {
+        error_log('[Hierarquias] ' . $erro->getMessage());
+    }
+
+    private function redirecionar(string $rota): never
+    {
+        header('Location: ' . BASE_URL . $rota);
+        exit;
     }
 }

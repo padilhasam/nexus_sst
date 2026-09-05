@@ -1,0 +1,50 @@
+NEXUS SST — VALIDAÇÃO DO FLUXO HIERARQUIA E GHE
+Data: 22/07/2026
+
+OBJETIVO
+Adequar o sistema ao fluxo operacional definido:
+1. Empresa
+2. Unidade vinculada à Empresa
+3. Setores globais/reutilizáveis
+4. Cargos globais/reutilizáveis
+5. Hierarquia Empresa → Unidade → Setor → Cargo → Funcionário
+6. No Check-list: criar GHE → aplicar riscos cadastrados → vincular cargos da hierarquia
+
+IMPLEMENTAÇÕES
+- Nova montagem guiada da hierarquia em lote.
+- Filtro de Unidades pela Empresa selecionada.
+- Seleção de múltiplos Setores globais.
+- Seleção de múltiplos Cargos por Setor.
+- Identificação e bloqueio visual de vínculos já existentes.
+- Redirecionamento para a estrutura da empresa após a montagem.
+- Seleção e movimentação de Funcionários entre Cargos da mesma Empresa/Unidade.
+- Preservação da edição individual de uma linha hierárquica.
+- Remoção da criação de Setor/Cargo dentro do Check-list.
+- Aba Hierarquia do Check-list transformada em consulta da estrutura oficial.
+- GHE criado inicialmente sem vínculo obrigatório com Cargo.
+- Aplicação dos Riscos cadastrados como segunda etapa do GHE.
+- Vínculo do GHE aos Cargos somente após existir ao menos um Risco.
+- Manutenção do bloqueio de finalização para GHE sem Risco ou sem Cargo.
+- Manutenção do padrão visual e da responsividade já existentes.
+- Proteção CSRF e bloqueio contra duplo envio preservados.
+
+BANCO DE DADOS
+- Nenhuma nova tabela ou coluna foi necessária.
+- A estrutura atual de hierarquias, funcionarios, ghes, ghe_riscos e ghe_cargos já atende ao fluxo.
+- A migration da Etapa 3 continua sendo pré-requisito em instalações que ainda não a executaram.
+
+VALIDAÇÕES EXECUTADAS
+- 221 arquivos PHP verificados com php -l: sem erros de sintaxe.
+- public/js/pages/checklists.js verificado com node --check: sem erros.
+- JavaScript inline da montagem da hierarquia verificado com node --check: sem erros.
+- JavaScript inline da alocação de funcionários verificado com node --check: sem erros.
+- Renderização isolada da montagem da hierarquia: sem Warning, Notice, Fatal ou Deprecated.
+- Renderização isolada da aba Hierarquia do Check-list: sem Warning, Notice, Fatal ou Deprecated.
+- Renderização isolada da aba GHE/Riscos: sem Warning, Notice, Fatal ou Deprecated.
+- Renderização da estrutura da empresa com funcionários simulados: sem Warning, Notice, Fatal ou Deprecated.
+- Rotas e métodos novos conferidos:
+  POST /hierarquias/alocar-funcionarios/{id}
+  POST /checklists/{id}/ghe/{gheId}/cargos/salvar
+
+LIMITAÇÃO DO AMBIENTE
+Não foi possível executar teste integrado com servidor web e MySQL real. As consultas e transações foram revisadas estaticamente para o padrão MySQL utilizado pelo projeto.

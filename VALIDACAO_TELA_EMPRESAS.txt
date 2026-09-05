@@ -1,0 +1,33 @@
+NEXUS SST — AJUSTE DA TELA DE EMPRESAS
+Data: 21/07/2026
+
+OBJETIVO
+Padronizar a listagem de Empresas conforme o padrão visual e funcional já utilizado nas telas de Unidades, Setores e Cargos.
+
+ARQUIVOS ALTERADOS
+- app/views/empresas/index.php
+- app/models/Empresa.php
+- public/css/pages/empresas.css
+
+IMPLEMENTAÇÕES
+- Cabeçalho organizacional padronizado.
+- Indicadores de empresas, empresas ativas, unidades vinculadas e funcionários ativos.
+- Busca por razão social, nome fantasia, CNPJ, cidade, responsável, técnico e códigos.
+- Filtros por status e UF.
+- Cards responsivos no mesmo padrão das telas de Unidades, Setores e Cargos.
+- Status visual para empresas ativas e inativas.
+- Modal de ficha cadastral no padrão organizacional.
+- Ações de ficha, edição e desativação.
+- Métricas por empresa: unidades, setores e funcionários.
+- Consulta otimizada com agregações por empresa para unidades, setores, cargos e funcionários.
+- Compatibilidade de normalização de texto mesmo quando a extensão PHP mbstring não estiver disponível.
+
+VALIDAÇÕES
+- 213 arquivos PHP verificados: nenhum erro de sintaxe.
+- View de Empresas renderizada com dados simulados: nenhum warning ou fatal error.
+- JavaScript da filtragem validado com node --check.
+- Importação do CSS compartilhado confirmada.
+- Colunas e relacionamentos da consulta conferidos estaticamente com o arquivo nexus.sql.
+
+LIMITAÇÃO DO AMBIENTE
+A consulta não foi executada contra um servidor MySQL real porque este ambiente não possui o driver pdo_mysql nem uma instância MySQL disponível.

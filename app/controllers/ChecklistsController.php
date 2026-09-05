@@ -160,15 +160,7 @@ class ChecklistsController extends Controller
     {
         $checklistId = $this->prepararPost($checklistId);
         $this->carregarChecklistAutorizado($checklistId);
-
-        try {
-            $this->garantirEstruturaPronta();
-            $this->checklistModel->salvarLinhaHierarquia($checklistId, $_POST);
-            $_SESSION['sucesso'] = 'Setor e cargo vinculados à hierarquia da visita.';
-        } catch (Throwable $erro) {
-            $this->tratarErroOperacional($erro, 'Não foi possível salvar a hierarquia.');
-        }
-
+        $_SESSION['erro'] = 'A hierarquia oficial deve ser montada no módulo Hierarquias antes do check-list.';
         $this->redirecionarChecklist($checklistId, 'hierarquia');
     }
 
@@ -179,6 +171,7 @@ class ChecklistsController extends Controller
 
         try {
             $this->garantirEstruturaPronta();
+            $this->garantirChecklistEditavel($checklist);
             $nome = trim((string)($_POST['nome'] ?? ''));
             $hierarquiaId = (int)($_POST['hierarquia_id'] ?? 0);
             if ($nome === '' || $hierarquiaId <= 0) {
@@ -213,6 +206,7 @@ class ChecklistsController extends Controller
 
         try {
             $this->garantirEstruturaPronta();
+            $this->garantirChecklistEditavel($checklist);
             $motivo = trim((string)($_POST['motivo'] ?? ''));
             if ($motivo === '') {
                 throw new RuntimeException('Informe o motivo da inativação.');
@@ -244,6 +238,7 @@ class ChecklistsController extends Controller
 
         try {
             $this->garantirEstruturaPronta();
+            $this->garantirChecklistEditavel($checklist);
             $codigo = trim((string)($_POST['codigo'] ?? ''));
             $nome = trim((string)($_POST['nome'] ?? ''));
             if ($codigo === '' || $nome === '') {
@@ -259,11 +254,34 @@ class ChecklistsController extends Controller
                 'descricao' => $_POST['descricao'] ?? null,
                 'observacoes' => $_POST['observacoes'] ?? null,
                 'criado_por' => $this->usuarioLogadoId(),
-            ], $_POST['hierarquias'] ?? []);
+            ], []);
             $this->checklistModel->marcarUltimaAba($checklistId, 'ghe-riscos');
-            $_SESSION['sucesso'] = 'GHE criado e vinculado aos cargos selecionados.';
+            $_SESSION['sucesso'] = 'GHE criado. Agora adicione os riscos e, depois, vincule os cargos.';
         } catch (Throwable $erro) {
             $this->tratarErroOperacional($erro, 'Não foi possível criar o GHE.');
+        }
+
+        $this->redirecionarChecklist($checklistId, 'ghe-riscos');
+    }
+
+    public function salvarCargosGhe($checklistId = null, $gheId = null): never
+    {
+        $checklistId = $this->prepararPost($checklistId);
+        $gheId = $this->validarId($gheId);
+        $checklist = $this->carregarChecklistAutorizado($checklistId);
+
+        try {
+            $this->garantirEstruturaPronta();
+            $this->garantirChecklistEditavel($checklist);
+            $total = $this->gheModel->atualizarCargosNoChecklist(
+                $gheId,
+                $checklistId,
+                is_array($_POST['hierarquias'] ?? null) ? $_POST['hierarquias'] : []
+            );
+            $this->checklistModel->marcarUltimaAba($checklistId, 'ghe-riscos');
+            $_SESSION['sucesso'] = sprintf('%d cargo(s) vinculado(s) ao GHE.', $total);
+        } catch (Throwable $erro) {
+            $this->tratarErroOperacional($erro, 'Não foi possível vincular os cargos ao GHE.');
         }
 
         $this->redirecionarChecklist($checklistId, 'ghe-riscos');
@@ -273,10 +291,11 @@ class ChecklistsController extends Controller
     {
         $checklistId = $this->prepararPost($checklistId);
         $gheId = $this->validarId($gheId);
-        $this->carregarChecklistAutorizado($checklistId);
+        $checklist = $this->carregarChecklistAutorizado($checklistId);
 
         try {
             $this->garantirEstruturaPronta();
+            $this->garantirChecklistEditavel($checklist);
             if ((int)($_POST['risco_id'] ?? 0) <= 0) {
                 throw new RuntimeException('Selecione um risco para o GHE.');
             }
@@ -285,6 +304,55 @@ class ChecklistsController extends Controller
             $_SESSION['sucesso'] = 'Risco aplicado ao GHE.';
         } catch (Throwable $erro) {
             $this->tratarErroOperacional($erro, 'Não foi possível aplicar o risco ao GHE.');
+        }
+
+        $this->redirecionarChecklist($checklistId, 'ghe-riscos');
+    }
+
+    public function inativarGhe($checklistId = null, $gheId = null): never
+    {
+        $checklistId = $this->prepararPost($checklistId);
+        $gheId = $this->validarId($gheId);
+        $checklist = $this->carregarChecklistAutorizado($checklistId);
+
+        try {
+            $this->garantirEstruturaPronta();
+            $this->garantirChecklistEditavel($checklist);
+            $alterado = $this->gheModel->inativarNoChecklist($gheId, $checklistId);
+            if (!$alterado) {
+                throw new RuntimeException('GHE não encontrado ou já inativo neste check-list.');
+            }
+            $this->checklistModel->marcarUltimaAba($checklistId, 'ghe-riscos');
+            $_SESSION['sucesso'] = 'GHE inativado. Os vínculos e riscos foram preservados no histórico.';
+        } catch (Throwable $erro) {
+            $this->tratarErroOperacional($erro, 'Não foi possível inativar o GHE.');
+        }
+
+        $this->redirecionarChecklist($checklistId, 'ghe-riscos');
+    }
+
+    public function removerRiscoGhe($checklistId = null, $gheId = null, $gheRiscoId = null): never
+    {
+        $checklistId = $this->prepararPost($checklistId);
+        $gheId = $this->validarId($gheId);
+        $gheRiscoId = $this->validarId($gheRiscoId);
+        $checklist = $this->carregarChecklistAutorizado($checklistId);
+
+        try {
+            $this->garantirEstruturaPronta();
+            $this->garantirChecklistEditavel($checklist);
+            $removido = $this->gheModel->removerRiscoNoChecklist(
+                $gheId,
+                $gheRiscoId,
+                $checklistId
+            );
+            if (!$removido) {
+                throw new RuntimeException('O risco informado não pertence a este GHE.');
+            }
+            $this->checklistModel->marcarUltimaAba($checklistId, 'ghe-riscos');
+            $_SESSION['sucesso'] = 'Risco removido do GHE.';
+        } catch (Throwable $erro) {
+            $this->tratarErroOperacional($erro, 'Não foi possível remover o risco do GHE.');
         }
 
         $this->redirecionarChecklist($checklistId, 'ghe-riscos');
@@ -343,7 +411,15 @@ class ChecklistsController extends Controller
     private function garantirEstruturaPronta(): void
     {
         if (!$this->checklistModel->estruturaOperacionalDisponivel()) {
-            throw new RuntimeException('Execute a migration da Etapa 9 antes de utilizar estas abas.');
+            throw new RuntimeException('Execute a migration 2026_07_21_checklist_hierarquia_funcionarios_ghe.sql antes de utilizar estas abas.');
+        }
+    }
+
+    private function garantirChecklistEditavel(array $checklist): void
+    {
+        $status = strtoupper(trim((string)($checklist['status'] ?? '')));
+        if (!in_array($status, ['ABERTO', 'EM_ANDAMENTO'], true)) {
+            throw new RuntimeException('Este check-list está em modo somente leitura e não aceita novas alterações.');
         }
     }
 

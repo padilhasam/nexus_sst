@@ -290,7 +290,13 @@ class Funcionario extends Model
         $stmt = $this->db->prepare("
             SELECT h.*
             FROM hierarquias h
+            INNER JOIN unidades u
+                ON u.id = h.unidade_id
+               AND u.empresa_id = h.empresa_id
+            INNER JOIN setores s ON s.id = h.setor_id AND s.ativo = 1
+            INNER JOIN cargos c ON c.id = h.cargo_id AND c.ativo = 1
             WHERE h.id = :id
+              AND u.ativo = 1
             LIMIT 1
         ");
         $stmt->execute([':id' => $hierarquiaId]);

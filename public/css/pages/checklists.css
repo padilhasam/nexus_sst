@@ -2584,3 +2584,133 @@
         width: 100%;
     }
 }
+
+/* Ajustes funcionais das etapas Hierarquia, Funcionários e GHE/Riscos */
+.employee-inactivate-form.employee-inactivate-form-dated {
+    grid-template-columns: 122px minmax(0, 1fr) 36px;
+}
+
+.employee-inactivate-form .form-control {
+    min-height: 31px;
+    border-color: #dce4ee;
+    border-radius: 8px;
+    font-size: 9px;
+}
+
+.ghe-header-actions,
+.risk-row-actions {
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    gap: 8px;
+}
+
+.ghe-header-actions form,
+.risk-row-actions form {
+    margin: 0;
+}
+
+.risk-row-actions .btn,
+.ghe-header-actions .btn {
+    width: 32px;
+    height: 32px;
+    padding: 0;
+    display: inline-grid;
+    place-items: center;
+    border-radius: 8px;
+}
+
+@media (max-width: 760px) {
+    .employee-inactivate-form.employee-inactivate-form-dated {
+        grid-template-columns: 1fr 36px;
+    }
+
+    .employee-inactivate-form.employee-inactivate-form-dated input[type="date"] {
+        grid-column: 1 / -1;
+    }
+
+    .ghe-header-actions {
+        align-items: flex-end;
+        flex-direction: column;
+    }
+
+    .risk-row-actions {
+        justify-content: flex-start;
+    }
+}
+
+/* Fluxo oficial: hierarquia externa e GHE -> riscos -> cargos */
+.checklist-flow-note {
+    margin-bottom: 14px;
+    padding: 14px;
+    display: grid;
+    grid-template-columns: 42px minmax(0,1fr) auto;
+    align-items: center;
+    gap: 12px;
+    border: 1px solid #d9e2ef;
+    border-radius: 14px;
+    background: #f8fbff;
+}
+.checklist-flow-note-icon {
+    width: 42px;
+    height: 42px;
+    display: grid;
+    place-items: center;
+    border-radius: 12px;
+    color: #315ce6;
+    background: #eaf0ff;
+}
+.checklist-flow-note strong,.checklist-flow-note span { display: block; }
+.checklist-flow-note strong { color: #344054; font-size: 12px; font-weight: 850; }
+.checklist-flow-note span { margin-top: 3px; color: #667085; font-size: 9px; }
+.checklist-official-tree { display: grid; grid-template-columns: repeat(2,minmax(0,1fr)); gap: 12px; }
+.checklist-official-sector { overflow: hidden; border: 1px solid #dfe6ef; border-radius: 14px; background: #fff; }
+.checklist-official-sector > header { padding: 13px; display: flex; align-items: center; gap: 10px; border-bottom: 1px solid #e7ecf2; background: #f9fbfe; }
+.checklist-official-sector > header > span { width: 34px; height: 34px; display: grid; place-items: center; border-radius: 10px; color: #315ce6; background: #eaf0ff; }
+.checklist-official-sector > header strong,.checklist-official-sector > header small { display: block; }
+.checklist-official-sector > header strong { color: #344054; font-size: 11px; font-weight: 850; }
+.checklist-official-sector > header small { margin-top: 2px; color: #667085; font-size: 8px; }
+.checklist-official-roles { padding: 10px 13px; display: grid; gap: 7px; }
+.checklist-official-role { padding: 9px; display: grid; grid-template-columns: 32px minmax(0,1fr) auto; align-items: center; gap: 9px; border: 1px solid #e7ecf2; border-radius: 10px; background: #fff; }
+.checklist-official-role-icon { width: 32px; height: 32px; display: grid; place-items: center; border-radius: 9px; color: #475467; background: #f2f4f7; }
+.checklist-official-role strong,.checklist-official-role small { display: block; }
+.checklist-official-role > div > strong { color: #344054; font-size: 10px; font-weight: 850; }
+.checklist-official-role > div > small { margin-top: 2px; color: #667085; font-size: 7px; }
+.checklist-official-role-count { min-width: 62px; text-align: right; }
+.checklist-official-role-count strong { color: #315ce6; font-size: 14px; font-weight: 900; }
+.checklist-official-role-count small { color: #667085; font-size: 7px; }
+.ghe-flow-banner { margin-bottom: 14px; padding: 13px 16px; display: flex; align-items: center; justify-content: center; gap: 18px; border: 1px solid #dfe6ef; border-radius: 14px; background: #fff; }
+.ghe-flow-banner > i { color: #bdc7d4; font-size: 9px; }
+.ghe-flow-step { display: flex; align-items: center; gap: 9px; }
+.ghe-flow-step > span { width: 30px; height: 30px; display: grid; place-items: center; border-radius: 50%; color: #fff; background: #315ce6; font-size: 10px; font-weight: 900; box-shadow: 0 0 0 4px #edf2ff; }
+.ghe-flow-step strong,.ghe-flow-step small { display: block; }
+.ghe-flow-step strong { color: #344054; font-size: 10px; font-weight: 850; }
+.ghe-flow-step small { margin-top: 2px; color: #667085; font-size: 7px; }
+.ghe-card-progress { padding: 10px 14px; display: flex; align-items: center; gap: 7px; border-bottom: 1px solid #e7ecf2; background: #fbfcfe; }
+.ghe-card-progress span { padding: 5px 8px; display: inline-flex; align-items: center; gap: 5px; border-radius: 999px; font-size: 8px; font-weight: 850; }
+.ghe-card-progress .is-done { color: #207a43; background: #eaf8ef; }
+.ghe-card-progress .is-pending { color: #8a5a00; background: #fff4d8; }
+.ghe-step-section { padding: 15px; border-top: 1px solid #e7ecf2; }
+.ghe-step-section:first-of-type { border-top: 0; }
+.ghe-step-header { margin-bottom: 12px; display: grid; grid-template-columns: 32px minmax(0,1fr) auto; align-items: center; gap: 10px; }
+.ghe-step-header > span { width: 32px; height: 32px; display: grid; place-items: center; border-radius: 10px; color: #315ce6; background: #eaf0ff; font-size: 11px; font-weight: 900; }
+.ghe-step-header strong,.ghe-step-header small { display: block; }
+.ghe-step-header strong { color: #344054; font-size: 11px; font-weight: 850; }
+.ghe-step-header small { margin-top: 2px; color: #667085; font-size: 8px; }
+.ghe-step-header em { padding: 6px 9px; border-radius: 999px; color: #8a5a00; background: #fff4d8; font-size: 8px; font-style: normal; font-weight: 850; }
+.ghe-cargo-step.is-locked { opacity: .72; background: #fafbfc; }
+.ghe-cargo-link-form { margin-top: 12px; padding-top: 12px; border-top: 1px dashed #d9e2ef; }
+.ghe-cargo-link-actions { margin-top: 12px; display: flex; justify-content: flex-end; }
+
+@media (max-width: 900px) {
+    .checklist-official-tree { grid-template-columns: 1fr; }
+    .ghe-flow-banner { justify-content: flex-start; overflow-x: auto; }
+    .ghe-flow-step { min-width: 150px; }
+}
+@media (max-width: 760px) {
+    .checklist-flow-note { grid-template-columns: 38px minmax(0,1fr); }
+    .checklist-flow-note .btn { grid-column: 1 / -1; }
+    .ghe-step-header { grid-template-columns: 32px minmax(0,1fr); }
+    .ghe-step-header > .btn,.ghe-step-header > em { grid-column: 1 / -1; justify-self: start; }
+    .ghe-cargo-link-actions .btn { width: 100%; }
+}

@@ -103,9 +103,7 @@ window.showToast = function (
         danger: 7000
     };
 
-    const tempoInformado = Number(tempo);
-
-   const tempoInformado =
+    const tempoInformado =
     tempo === null || tempo === undefined
         ? NaN
         : Number(tempo);

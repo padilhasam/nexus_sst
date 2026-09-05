@@ -68,6 +68,7 @@ $router->any('/hierarquias/editar/{id}', 'HierarquiasController', 'editar');
 $router->post('/hierarquias/atualizar/{id}', 'HierarquiasController', 'atualizar');
 $router->any('/hierarquias/excluir/{id}', 'HierarquiasController', 'excluir');
 $router->any('/hierarquias/estrutura/{id}', 'HierarquiasController', 'estrutura');
+$router->post('/hierarquias/alocar-funcionarios/{id}', 'HierarquiasController', 'alocarFuncionarios');
 $router->any('/hierarquias/importar', 'HierarquiasController', 'importar');
 $router->post('/hierarquias/processarImportacao', 'HierarquiasController', 'processarImportacao');
 
@@ -108,7 +109,10 @@ $router->post('/checklists/{id}/hierarquia/salvar', 'ChecklistsController', 'sal
 $router->post('/checklists/{id}/funcionarios/salvar', 'ChecklistsController', 'salvarFuncionario');
 $router->post('/checklists/{id}/funcionarios/inativar/{funcionarioId}', 'ChecklistsController', 'inativarFuncionario');
 $router->post('/checklists/{id}/ghe/salvar', 'ChecklistsController', 'salvarGhe');
+$router->post('/checklists/{id}/ghe/{gheId}/cargos/salvar', 'ChecklistsController', 'salvarCargosGhe');
 $router->post('/checklists/{id}/ghe/{gheId}/riscos/salvar', 'ChecklistsController', 'salvarRiscoGhe');
+$router->post('/checklists/{id}/ghe/{gheId}/inativar', 'ChecklistsController', 'inativarGhe');
+$router->post('/checklists/{id}/ghe/{gheId}/riscos/remover/{gheRiscoId}', 'ChecklistsController', 'removerRiscoGhe');
 $router->post('/checklists/{id}/finalizar', 'ChecklistsController', 'finalizar');
 
 $router->any('/levantamentos', 'LevantamentosController', 'index');

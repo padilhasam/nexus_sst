@@ -7,256 +7,232 @@ class EmpresasController extends AuthController
     public function __construct()
     {
         parent::__construct();
-
         require_once __DIR__ . '/../models/Empresa.php';
-
         $this->empresaModel = new Empresa();
     }
 
-    public function index()
+    public function index(): void
     {
-        $empresas = $this->empresaModel->listar();
-
         $this->view('empresas/index', [
-            'empresas' => $empresas
+            'empresas' => $this->empresaModel->listar(),
         ]);
     }
 
-    public function criar()
+    public function criar(): void
     {
-        $this->view('empresas/criar');
+        $dadosAnteriores = $_SESSION['form_empresas'] ?? [];
+        unset($_SESSION['form_empresas']);
+
+        $this->view('empresas/criar', [
+            'csrfToken' => $this->csrfToken(),
+            'dadosAnteriores' => $dadosAnteriores,
+        ]);
+    }
+
+    public function armazenar(): never
+    {
+        $this->prepararPost('/empresas/criar');
+        $dados = $this->montarDadosFormulario();
+
+        try {
+            $this->validarDados($dados);
+            $this->validarDuplicidades($dados);
+
+            $empresaId = $this->empresaModel->salvar($dados);
+            if (!$empresaId) {
+                throw new RuntimeException('Não foi possível salvar a empresa.');
+            }
+
+            unset($_SESSION['form_empresas']);
+            $_SESSION['sucesso'] = 'Empresa cadastrada com sucesso.';
+            $this->redirecionarPara('/empresas');
+        } catch (Throwable $erro) {
+            $this->registrarErro($erro);
+            $_SESSION['erro'] = $erro instanceof RuntimeException
+                ? $erro->getMessage()
+                : 'Não foi possível cadastrar a empresa.';
+            $_SESSION['form_empresas'] = $_POST;
+            $this->redirecionarPara('/empresas/criar');
+        }
+    }
+
+    public function editar($id = null): void
+    {
+        $id = $this->validarId($id);
+        $empresa = $this->empresaModel->buscarPorId($id);
+
+        if (!$empresa) {
+            $_SESSION['erro'] = 'Empresa não encontrada.';
+            $this->redirecionarPara('/empresas');
+        }
+
+        $this->view('empresas/editar', [
+            'empresa' => $empresa,
+            'csrfToken' => $this->csrfToken(),
+        ]);
+    }
+
+    public function atualizar($id = null): never
+    {
+        $id = $this->validarId($id);
+        $this->prepararPost('/empresas/editar/' . $id);
+        $dados = $this->montarDadosFormulario();
+
+        try {
+            $this->validarDados($dados);
+            $this->validarDuplicidades($dados, $id);
+
+            if (!$this->empresaModel->atualizar($id, $dados)) {
+                throw new RuntimeException('Não foi possível atualizar a empresa.');
+            }
+
+            $_SESSION['sucesso'] = 'Empresa atualizada com sucesso.';
+            $this->redirecionarPara('/empresas');
+        } catch (Throwable $erro) {
+            $this->registrarErro($erro);
+            $_SESSION['erro'] = $erro instanceof RuntimeException
+                ? $erro->getMessage()
+                : 'Não foi possível atualizar a empresa.';
+            $this->redirecionarPara('/empresas/editar/' . $id);
+        }
+    }
+
+    public function excluir($id = null): never
+    {
+        $id = $this->validarId($id);
+
+        try {
+            $alterado = $this->empresaModel->desativar($id);
+            $_SESSION[$alterado ? 'sucesso' : 'erro'] = $alterado
+                ? 'Empresa desativada sem excluir seus vínculos históricos.'
+                : 'Não foi possível desativar a empresa.';
+        } catch (Throwable $erro) {
+            $this->registrarErro($erro);
+            $_SESSION['erro'] = 'Não foi possível desativar a empresa.';
+        }
+
+        $this->redirecionarPara('/empresas');
     }
 
     private function montarDadosFormulario(): array
     {
+        $textoOuNulo = static function (string $campo): ?string {
+            $valor = trim((string)($_POST[$campo] ?? ''));
+            return $valor !== '' ? $valor : null;
+        };
+
+        $codigo = strtoupper(trim((string)($_POST['codigo'] ?? '')));
+        if ($codigo === '') {
+            $codigo = 'EMP' . strtoupper(substr(md5(uniqid('', true)), 0, 10));
+        }
+
+        $quantidadeFuncionarios = trim((string)($_POST['quantidade_funcionarios'] ?? ''));
+
         return [
-            'codigo' => !empty($_POST['codigo'])
-                ? strtoupper(trim($_POST['codigo']))
-                : 'EMP' . strtoupper(uniqid()),
-
-            'codigo_externo' => !empty($_POST['codigo_externo'])
-                ? strtoupper(trim($_POST['codigo_externo']))
-                : null,
-
-            'razao_social' => trim($_POST['razao_social'] ?? ''),
-
-            'nome_fantasia' => !empty($_POST['nome_fantasia'])
-                ? trim($_POST['nome_fantasia'])
-                : null,
-
-            'cnpj' => !empty($_POST['cnpj'])
-                ? trim($_POST['cnpj'])
-                : null,
-
-            'inscricao_estadual' => !empty($_POST['inscricao_estadual'])
-                ? trim($_POST['inscricao_estadual'])
-                : null,
-
-            'cnae' => !empty($_POST['cnae'])
-                ? trim($_POST['cnae'])
-                : null,
-            
-            'descricao_cnae' => !empty($_POST['descricao_cnae'])
-                ? trim($_POST['descricao_cnae'])
-                : null,
-
-            'grau_risco' => !empty($_POST['grau_risco'])
-                ? trim($_POST['grau_risco'])
-                : null,
-
-            'quantidade_funcionarios' => isset($_POST['quantidade_funcionarios']) && $_POST['quantidade_funcionarios'] !== ''
-                ? (int) $_POST['quantidade_funcionarios']
-                : null,
-
-            'telefone' => !empty($_POST['telefone'])
-                ? trim($_POST['telefone'])
-                : null,
-
-            'email' => !empty($_POST['email'])
-                ? trim($_POST['email'])
-                : null,
-
-            'responsavel' => !empty($_POST['responsavel'])
-                ? trim($_POST['responsavel'])
-                : null,
-
-            'cargo_responsavel' => !empty($_POST['cargo_responsavel'])
-                ? trim($_POST['cargo_responsavel'])
-                : null,
-
-            'contato_responsavel' => !empty($_POST['contato_responsavel'])
-                ? trim($_POST['contato_responsavel'])
-                : null,
-
-            'cep' => !empty($_POST['cep'])
-                ? trim($_POST['cep'])
-                : null,
-
-            'logradouro' => !empty($_POST['logradouro'])
-                ? trim($_POST['logradouro'])
-                : null,
-
-            'numero' => !empty($_POST['numero'])
-                ? trim($_POST['numero'])
-                : null,
-
-            'complemento' => !empty($_POST['complemento'])
-                ? trim($_POST['complemento'])
-                : null,
-
-            'bairro' => !empty($_POST['bairro'])
-                ? trim($_POST['bairro'])
-                : null,
-
-            'cidade' => !empty($_POST['cidade'])
-                ? trim($_POST['cidade'])
-                : null,
-
-            'estado' => !empty($_POST['estado'])
-                ? strtoupper(trim($_POST['estado']))
-                : null,
-
-            'endereco' => !empty($_POST['endereco'])
-                ? trim($_POST['endereco'])
-                : null,
-
-            'tecnico_responsavel' => !empty($_POST['tecnico_responsavel'])
-                ? trim($_POST['tecnico_responsavel'])
-                : null,
-
-            'supervisor_responsavel' => !empty($_POST['supervisor_responsavel'])
-                ? trim($_POST['supervisor_responsavel'])
-                : null,
-
-            'periodicidade_visitas' => !empty($_POST['periodicidade_visitas'])
-                ? trim($_POST['periodicidade_visitas'])
-                : null,
-
-            'observacoes' => !empty($_POST['observacoes'])
-                ? trim($_POST['observacoes'])
-                : null,
-
-            'ativo' => isset($_POST['ativo'])
-                ? (int) $_POST['ativo']
-                : 0
+            'codigo' => $codigo,
+            'codigo_externo' => ($valor = strtoupper(trim((string)($_POST['codigo_externo'] ?? '')))) !== '' ? $valor : null,
+            'razao_social' => trim((string)($_POST['razao_social'] ?? '')),
+            'nome_fantasia' => $textoOuNulo('nome_fantasia'),
+            'cnpj' => $textoOuNulo('cnpj'),
+            'inscricao_estadual' => $textoOuNulo('inscricao_estadual'),
+            'cnae' => $textoOuNulo('cnae'),
+            'descricao_cnae' => $textoOuNulo('descricao_cnae'),
+            'grau_risco' => $textoOuNulo('grau_risco'),
+            'quantidade_funcionarios' => $quantidadeFuncionarios !== '' ? max(0, (int)$quantidadeFuncionarios) : null,
+            'telefone' => $textoOuNulo('telefone'),
+            'email' => $textoOuNulo('email'),
+            'responsavel' => $textoOuNulo('responsavel'),
+            'cargo_responsavel' => $textoOuNulo('cargo_responsavel'),
+            'contato_responsavel' => $textoOuNulo('contato_responsavel'),
+            'cep' => $textoOuNulo('cep'),
+            'logradouro' => $textoOuNulo('logradouro'),
+            'numero' => $textoOuNulo('numero'),
+            'complemento' => $textoOuNulo('complemento'),
+            'bairro' => $textoOuNulo('bairro'),
+            'cidade' => $textoOuNulo('cidade'),
+            'estado' => ($valor = strtoupper(trim((string)($_POST['estado'] ?? '')))) !== '' ? $valor : null,
+            'endereco' => $textoOuNulo('endereco'),
+            'tecnico_responsavel' => $textoOuNulo('tecnico_responsavel'),
+            'supervisor_responsavel' => $textoOuNulo('supervisor_responsavel'),
+            'periodicidade_visitas' => $textoOuNulo('periodicidade_visitas'),
+            'observacoes' => $textoOuNulo('observacoes'),
+            'ativo' => !empty($_POST['ativo']) ? 1 : 0,
         ];
     }
 
-    public function armazenar()
+    private function validarDados(array $dados): void
     {
-        if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
-            header('Location: ' . BASE_URL . '/empresas');
-            exit;
+        if ($dados['razao_social'] === '') {
+            throw new RuntimeException('A razão social é obrigatória.');
         }
 
-        $dados = $this->montarDadosFormulario();
-
-        if (empty($dados['razao_social'])) {
-            $_SESSION['erro'] = 'A Razão Social é obrigatória.';
-            header('Location: ' . BASE_URL . '/empresas/criar');
-            exit;
+        if (!empty($dados['email']) && !filter_var($dados['email'], FILTER_VALIDATE_EMAIL)) {
+            throw new RuntimeException('Informe um endereço de e-mail válido.');
         }
 
+        if (!empty($dados['estado']) && strlen((string)$dados['estado']) !== 2) {
+            throw new RuntimeException('Informe a UF com duas letras.');
+        }
+    }
+
+    private function validarDuplicidades(array $dados, int $ignorarId = 0): void
+    {
         if (!empty($dados['cnpj'])) {
-            $empresaExistente = $this->empresaModel->buscarPorCnpj($dados['cnpj']);
-
-            if ($empresaExistente) {
-                $_SESSION['erro'] = 'Já existe uma empresa cadastrada com este CNPJ.';
-                header('Location: ' . BASE_URL . '/empresas/criar');
-                exit;
+            $existente = $this->empresaModel->buscarPorCnpj((string)$dados['cnpj']);
+            if ($existente && (int)$existente['id'] !== $ignorarId) {
+                throw new RuntimeException('Já existe outra empresa cadastrada com este CNPJ.');
             }
         }
 
         if (!empty($dados['codigo'])) {
-            $empresaExistente = $this->empresaModel->buscarPorCodigo($dados['codigo']);
-
-            if ($empresaExistente) {
-                $_SESSION['erro'] = 'Já existe uma empresa cadastrada com este código interno.';
-                header('Location: ' . BASE_URL . '/empresas/criar');
-                exit;
+            $existente = $this->empresaModel->buscarPorCodigo((string)$dados['codigo']);
+            if ($existente && (int)$existente['id'] !== $ignorarId) {
+                throw new RuntimeException('Já existe outra empresa cadastrada com este código interno.');
             }
         }
-
-        $empresaId = $this->empresaModel->salvar($dados);
-
-        $_SESSION['sucesso'] = $empresaId
-            ? 'Empresa cadastrada com sucesso!'
-            : 'Erro ao salvar empresa.';
-
-        header('Location: ' . BASE_URL . '/empresas');
-        exit;
     }
 
-    public function editar($id)
+    private function prepararPost(string $retorno): void
     {
-        $empresa = $this->empresaModel->buscarPorId((int) $id);
-
-        if (!$empresa) {
-            $_SESSION['erro'] = 'Empresa não encontrada.';
-            header('Location: ' . BASE_URL . '/empresas');
-            exit;
+        if (($_SERVER['REQUEST_METHOD'] ?? 'GET') !== 'POST') {
+            $_SESSION['erro'] = 'Método de requisição não permitido.';
+            $this->redirecionarPara($retorno);
         }
 
-        $this->view('empresas/editar', [
-            'empresa' => $empresa
-        ]);
+        $recebido = (string)($_POST['_token'] ?? '');
+        $esperado = (string)($_SESSION['csrf_empresas'] ?? '');
+        if ($esperado === '' || !hash_equals($esperado, $recebido)) {
+            $_SESSION['erro'] = 'A sessão do formulário expirou. Recarregue a página.';
+            $this->redirecionarPara($retorno);
+        }
     }
 
-    public function atualizar($id)
+    private function csrfToken(): string
     {
-        if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
-            header('Location: ' . BASE_URL . '/empresas');
-            exit;
+        if (empty($_SESSION['csrf_empresas'])) {
+            $_SESSION['csrf_empresas'] = bin2hex(random_bytes(32));
         }
-
-        $id = (int) $id;
-        $dados = $this->montarDadosFormulario();
-
-        if (empty($dados['razao_social'])) {
-            $_SESSION['erro'] = 'A Razão Social é obrigatória.';
-            header('Location: ' . BASE_URL . '/empresas/editar/' . $id);
-            exit;
-        }
-
-        if (!empty($dados['cnpj'])) {
-            $empresaExistente = $this->empresaModel->buscarPorCnpj($dados['cnpj']);
-
-            if ($empresaExistente && (int) $empresaExistente['id'] !== $id) {
-                $_SESSION['erro'] = 'Já existe outra empresa cadastrada com este CNPJ.';
-                header('Location: ' . BASE_URL . '/empresas/editar/' . $id);
-                exit;
-            }
-        }
-
-        if (!empty($dados['codigo'])) {
-            $empresaExistente = $this->empresaModel->buscarPorCodigo($dados['codigo']);
-
-            if ($empresaExistente && (int) $empresaExistente['id'] !== $id) {
-                $_SESSION['erro'] = 'Já existe outra empresa cadastrada com este código interno.';
-                header('Location: ' . BASE_URL . '/empresas/editar/' . $id);
-                exit;
-            }
-        }
-
-        if ($this->empresaModel->atualizar($id, $dados)) {
-            $_SESSION['sucesso'] = 'Empresa atualizada com sucesso!';
-        } else {
-            $_SESSION['erro'] = 'Erro ao atualizar empresa.';
-        }
-
-        header('Location: ' . BASE_URL . '/empresas');
-        exit;
+        return (string)$_SESSION['csrf_empresas'];
     }
 
-    public function excluir($id)
+    private function validarId(mixed $id): int
     {
-        if ($this->empresaModel->desativar((int) $id)) {
-            $_SESSION['sucesso'] = 'Empresa desativada com sucesso!';
-        } else {
-            $_SESSION['erro'] = 'Não foi possível desativar a empresa.';
+        $id = filter_var($id, FILTER_VALIDATE_INT);
+        if (!$id || $id <= 0) {
+            $_SESSION['erro'] = 'Identificador de empresa inválido.';
+            $this->redirecionarPara('/empresas');
         }
+        return (int)$id;
+    }
 
-        header('Location: ' . BASE_URL . '/empresas');
+    private function registrarErro(Throwable $erro): void
+    {
+        error_log('[EmpresasController] ' . $erro->getMessage());
+    }
+
+    private function redirecionarPara(string $rota): never
+    {
+        header('Location: ' . BASE_URL . $rota);
         exit;
     }
 }

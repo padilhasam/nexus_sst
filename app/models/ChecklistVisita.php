@@ -246,7 +246,7 @@ class ChecklistVisita extends Model
             INNER JOIN empresas e ON e.id = cv.empresa_id
             INNER JOIN usuarios tec ON tec.id = cv.usuario_id
             LEFT JOIN agendas a ON a.id = vt.agenda_id
-            LEFT JOIN unidades un ON un.id = cv.unidade_id
+            LEFT JOIN unidades un ON un.id = cv.unidade_id AND un.empresa_id = cv.empresa_id
             WHERE " . implode(' AND ', $where) . "
             ORDER BY
                 CASE cv.status
@@ -354,7 +354,7 @@ class ChecklistVisita extends Model
             INNER JOIN empresas e ON e.id = cv.empresa_id
             INNER JOIN usuarios tec ON tec.id = cv.usuario_id
             LEFT JOIN agendas a ON a.id = vt.agenda_id
-            LEFT JOIN unidades un ON un.id = cv.unidade_id
+            LEFT JOIN unidades un ON un.id = cv.unidade_id AND un.empresa_id = cv.empresa_id
             WHERE cv.id = :id
             LIMIT 1
         ";
@@ -369,23 +369,42 @@ class ChecklistVisita extends Model
 
     public function estruturaOperacionalDisponivel(): bool
     {
-        $stmt = $this->db->query("
-            SELECT COUNT(*)
-            FROM information_schema.tables
-            WHERE table_schema = DATABASE()
-              AND table_name IN ('funcionarios', 'ghes', 'ghe_cargos', 'ghe_riscos')
-        ");
-        $tabelas = (int)$stmt->fetchColumn();
+        $requisitos = [
+            'checklists_visita' => ['ultima_aba', 'atualizado_em'],
+            'funcionarios' => [
+                'empresa_id', 'unidade_id', 'hierarquia_id', 'nome', 'ativo',
+                'data_desligamento', 'motivo_inativacao', 'inativado_por'
+            ],
+            'ghes' => [
+                'checklist_id', 'empresa_id', 'unidade_id', 'codigo', 'nome',
+                'ativo', 'criado_por'
+            ],
+            'ghe_cargos' => ['ghe_id', 'hierarquia_id'],
+            'ghe_riscos' => [
+                'ghe_id', 'risco_id', 'fonte_geradora', 'frequencia',
+                'tempo_exposicao', 'exige_quantificacao'
+            ],
+        ];
 
-        $stmt = $this->db->query("
-            SELECT COUNT(*)
-            FROM information_schema.columns
-            WHERE table_schema = DATABASE()
-              AND table_name = 'checklists_visita'
-              AND column_name IN ('ultima_aba', 'atualizado_em')
-        ");
+        foreach ($requisitos as $tabela => $colunas) {
+            $placeholders = implode(',', array_fill(0, count($colunas), '?'));
+            $sql = "
+                SELECT COUNT(*)
+                FROM information_schema.columns
+                WHERE table_schema = DATABASE()
+                  AND table_name = ?
+                  AND column_name IN ($placeholders)
+            ";
 
-        return $tabelas === 4 && (int)$stmt->fetchColumn() === 2;
+            $stmt = $this->db->prepare($sql);
+            $stmt->execute(array_merge([$tabela], $colunas));
+
+            if ((int)$stmt->fetchColumn() !== count($colunas)) {
+                return false;
+            }
+        }
+
+        return true;
     }
 
     public function listarHierarquiaContexto(array $checklist): array
@@ -406,7 +425,9 @@ class ChecklistVisita extends Model
                 COUNT(f.id) AS total_funcionarios,
                 SUM(CASE WHEN f.ativo = 1 THEN 1 ELSE 0 END) AS funcionarios_ativos
             FROM hierarquias h
-            INNER JOIN unidades un ON un.id = h.unidade_id
+            INNER JOIN unidades un
+                ON un.id = h.unidade_id
+               AND un.empresa_id = h.empresa_id
             INNER JOIN setores s ON s.id = h.setor_id
             INNER JOIN cargos c ON c.id = h.cargo_id
             LEFT JOIN funcionarios f ON f.hierarquia_id = h.id
@@ -462,6 +483,21 @@ class ChecklistVisita extends Model
 
         if (empty($checklist['unidade_id'])) {
             throw new RuntimeException('Defina uma unidade no agendamento antes de montar a hierarquia.');
+        }
+
+        $stmt = $this->db->prepare("
+            SELECT COUNT(*)
+            FROM unidades
+            WHERE id = :unidade_id
+              AND empresa_id = :empresa_id
+              AND ativo = 1
+        ");
+        $stmt->execute([
+            ':unidade_id' => (int)$checklist['unidade_id'],
+            ':empresa_id' => (int)$checklist['empresa_id'],
+        ]);
+        if ((int)$stmt->fetchColumn() === 0) {
+            throw new RuntimeException('A unidade da visita não pertence à empresa informada ou está inativa.');
         }
 
         try {

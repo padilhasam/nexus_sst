@@ -1,11 +1,43 @@
 <?php
 $css = 'checklists.css';
+$js = ['checklists.js'];
 $rotaAtual = 'checklists';
 $pageTitle = 'Check-list de Visita';
 require_once dirname(__DIR__) . '/templates/header.php';
 
 $c = $checklist ?? [];
-$abaAtiva = $abaAtiva ?? 'dados';
+
+/**
+ * Aba selecionada no Check-list.
+ *
+ * Prioridade:
+ * 1. Parâmetro enviado pela URL: ?aba=...
+ * 2. Valor enviado pelo controller;
+ * 3. Última aba gravada no banco;
+ * 4. Aba padrão "dados".
+ */
+$abasPermitidas = [
+    'dados',
+    'hierarquia',
+    'funcionarios',
+    'ghe-riscos',
+];
+
+$abaSolicitada = strtolower(
+    trim(
+        (string) (
+            $_GET['aba']
+            ?? $abaAtiva
+            ?? $c['ultima_aba']
+            ?? 'dados'
+        )
+    )
+);
+
+$abaAtiva = in_array($abaSolicitada, $abasPermitidas, true)
+    ? $abaSolicitada
+    : 'dados';
+
 $estruturaPronta = (bool)($estruturaPronta ?? false);
 $checklistId = (int)($c['id'] ?? 0);
 $visitaId = (int)($c['visita_id'] ?? 0);
@@ -198,7 +230,7 @@ $abas = [
                 <strong>Atualização do banco necessária</strong>
                 <span>
                     Execute a migration
-                    <code>2026_07_19_checklist_hierarquia_funcionarios_ghe.sql</code>
+                    <code>2026_07_21_checklist_hierarquia_funcionarios_ghe.sql</code>
                     para liberar Hierarquia, Funcionários e GHE/Riscos.
                 </span>
             </div>

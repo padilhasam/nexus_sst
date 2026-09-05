@@ -15,9 +15,34 @@ class Empresa
     public function listar(): array
     {
         $stmt = $this->db->prepare("
-            SELECT *
-            FROM empresas
-            ORDER BY COALESCE(nome_fantasia, razao_social) ASC
+            SELECT
+                e.*,
+                COALESCE(u.total_unidades, 0) AS total_unidades,
+                COALESCE(h.total_setores, 0) AS total_setores,
+                COALESCE(h.total_cargos, 0) AS total_cargos,
+                COALESCE(f.total_funcionarios_ativos, 0) AS total_funcionarios_ativos
+            FROM empresas e
+            LEFT JOIN (
+                SELECT empresa_id, COUNT(*) AS total_unidades
+                FROM unidades
+                WHERE ativo = 1
+                GROUP BY empresa_id
+            ) u ON u.empresa_id = e.id
+            LEFT JOIN (
+                SELECT
+                    empresa_id,
+                    COUNT(DISTINCT setor_id) AS total_setores,
+                    COUNT(DISTINCT cargo_id) AS total_cargos
+                FROM hierarquias
+                GROUP BY empresa_id
+            ) h ON h.empresa_id = e.id
+            LEFT JOIN (
+                SELECT empresa_id, COUNT(*) AS total_funcionarios_ativos
+                FROM funcionarios
+                WHERE ativo = 1
+                GROUP BY empresa_id
+            ) f ON f.empresa_id = e.id
+            ORDER BY e.ativo DESC, COALESCE(e.nome_fantasia, e.razao_social) ASC
         ");
 
         $stmt->execute();

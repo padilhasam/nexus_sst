@@ -76,12 +76,15 @@ class GHE extends Model
                       AND grq.exige_quantificacao = 1
                 ) AS total_quantificaveis
             FROM ghes g
-            INNER JOIN checklists_visita cv ON cv.id = g.checklist_id
+            INNER JOIN checklists_visita cv
+                ON cv.id = g.checklist_id
+               AND cv.empresa_id = g.empresa_id
+               AND (cv.unidade_id <=> g.unidade_id)
             INNER JOIN visitas_tecnicas vt ON vt.id = cv.visita_id
             INNER JOIN empresas e ON e.id = g.empresa_id
             INNER JOIN usuarios tec ON tec.id = cv.usuario_id
             INNER JOIN usuarios criador ON criador.id = g.criado_por
-            LEFT JOIN unidades un ON un.id = g.unidade_id
+            LEFT JOIN unidades un ON un.id = g.unidade_id AND un.empresa_id = g.empresa_id
             WHERE " . implode(' AND ', $where) . "
             ORDER BY
                 g.ativo DESC,
@@ -125,7 +128,10 @@ class GHE extends Model
                       AND gr.exige_quantificacao = 1
                 )), 0) AS quantificaveis
             FROM ghes g
-            INNER JOIN checklists_visita cv ON cv.id = g.checklist_id
+            INNER JOIN checklists_visita cv
+                ON cv.id = g.checklist_id
+               AND cv.empresa_id = g.empresa_id
+               AND (cv.unidade_id <=> g.unidade_id)
         ";
 
         if ($where !== []) {
@@ -171,7 +177,7 @@ class GHE extends Model
             INNER JOIN visitas_tecnicas vt ON vt.id = cv.visita_id
             INNER JOIN empresas e ON e.id = cv.empresa_id
             INNER JOIN usuarios tec ON tec.id = cv.usuario_id
-            LEFT JOIN unidades un ON un.id = cv.unidade_id
+            LEFT JOIN unidades un ON un.id = cv.unidade_id AND un.empresa_id = cv.empresa_id
             WHERE " . implode(' AND ', $where) . "
             ORDER BY vt.data_visita DESC, vt.hora_visita DESC, cv.id DESC
         ";
@@ -204,7 +210,7 @@ class GHE extends Model
             INNER JOIN visitas_tecnicas vt ON vt.id = cv.visita_id
             INNER JOIN empresas e ON e.id = cv.empresa_id
             INNER JOIN usuarios tec ON tec.id = cv.usuario_id
-            LEFT JOIN unidades un ON un.id = cv.unidade_id
+            LEFT JOIN unidades un ON un.id = cv.unidade_id AND un.empresa_id = cv.empresa_id
             WHERE cv.id = :checklist_id
         ";
 
@@ -243,10 +249,13 @@ class GHE extends Model
                 c.cbo,
                 un.nome AS unidade_nome
             FROM hierarquias h
-            INNER JOIN setores s ON s.id = h.setor_id
-            INNER JOIN cargos c ON c.id = h.cargo_id
-            LEFT JOIN unidades un ON un.id = h.unidade_id
+            INNER JOIN unidades un
+                ON un.id = h.unidade_id
+               AND un.empresa_id = h.empresa_id
+            INNER JOIN setores s ON s.id = h.setor_id AND s.ativo = 1
+            INNER JOIN cargos c ON c.id = h.cargo_id AND c.ativo = 1
             WHERE h.empresa_id = :empresa_id
+              AND un.ativo = 1
         ";
 
         $params = [':empresa_id' => (int)$contexto['empresa_id']];
@@ -304,12 +313,15 @@ class GHE extends Model
                 tec.nome AS tecnico_nome,
                 criador.nome AS criado_por_nome
             FROM ghes g
-            INNER JOIN checklists_visita cv ON cv.id = g.checklist_id
+            INNER JOIN checklists_visita cv
+                ON cv.id = g.checklist_id
+               AND cv.empresa_id = g.empresa_id
+               AND (cv.unidade_id <=> g.unidade_id)
             INNER JOIN visitas_tecnicas vt ON vt.id = cv.visita_id
             INNER JOIN empresas e ON e.id = g.empresa_id
             INNER JOIN usuarios tec ON tec.id = cv.usuario_id
             INNER JOIN usuarios criador ON criador.id = g.criado_por
-            LEFT JOIN unidades un ON un.id = g.unidade_id
+            LEFT JOIN unidades un ON un.id = g.unidade_id AND un.empresa_id = g.empresa_id
             WHERE g.id = :ghe_id
         ";
 
@@ -338,9 +350,7 @@ class GHE extends Model
 
     public function salvar(array $dados, array $hierarquiasIds): int
     {
-        if (empty($hierarquiasIds)) {
-            throw new RuntimeException('Selecione ao menos um cargo para compor o GHE.');
-        }
+        $this->validarContextoPersistencia($dados);
 
         try {
             $this->db->beginTransaction();
@@ -365,14 +375,16 @@ class GHE extends Model
             $stmt->execute();
 
             $gheId = (int)$this->db->lastInsertId();
-            $this->vincularHierarquias(
-                $gheId,
-                $hierarquiasIds,
-                (int)$dados['empresa_id'],
-                isset($dados['unidade_id']) && $dados['unidade_id'] !== null
-                    ? (int)$dados['unidade_id']
-                    : null
-            );
+            if (!empty($hierarquiasIds)) {
+                $this->vincularHierarquias(
+                    $gheId,
+                    $hierarquiasIds,
+                    (int)$dados['empresa_id'],
+                    isset($dados['unidade_id']) && $dados['unidade_id'] !== null
+                        ? (int)$dados['unidade_id']
+                        : null
+                );
+            }
 
             $this->db->commit();
             return $gheId;
@@ -389,10 +401,6 @@ class GHE extends Model
 
     public function atualizar(int $gheId, array $dados, array $hierarquiasIds): bool
     {
-        if (empty($hierarquiasIds)) {
-            throw new RuntimeException('Selecione ao menos um cargo para compor o GHE.');
-        }
-
         $ghe = $this->buscarBasicoPorId($gheId);
         if (!$ghe) {
             throw new RuntimeException('GHE não encontrado.');
@@ -420,12 +428,14 @@ class GHE extends Model
             $delete = $this->db->prepare('DELETE FROM ghe_cargos WHERE ghe_id = :ghe_id');
             $delete->execute([':ghe_id' => $gheId]);
 
-            $this->vincularHierarquias(
-                $gheId,
-                $hierarquiasIds,
-                (int)$ghe['empresa_id'],
-                !empty($ghe['unidade_id']) ? (int)$ghe['unidade_id'] : null
-            );
+            if (!empty($hierarquiasIds)) {
+                $this->vincularHierarquias(
+                    $gheId,
+                    $hierarquiasIds,
+                    (int)$ghe['empresa_id'],
+                    !empty($ghe['unidade_id']) ? (int)$ghe['unidade_id'] : null
+                );
+            }
 
             $this->db->commit();
             return true;
@@ -435,6 +445,54 @@ class GHE extends Model
             }
             if ($erro instanceof PDOException && $erro->getCode() === '23000') {
                 throw new RuntimeException('Já existe um GHE com este código neste check-list.');
+            }
+            throw $erro;
+        }
+    }
+
+    public function atualizarCargosNoChecklist(
+        int $gheId,
+        int $checklistId,
+        array $hierarquiasIds
+    ): int {
+        $ghe = $this->buscarBasicoPorId($gheId);
+        if (!$ghe || (int)$ghe['checklist_id'] !== $checklistId || (int)$ghe['ativo'] !== 1) {
+            throw new RuntimeException('GHE não encontrado neste check-list.');
+        }
+
+        $contexto = $this->buscarContextoChecklistSemPermissao($checklistId);
+        if (!$contexto || !$this->checklistEditavel((string)$contexto['status'])) {
+            throw new RuntimeException('O check-list não está disponível para alteração.');
+        }
+
+        $ids = array_values(array_unique(array_filter(array_map('intval', $hierarquiasIds))));
+        if ($ids === []) {
+            throw new RuntimeException('Selecione ao menos um cargo para vincular ao GHE.');
+        }
+
+        $stmt = $this->db->prepare('SELECT COUNT(*) FROM ghe_riscos WHERE ghe_id = :ghe_id');
+        $stmt->execute([':ghe_id' => $gheId]);
+        if ((int)$stmt->fetchColumn() <= 0) {
+            throw new RuntimeException('Adicione ao menos um risco ao GHE antes de vincular os cargos.');
+        }
+
+        try {
+            $this->db->beginTransaction();
+            $delete = $this->db->prepare('DELETE FROM ghe_cargos WHERE ghe_id = :ghe_id');
+            $delete->execute([':ghe_id' => $gheId]);
+
+            $this->vincularHierarquias(
+                $gheId,
+                $ids,
+                (int)$ghe['empresa_id'],
+                !empty($ghe['unidade_id']) ? (int)$ghe['unidade_id'] : null
+            );
+
+            $this->db->commit();
+            return count($ids);
+        } catch (Throwable $erro) {
+            if ($this->db->inTransaction()) {
+                $this->db->rollBack();
             }
             throw $erro;
         }
@@ -451,6 +509,46 @@ class GHE extends Model
     {
         $stmt = $this->db->prepare('UPDATE ghes SET ativo = 1 WHERE id = :id AND ativo = 0');
         $stmt->execute([':id' => $gheId]);
+        return $stmt->rowCount() > 0;
+    }
+
+    public function inativarNoChecklist(int $gheId, int $checklistId): bool
+    {
+        $stmt = $this->db->prepare("
+            UPDATE ghes
+            SET ativo = 0
+            WHERE id = :ghe_id
+              AND checklist_id = :checklist_id
+              AND ativo = 1
+        ");
+        $stmt->execute([
+            ':ghe_id' => $gheId,
+            ':checklist_id' => $checklistId,
+        ]);
+
+        return $stmt->rowCount() > 0;
+    }
+
+    public function removerRiscoNoChecklist(
+        int $gheId,
+        int $gheRiscoId,
+        int $checklistId
+    ): bool {
+        $stmt = $this->db->prepare("
+            DELETE gr
+            FROM ghe_riscos gr
+            INNER JOIN ghes g ON g.id = gr.ghe_id
+            WHERE gr.id = :ghe_risco_id
+              AND gr.ghe_id = :ghe_id
+              AND g.checklist_id = :checklist_id
+              AND g.ativo = 1
+        ");
+        $stmt->execute([
+            ':ghe_risco_id' => $gheRiscoId,
+            ':ghe_id' => $gheId,
+            ':checklist_id' => $checklistId,
+        ]);
+
         return $stmt->rowCount() > 0;
     }
 
@@ -529,6 +627,32 @@ class GHE extends Model
         return in_array(strtoupper(trim($status)), ['ABERTO', 'EM_ANDAMENTO'], true);
     }
 
+    private function validarContextoPersistencia(array $dados): void
+    {
+        $checklistId = (int)($dados['checklist_id'] ?? 0);
+        $contexto = $checklistId > 0
+            ? $this->buscarContextoChecklistSemPermissao($checklistId)
+            : null;
+        if (!$contexto) {
+            throw new RuntimeException('O check-list informado para o GHE não existe.');
+        }
+        if (!$this->checklistEditavel((string)$contexto['status'])) {
+            throw new RuntimeException('O check-list informado não está disponível para alteração.');
+        }
+
+        $empresaId = (int)($dados['empresa_id'] ?? 0);
+        $unidadeId = isset($dados['unidade_id']) && $dados['unidade_id'] !== null
+            ? (int)$dados['unidade_id']
+            : null;
+        $unidadeChecklist = $contexto['unidade_id'] !== null
+            ? (int)$contexto['unidade_id']
+            : null;
+
+        if ($empresaId !== (int)$contexto['empresa_id'] || $unidadeId !== $unidadeChecklist) {
+            throw new RuntimeException('Empresa e unidade do GHE devem ser as mesmas do check-list.');
+        }
+    }
+
     private function buscarContextoChecklistSemPermissao(int $checklistId): ?array
     {
         $stmt = $this->db->prepare("
@@ -564,10 +688,20 @@ class GHE extends Model
             throw new RuntimeException('Selecione ao menos um cargo válido para compor o GHE.');
         }
 
-        $sql = 'SELECT id FROM hierarquias WHERE empresa_id = :empresa_id';
+        $sql = '
+            SELECT h.id
+            FROM hierarquias h
+            INNER JOIN unidades u
+                ON u.id = h.unidade_id
+               AND u.empresa_id = h.empresa_id
+            INNER JOIN setores s ON s.id = h.setor_id AND s.ativo = 1
+            INNER JOIN cargos c ON c.id = h.cargo_id AND c.ativo = 1
+            WHERE h.empresa_id = :empresa_id
+              AND u.ativo = 1
+        ';
         $params = [':empresa_id' => $empresaId];
         if ($unidadeId !== null) {
-            $sql .= ' AND unidade_id = :unidade_id';
+            $sql .= ' AND h.unidade_id = :unidade_id';
             $params[':unidade_id'] = $unidadeId;
         }
 
@@ -577,7 +711,7 @@ class GHE extends Model
             $placeholders[] = $chave;
             $params[$chave] = $id;
         }
-        $sql .= ' AND id IN (' . implode(',', $placeholders) . ')';
+        $sql .= ' AND h.id IN (' . implode(',', $placeholders) . ')';
 
         $stmt = $this->db->prepare($sql);
         foreach ($params as $chave => $valor) {

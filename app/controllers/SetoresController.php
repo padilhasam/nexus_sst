@@ -2,150 +2,166 @@
 
 class SetoresController extends Controller
 {
-
-    private $setorModel;
-
+    private Setor $model;
 
     public function __construct()
     {
         if (session_status() === PHP_SESSION_NONE) {
             session_start();
         }
-
-        if (!isset($_SESSION['usuario_id'])) {
+        if (empty($_SESSION['usuario_id'])) {
             header('Location: ' . BASE_URL . '/login');
             exit;
         }
-
-        $this->setorModel = $this->model('Setor');
+        $this->model = $this->model('Setor');
     }
 
-
-    public function index()
+    public function index(): void
     {
-        $setores = $this->setorModel->listarTudo();
-
-        $this->view('setores/index', compact('setores'));
+        $this->view('setores/index', ['setores' => $this->model->listarTudo()]);
     }
 
-
-    public function criar()
+    public function criar(): void
     {
-        $this->view('setores/criar');
+        $dadosAnteriores = $_SESSION['form_setores'] ?? [];
+        unset($_SESSION['form_setores']);
+        $this->view('setores/criar', [
+            'csrfToken' => $this->csrfToken(),
+            'dadosAnteriores' => $dadosAnteriores,
+        ]);
     }
 
-
-    public function salvar()
+    public function salvar(): never
     {
-        if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
-            header('Location: ' . BASE_URL . '/setores');
-            exit;
+        $this->prepararPost();
+        $dados = $this->dadosPost();
+        try {
+            $this->validarDuplicidade($dados);
+            $this->model->salvar($dados);
+            $_SESSION['sucesso'] = 'Setor cadastrado com sucesso.';
+            $this->redirecionar('/setores');
+        } catch (Throwable $erro) {
+            $this->registrarErro($erro);
+            $_SESSION['erro'] = $erro instanceof RuntimeException ? $erro->getMessage() : 'Não foi possível cadastrar o setor.';
+            $_SESSION['form_setores'] = $_POST;
+            $this->redirecionar('/setores/criar');
         }
-
-        $dados = [
-            'codigo' => trim($_POST['codigo'] ?? ''),
-            'codigo_externo' => trim($_POST['codigo_externo'] ?? ''),
-            'nome' => trim($_POST['nome'] ?? ''),
-            'descricao' => !empty($_POST['descricao']) 
-                ? trim($_POST['descricao']) 
-                : null,
-            'ativo' => 1
-        ];
-
-
-        if (empty($dados['nome'])) {
-            $_SESSION['erro'] = 'O nome do setor é obrigatório.';
-            header('Location: ' . BASE_URL . '/setores/criar');
-            exit;
-        }
-
-
-        if ($this->setorModel->salvar($dados)) {
-            $_SESSION['sucesso'] = 'Setor cadastrado com sucesso!';
-        } else {
-            $_SESSION['erro'] = 'Erro ao cadastrar setor.';
-        }
-
-
-        header('Location: ' . BASE_URL . '/setores');
-        exit;
     }
 
-
-    public function editar($id)
+    public function editar($id = null): void
     {
-        $setor = $this->setorModel->buscarPorId((int)$id);
-
-
-        if (!$setor) {
+        $id = $this->validarId($id);
+        $registro = $this->model->buscarPorId($id);
+        if (!$registro) {
             $_SESSION['erro'] = 'Setor não encontrado.';
-            header('Location: ' . BASE_URL . '/setores');
-            exit;
+            $this->redirecionar('/setores');
         }
-
-
-        $this->view('setores/editar', compact('setor'));
+        $this->view('setores/editar', [
+            'setor' => $registro,
+            'csrfToken' => $this->csrfToken(),
+        ]);
     }
 
-
-    public function atualizar($id)
+    public function atualizar($id = null): never
     {
-        if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
-            header('Location: ' . BASE_URL . '/setores');
-            exit;
+        $this->prepararPost();
+        $id = $this->validarId($id);
+        $dados = $this->dadosPost();
+        try {
+            $this->validarDuplicidade($dados, $id);
+            $this->model->atualizar($id, $dados);
+            $_SESSION['sucesso'] = 'Setor atualizado com sucesso.';
+            $this->redirecionar('/setores');
+        } catch (Throwable $erro) {
+            $this->registrarErro($erro);
+            $_SESSION['erro'] = $erro instanceof RuntimeException ? $erro->getMessage() : 'Não foi possível atualizar o setor.';
+            $this->redirecionar('/setores/editar/' . $id);
         }
+    }
 
+    public function excluir($id = null): never
+    {
+        $id = $this->validarId($id);
+        try {
+            $alterado = $this->model->desativar($id);
+            $_SESSION[$alterado ? 'sucesso' : 'erro'] = $alterado
+                ? 'Setor desativado sem excluir as hierarquias existentes.'
+                : 'O setor já estava inativo ou não foi encontrado.';
+        } catch (Throwable $erro) {
+            $this->registrarErro($erro);
+            $_SESSION['erro'] = 'Não foi possível desativar o setor.';
+        }
+        $this->redirecionar('/setores');
+    }
 
-        $dados = [
-            'codigo' => trim($_POST['codigo'] ?? ''),
-            'codigo_externo' => trim($_POST['codigo_externo'] ?? ''),
-            'nome' => trim($_POST['nome'] ?? ''),
-            'descricao' => !empty($_POST['descricao']) 
-                ? trim($_POST['descricao']) 
-                : null
+    private function dadosPost(): array
+    {
+        return [
+            'codigo' => strtoupper(trim((string)($_POST['codigo'] ?? ''))),
+            'codigo_externo' => strtoupper(trim((string)($_POST['codigo_externo'] ?? ''))),
+            'nome' => trim((string)($_POST['nome'] ?? '')),
+            
+            'descricao' => trim((string)($_POST['descricao'] ?? '')),
+            'ativo' => !empty($_POST['ativo']) ? 1 : 0,
         ];
-
-
-        if (empty($dados['nome'])) {
-            $_SESSION['erro'] = 'O nome do setor é obrigatório.';
-            header('Location: ' . BASE_URL . '/setores/editar/' . $id);
-            exit;
-        }
-
-
-        if ($this->setorModel->atualizar((int)$id, $dados)) {
-            $_SESSION['sucesso'] = 'Setor atualizado com sucesso!';
-        } else {
-            $_SESSION['erro'] = 'Erro ao atualizar setor.';
-        }
-
-
-        header('Location: ' . BASE_URL . '/setores');
-        exit;
     }
 
-
-    public function excluir($id)
+    private function validarDuplicidade(array $dados, int $ignorarId = 0): void
     {
-        $setor = $this->setorModel->buscarPorId((int)$id);
-
-
-        if (!$setor) {
-
-            $_SESSION['erro'] = 'Setor não encontrado.';
-
-        } elseif ($this->setorModel->deletar((int)$id)) {
-
-            $_SESSION['sucesso'] = 'Setor excluído com sucesso!';
-
-        } else {
-
-            $_SESSION['erro'] = 'Erro ao excluir setor.';
+        if ($dados['nome'] !== '') {
+            $existente = $this->model->buscarPorNome($dados['nome']);
+            if ($existente && (int)$existente['id'] !== $ignorarId) {
+                throw new RuntimeException('Já existe outro setor com este nome.');
+            }
         }
-
-
-        header('Location: ' . BASE_URL . '/setores');
-        exit;
+        if ($dados['codigo'] !== '') {
+            $existente = $this->model->buscarPorCodigo($dados['codigo']);
+            if ($existente && (int)$existente['id'] !== $ignorarId) {
+                throw new RuntimeException('Já existe outro setor com este código.');
+            }
+        }
     }
 
+    private function prepararPost(): void
+    {
+        if (($_SERVER['REQUEST_METHOD'] ?? 'GET') !== 'POST') {
+            $_SESSION['erro'] = 'Método de requisição não permitido.';
+            $this->redirecionar('/setores');
+        }
+        $recebido = (string)($_POST['_token'] ?? '');
+        $esperado = (string)($_SESSION['csrf_setores'] ?? '');
+        if ($esperado === '' || !hash_equals($esperado, $recebido)) {
+            $_SESSION['erro'] = 'A sessão do formulário expirou. Recarregue a página.';
+            $this->redirecionar('/setores');
+        }
+    }
+
+    private function csrfToken(): string
+    {
+        if (empty($_SESSION['csrf_setores'])) {
+            $_SESSION['csrf_setores'] = bin2hex(random_bytes(32));
+        }
+        return (string)$_SESSION['csrf_setores'];
+    }
+
+    private function validarId(mixed $id): int
+    {
+        $id = filter_var($id, FILTER_VALIDATE_INT);
+        if (!$id || $id <= 0) {
+            $_SESSION['erro'] = 'Identificador inválido.';
+            $this->redirecionar('/setores');
+        }
+        return (int)$id;
+    }
+
+    private function registrarErro(Throwable $erro): void
+    {
+        error_log('[SetoresController] ' . $erro->getMessage());
+    }
+
+    private function redirecionar(string $rota): never
+    {
+        header('Location: ' . BASE_URL . $rota);
+        exit;
+    }
 }

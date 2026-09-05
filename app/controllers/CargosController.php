@@ -2,216 +2,167 @@
 
 class CargosController extends Controller
 {
-    private $cargoModel;
-    private $setorModel;
-
+    private Cargo $model;
 
     public function __construct()
     {
         if (session_status() === PHP_SESSION_NONE) {
             session_start();
         }
-
-        if (!isset($_SESSION['usuario_id'])) {
+        if (empty($_SESSION['usuario_id'])) {
             header('Location: ' . BASE_URL . '/login');
             exit;
         }
-
-        $this->cargoModel = $this->model('Cargo');
-        $this->setorModel = $this->model('Setor');
+        $this->model = $this->model('Cargo');
     }
 
-
-    public function index()
+    public function index(): void
     {
-        $cargos = $this->cargoModel->listarTudo();
-
-        $this->view('cargos/index', [
-            'cargos' => $cargos
-        ]);
+        $this->view('cargos/index', ['cargos' => $this->model->listarTudo()]);
     }
 
-
-    public function criar()
+    public function criar(): void
     {
-        $setores = $this->setorModel->listarTudo();
-
+        $dadosAnteriores = $_SESSION['form_cargos'] ?? [];
+        unset($_SESSION['form_cargos']);
         $this->view('cargos/criar', [
-            'setores' => $setores
+            'csrfToken' => $this->csrfToken(),
+            'dadosAnteriores' => $dadosAnteriores,
         ]);
     }
 
-
-    public function salvar()
+    public function salvar(): never
     {
-        if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
-            header('Location: ' . BASE_URL . '/cargos');
-            exit;
+        $this->prepararPost();
+        $dados = $this->dadosPost();
+        try {
+            $this->validarDuplicidade($dados);
+            $this->model->salvar($dados);
+            $_SESSION['sucesso'] = 'Cargo cadastrado com sucesso.';
+            $this->redirecionar('/cargos');
+        } catch (Throwable $erro) {
+            $this->registrarErro($erro);
+            $_SESSION['erro'] = $erro instanceof RuntimeException ? $erro->getMessage() : 'Não foi possível cadastrar o cargo.';
+            $_SESSION['form_cargos'] = $_POST;
+            $this->redirecionar('/cargos/criar');
         }
-
-
-        $dados = [
-
-            'setor_id' => (int)($_POST['setor_id'] ?? 0),
-
-            'codigo' => !empty($_POST['codigo'])
-                ? trim($_POST['codigo'])
-                : null,
-
-            'codigo_externo' => !empty($_POST['codigo_externo'])
-                ? trim($_POST['codigo_externo'])
-                : null,
-
-            'nome' => trim($_POST['nome'] ?? ''),
-
-            'cbo' => !empty($_POST['cbo'])
-                ? trim($_POST['cbo'])
-                : null,
-
-            'descricao' => !empty($_POST['descricao'])
-                ? trim($_POST['descricao'])
-                : null,
-
-            'ativo' => 1
-        ];
-
-
-        if (empty($dados['nome']) || empty($dados['setor_id'])) {
-
-            $_SESSION['erro'] =
-            'Nome do cargo e setor são obrigatórios.';
-
-            header('Location: ' . BASE_URL . '/cargos/criar');
-            exit;
-        }
-
-
-        if ($this->cargoModel->salvar($dados)) {
-
-            $_SESSION['sucesso'] =
-            'Cargo cadastrado com sucesso!';
-
-        } else {
-
-            $_SESSION['erro'] =
-            'Erro ao cadastrar cargo.';
-        }
-
-
-        header('Location: ' . BASE_URL . '/cargos');
-        exit;
     }
 
-
-    public function editar($id)
+    public function editar($id = null): void
     {
-        $cargo =
-        $this->cargoModel->buscarPorId((int)$id);
-
-
-        if (!$cargo) {
-
-            $_SESSION['erro'] =
-            'Cargo não encontrado.';
-
-            header('Location: ' . BASE_URL . '/cargos');
-            exit;
+        $id = $this->validarId($id);
+        $registro = $this->model->buscarPorId($id);
+        if (!$registro) {
+            $_SESSION['erro'] = 'Cargo não encontrado.';
+            $this->redirecionar('/cargos');
         }
-
-
-        $setores =
-        $this->setorModel->listarTudo();
-
-
         $this->view('cargos/editar', [
-
-            'cargo' => $cargo,
-
-            'setores' => $setores
-
+            'cargo' => $registro,
+            'csrfToken' => $this->csrfToken(),
         ]);
     }
 
-
-    public function atualizar($id)
+    public function atualizar($id = null): never
     {
-        if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
-
-            header('Location: ' . BASE_URL . '/cargos');
-            exit;
+        $this->prepararPost();
+        $id = $this->validarId($id);
+        $dados = $this->dadosPost();
+        try {
+            $this->validarDuplicidade($dados, $id);
+            $this->model->atualizar($id, $dados);
+            $_SESSION['sucesso'] = 'Cargo atualizado com sucesso.';
+            $this->redirecionar('/cargos');
+        } catch (Throwable $erro) {
+            $this->registrarErro($erro);
+            $_SESSION['erro'] = $erro instanceof RuntimeException ? $erro->getMessage() : 'Não foi possível atualizar o cargo.';
+            $this->redirecionar('/cargos/editar/' . $id);
         }
-
-
-        $dados = [
-
-            'setor_id' => (int)($_POST['setor_id'] ?? 0),
-
-            'codigo' => !empty($_POST['codigo'])
-                ? trim($_POST['codigo'])
-                : null,
-
-            'codigo_externo' => !empty($_POST['codigo_externo'])
-                ? trim($_POST['codigo_externo'])
-                : null,
-
-            'nome' => trim($_POST['nome'] ?? ''),
-
-            'cbo' => !empty($_POST['cbo'])
-                ? trim($_POST['cbo'])
-                : null,
-
-            'descricao' => !empty($_POST['descricao'])
-                ? trim($_POST['descricao'])
-                : null
-
-        ];
-
-
-        if (empty($dados['nome']) || empty($dados['setor_id'])) {
-
-            $_SESSION['erro'] =
-            'Preencha os campos obrigatórios.';
-
-            header(
-                'Location: ' . BASE_URL . '/cargos/editar/' . $id
-            );
-
-            exit;
-        }
-
-
-        if ($this->cargoModel->atualizar((int)$id, $dados)) {
-
-            $_SESSION['sucesso'] =
-            'Cargo atualizado com sucesso!';
-
-        } else {
-
-            $_SESSION['erro'] =
-            'Erro ao atualizar cargo.';
-        }
-
-
-        header('Location: ' . BASE_URL . '/cargos');
-        exit;
     }
 
-
-    public function excluir($id)
+    public function excluir($id = null): never
     {
-        if ($this->cargoModel->desativar((int)$id)) {
-
-            $_SESSION['sucesso'] =
-            'Cargo desativado com sucesso!';
-
-        } else {
-
-            $_SESSION['erro'] =
-            'Erro ao desativar cargo.';
+        $id = $this->validarId($id);
+        try {
+            $alterado = $this->model->desativar($id);
+            $_SESSION[$alterado ? 'sucesso' : 'erro'] = $alterado
+                ? 'Cargo desativado sem excluir as hierarquias existentes.'
+                : 'O cargo já estava inativo ou não foi encontrado.';
+        } catch (Throwable $erro) {
+            $this->registrarErro($erro);
+            $_SESSION['erro'] = 'Não foi possível desativar o cargo.';
         }
+        $this->redirecionar('/cargos');
+    }
 
+    private function dadosPost(): array
+    {
+        return [
+            'codigo' => strtoupper(trim((string)($_POST['codigo'] ?? ''))),
+            'codigo_externo' => strtoupper(trim((string)($_POST['codigo_externo'] ?? ''))),
+            'nome' => trim((string)($_POST['nome'] ?? '')),
+            'cbo' => trim((string)($_POST['cbo'] ?? '')),
+            
+            'descricao' => trim((string)($_POST['descricao'] ?? '')),
+            'ativo' => !empty($_POST['ativo']) ? 1 : 0,
+        ];
+    }
 
-        header('Location: ' . BASE_URL . '/cargos');
+    private function validarDuplicidade(array $dados, int $ignorarId = 0): void
+    {
+        if ($dados['nome'] !== '') {
+            $existente = $this->model->buscarPorNome($dados['nome']);
+            if ($existente && (int)$existente['id'] !== $ignorarId) {
+                throw new RuntimeException('Já existe outro cargo com este nome.');
+            }
+        }
+        if ($dados['codigo'] !== '') {
+            $existente = $this->model->buscarPorCodigo($dados['codigo']);
+            if ($existente && (int)$existente['id'] !== $ignorarId) {
+                throw new RuntimeException('Já existe outro cargo com este código.');
+            }
+        }
+    }
+
+    private function prepararPost(): void
+    {
+        if (($_SERVER['REQUEST_METHOD'] ?? 'GET') !== 'POST') {
+            $_SESSION['erro'] = 'Método de requisição não permitido.';
+            $this->redirecionar('/cargos');
+        }
+        $recebido = (string)($_POST['_token'] ?? '');
+        $esperado = (string)($_SESSION['csrf_cargos'] ?? '');
+        if ($esperado === '' || !hash_equals($esperado, $recebido)) {
+            $_SESSION['erro'] = 'A sessão do formulário expirou. Recarregue a página.';
+            $this->redirecionar('/cargos');
+        }
+    }
+
+    private function csrfToken(): string
+    {
+        if (empty($_SESSION['csrf_cargos'])) {
+            $_SESSION['csrf_cargos'] = bin2hex(random_bytes(32));
+        }
+        return (string)$_SESSION['csrf_cargos'];
+    }
+
+    private function validarId(mixed $id): int
+    {
+        $id = filter_var($id, FILTER_VALIDATE_INT);
+        if (!$id || $id <= 0) {
+            $_SESSION['erro'] = 'Identificador inválido.';
+            $this->redirecionar('/cargos');
+        }
+        return (int)$id;
+    }
+
+    private function registrarErro(Throwable $erro): void
+    {
+        error_log('[CargosController] ' . $erro->getMessage());
+    }
+
+    private function redirecionar(string $rota): never
+    {
+        header('Location: ' . BASE_URL . $rota);
         exit;
     }
 }
