@@ -13,7 +13,8 @@ $vinculosExistentesJson = array_map(
     $vinculosExistentes ?? []
 );
 ?>
-<input type="hidden" name="_token" value="<?= htmlspecialchars($cs<div class="alert alert-primary d-flex gap-2 align-items-start" role="alert">
+<input type="hidden" name="_token" value="<?= htmlspecialchars($csrfToken) ?>">
+<div class="alert alert-primary d-flex gap-2 align-items-start" role="alert">
     <i class="fa-solid fa-shield-halved mt-1 flex-shrink-0"></i>
     <div>
         <strong>Fluxo oficial:</strong> Empresa &rarr; Unidade &rarr; Setor &rarr; Cargo &rarr; Funcionário.
@@ -210,8 +211,6 @@ $vinculosExistentesJson = array_map(
                 </div>
             </div>
         </div>
-nidade</span><strong id="resumoUnidade">Não selecionada</strong></div>
-        <div><span>Novos vínculos</span><strong id="resumoVinculos">0</strong></div>
     </div>
 </section>
 
