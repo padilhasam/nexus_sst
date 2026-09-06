@@ -1,4 +1,4 @@
-<?php $rotaAtual='cargos'; $css='cargos.css'; require_once dirname(__DIR__) . '/templates/header.php'; ?>
+<?php $rotaAtual='cargos'; require_once dirname(__DIR__) . '/templates/header.php'; ?>
 <div class="org-page"><div class="org-container">
 <header class="org-header"><div class="org-header-main"><div class="org-header-icon"><i class="fa-solid fa-briefcase"></i></div><div class="org-header-copy"><div class="org-eyebrow">Catálogo organizacional</div><h1>Novo cargo</h1><p>Cadastre uma função para utilização nas hierarquias das empresas.</p></div></div><div class="org-header-actions"><a href="<?= BASE_URL ?>/cargos" class="btn btn-outline-secondary"><i class="fa-solid fa-arrow-left"></i> Voltar</a></div></header>
 <?php if(!empty($_SESSION['erro'])): ?><div class="alert alert-danger org-alert"><i class="fa-solid fa-circle-exclamation me-2"></i><?= htmlspecialchars($_SESSION['erro']); unset($_SESSION['erro']); ?></div><?php endif; ?>

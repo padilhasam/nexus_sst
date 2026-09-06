@@ -1,6 +1,5 @@
 <?php
 $rotaAtual = 'cargos';
-$css = 'cargos.css';
 require_once dirname(__DIR__) . '/templates/header.php';
 
 $cargos = $cargos ?? [];

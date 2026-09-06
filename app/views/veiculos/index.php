@@ -1,5 +1,5 @@
 <?php
-$css = 'veiculos.css';
+$rotaAtual = 'veiculos';
 require_once dirname(__DIR__) . '/templates/header.php';
 ?>
 

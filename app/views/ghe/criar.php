@@ -1,5 +1,5 @@
 <?php
-$css = 'ghe.css';
+$rotaAtual = 'ghe';
 require_once dirname(__DIR__) . '/templates/header.php';
 
 $checklists = $checklists ?? [];

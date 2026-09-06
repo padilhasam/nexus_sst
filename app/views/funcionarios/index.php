@@ -1,6 +1,5 @@
 <?php
 $rotaAtual = 'funcionarios';
-$css = 'funcionarios.css';
 require_once dirname(__DIR__) . '/templates/header.php';
 
 $funcionarios = $funcionarios ?? [];

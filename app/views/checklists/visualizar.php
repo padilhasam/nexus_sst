@@ -1,5 +1,4 @@
 <?php
-$css = 'checklists.css';
 $js = ['checklists.js'];
 $rotaAtual = 'checklists';
 $pageTitle = 'Check-list de Visita';

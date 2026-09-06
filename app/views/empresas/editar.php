@@ -1,6 +1,5 @@
 <?php
 $rotaAtual = 'empresas';
-$css = 'empresas.css';
 require_once dirname(__DIR__) . '/templates/header.php';
 $dados = $empresa ?? [];
 $nomeExibicao = trim((string)($dados['nome_fantasia'] ?? '')) ?: trim((string)($dados['razao_social'] ?? ''));

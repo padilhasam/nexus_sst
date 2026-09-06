@@ -1,5 +1,4 @@
 <?php
-$css = 'agenda.css';
 
 require_once dirname(__DIR__) . '/templates/header.php';
 

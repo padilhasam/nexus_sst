@@ -1,6 +1,5 @@
 <?php
 $rotaAtual = 'hierarquias';
-$css = 'hierarquias.css';
 require_once dirname(__DIR__) . '/templates/header.php';
 ?>
 <div class="org-page"><div class="org-container">

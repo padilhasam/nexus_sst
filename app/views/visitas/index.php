@@ -5,7 +5,6 @@ $abaAtual = $abaAtual ?? 'abertas';
 $filtros = $filtros ?? [];
 $usuarioAdministrador = (bool)($usuarioAdministrador ?? false);
 
-$css = 'visitas.css';
 $pageTitle = 'Visitas Técnicas';
 $pageSubtitle = 'Fila operacional dos levantamentos programados pela Agenda';
 $pageBadge = (int)($indicadores['abertas'] ?? 0) . ' aguardando';

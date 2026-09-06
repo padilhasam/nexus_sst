@@ -1,5 +1,4 @@
 <?php
-$css = 'dashboard.css';
 
 require_once dirname(__DIR__) . '/templates/header.php';
 ?>

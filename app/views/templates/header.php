@@ -51,16 +51,9 @@ function activeClass(string $rota, string $rotaAtual): string {
 <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" rel="stylesheet">
 
 <link rel="stylesheet" href="<?= BASE_URL ?>/css/app.css?v=<?= time() ?>">
-
-<?php if (!empty($css)) : ?>
-    <link
-        rel="stylesheet"
-        href="<?= BASE_URL ?>/css/pages/<?= htmlspecialchars($css) ?>?v=<?= time() ?>"
-    >
-<?php endif; ?>
 </head>
 
-<body>
+<body class="rota-<?= htmlspecialchars($rotaAtual) ?>">
 
 <div class="sst-app">
 

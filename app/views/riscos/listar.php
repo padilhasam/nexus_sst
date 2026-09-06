@@ -1,5 +1,5 @@
 <?php
-$css = 'listar_riscos.css';
+$rotaAtual = 'riscos';
 require_once dirname(__DIR__) . '/templates/header.php';
 ?>
 

@@ -28,3 +28,6 @@
 @import url("components/tabs.css");
 @import url("components/timeline.css");
 @import url("components/widgets.css");
+
+/* Estilos específicos de página (escopados por body.rota-*) — deve ser o último import */
+@import url("app/pages-legacy.css");

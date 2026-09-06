@@ -5,7 +5,6 @@ $abaAtual = $abaAtual ?? 'andamento';
 $filtros = $filtros ?? [];
 $usuarioAdministrador = (bool)($usuarioAdministrador ?? false);
 
-$css = 'checklists.css';
 $pageTitle = 'Check-lists';
 $pageSubtitle = 'Histórico operacional dos levantamentos de riscos iniciados nas Visitas Técnicas';
 $pageBadge = (int)($indicadores['andamento'] ?? 0) . ' em andamento';

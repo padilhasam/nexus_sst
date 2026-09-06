@@ -1,6 +1,5 @@
 <?php
 $rotaAtual = 'setores';
-$css = 'setores.css';
 require_once dirname(__DIR__) . '/templates/header.php';
 
 $setores = $setores ?? [];

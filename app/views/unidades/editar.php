@@ -1,6 +1,5 @@
 <?php
 $rotaAtual = 'unidades';
-$css = 'unidades.css';
 require_once dirname(__DIR__) . '/templates/header.php';
 $dados = $unidade ?? [];
 ?>

@@ -1,6 +1,5 @@
 <?php
 $rotaAtual = 'empresas';
-$css = 'empresas.css';
 require_once dirname(__DIR__) . '/templates/header.php';
 
 $empresas = $empresas ?? [];

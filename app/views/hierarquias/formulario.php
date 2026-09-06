@@ -13,147 +13,204 @@ $vinculosExistentesJson = array_map(
     $vinculosExistentes ?? []
 );
 ?>
-<input type="hidden" name="_token" value="<?= htmlspecialchars($csrfToken) ?>">
-
-<div class="org-callout">
-    <i class="fa-solid fa-shield-halved"></i>
+<input type="hidden" name="_token" value="<?= htmlspecialchars($cs<div class="alert alert-primary d-flex gap-2 align-items-start" role="alert">
+    <i class="fa-solid fa-shield-halved mt-1 flex-shrink-0"></i>
     <div>
-        <strong>Fluxo oficial:</strong> Empresa → Unidade → Setor → Cargo → Funcionário.
+        <strong>Fluxo oficial:</strong> Empresa &rarr; Unidade &rarr; Setor &rarr; Cargo &rarr; Funcionário.
         Setores e Cargos são catálogos globais e podem ser reutilizados em qualquer empresa.
     </div>
 </div>
 
-<section class="org-form-section org-builder-section">
-    <div class="org-section-title">
-        <div class="org-section-icon"><i class="fa-regular fa-building"></i></div>
-        <div><h2>1. Empresa e Unidade</h2><p>A unidade será filtrada automaticamente conforme a empresa selecionada.</p></div>
-    </div>
-
-    <div class="org-form-grid">
-        <div class="org-field org-col-6">
-            <label for="empresa_id">Empresa *</label>
-            <select class="form-select" name="empresa_id" id="empresa_id" required>
-                <option value="">Selecione a empresa</option>
-                <?php foreach ($empresas as $empresa): ?>
-                    <option value="<?= (int)$empresa['id'] ?>" <?= $empresaSelecionada === (string)$empresa['id'] ? 'selected' : '' ?>>
-                        <?= htmlspecialchars($empresa['nome_fantasia'] ?: $empresa['razao_social']) ?>
-                    </option>
-                <?php endforeach; ?>
-            </select>
+<section class="card mb-3">
+    <div class="card-body">
+        <div class="d-flex align-items-center gap-3 mb-3">
+            <span class="d-inline-flex align-items-center justify-content-center bg-primary-subtle text-primary rounded-3 flex-shrink-0" style="width:42px;height:42px">
+                <i class="fa-regular fa-building"></i>
+            </span>
+            <div>
+                <h2 class="h6 fw-bold mb-1">1. Empresa e Unidade</h2>
+                <p class="text-secondary small mb-0">A unidade será filtrada automaticamente conforme a empresa selecionada.</p>
+            </div>
         </div>
 
-        <div class="org-field org-col-6">
-            <label for="unidade_id">Unidade vinculada *</label>
-            <select class="form-select" name="unidade_id" id="unidade_id" required>
-                <option value="">Selecione a unidade</option>
-                <?php foreach ($unidades as $unidade): ?>
-                    <option
-                        value="<?= (int)$unidade['id'] ?>"
-                        data-empresa="<?= (int)$unidade['empresa_id'] ?>"
-                        <?= $unidadeSelecionada === (string)$unidade['id'] ? 'selected' : '' ?>
-                    >
-                        <?= htmlspecialchars($unidade['nome']) ?>
-                    </option>
-                <?php endforeach; ?>
-            </select>
-            <small id="unidadeAjuda">Somente as unidades da empresa escolhida serão exibidas.</small>
-        </div>
-    </div>
-</section>
-
-<section class="org-form-section org-builder-section">
-    <div class="org-section-title">
-        <div class="org-section-icon"><i class="fa-solid fa-layer-group"></i></div>
-        <div><h2>2. Selecione os Setores</h2><p>Escolha um ou mais setores do catálogo global para utilizar nesta unidade.</p></div>
-    </div>
-
-    <div class="org-builder-search">
-        <i class="fa-solid fa-magnifying-glass"></i>
-        <input type="search" class="form-control" id="buscarSetorHierarquia" placeholder="Buscar setor por nome ou código">
-    </div>
-
-    <div class="org-selector-grid" id="setoresSelector">
-        <?php foreach ($setores as $setor): ?>
-            <?php $setorTexto = strtolower(trim(($setor['codigo'] ?? '') . ' ' . ($setor['nome'] ?? ''))); ?>
-            <label class="org-selector-card" data-setor-search="<?= htmlspecialchars($setorTexto) ?>">
-                <input type="checkbox" class="org-sector-checkbox" value="<?= (int)$setor['id'] ?>">
-                <span class="org-selector-check"><i class="fa-solid fa-check"></i></span>
-                <span class="org-selector-icon"><i class="fa-solid fa-layer-group"></i></span>
-                <span class="org-selector-copy">
-                    <strong><?= htmlspecialchars($setor['nome']) ?></strong>
-                    <small><?= !empty($setor['codigo']) ? 'Código ' . htmlspecialchars($setor['codigo']) : 'Catálogo global' ?></small>
-                </span>
-            </label>
-        <?php endforeach; ?>
-    </div>
-</section>
-
-<section class="org-form-section org-builder-section">
-    <div class="org-section-title">
-        <div class="org-section-icon"><i class="fa-solid fa-briefcase"></i></div>
-        <div><h2>3. Aloque os Cargos nos Setores</h2><p>Para cada setor selecionado, marque os cargos que existirão na unidade.</p></div>
-    </div>
-
-    <div id="cargoPanels" class="org-cargo-panels">
-        <div class="org-builder-empty" id="cargoPanelsEmpty">
-            <i class="fa-solid fa-arrow-up"></i>
-            <strong>Selecione um setor acima</strong>
-            <span>Os cargos disponíveis aparecerão aqui.</span>
-        </div>
-
-        <?php foreach ($setores as $setor): ?>
-            <article class="org-cargo-panel d-none" data-setor-panel="<?= (int)$setor['id'] ?>">
-                <header>
-                    <div><span>Setor selecionado</span><h3><?= htmlspecialchars($setor['nome']) ?></h3></div>
-                    <div class="org-panel-counter"><strong data-sector-counter>0</strong><span>novos cargos</span></div>
-                </header>
-
-                <div class="org-builder-search org-builder-search-compact">
-                    <i class="fa-solid fa-magnifying-glass"></i>
-                    <input type="search" class="form-control" data-cargo-search placeholder="Buscar cargo neste setor">
-                </div>
-
-                <div class="org-role-grid">
-                    <?php foreach ($cargos as $cargo): ?>
-                        <?php
-                        $valor = (int)$setor['id'] . ':' . (int)$cargo['id'];
-                        $checado = in_array($valor, $vinculosSelecionados, true);
-                        $cargoTexto = strtolower(trim(($cargo['codigo'] ?? '') . ' ' . ($cargo['nome'] ?? '') . ' ' . ($cargo['cbo'] ?? '')));
-                        ?>
-                        <label class="org-role-option" data-cargo-search-text="<?= htmlspecialchars($cargoTexto) ?>">
-                            <input
-                                type="checkbox"
-                                name="vinculos[]"
-                                value="<?= $valor ?>"
-                                data-sector-id="<?= (int)$setor['id'] ?>"
-                                data-cargo-id="<?= (int)$cargo['id'] ?>"
-                                <?= $checado ? 'checked' : '' ?>
-                            >
-                            <span class="org-role-check"><i class="fa-solid fa-check"></i></span>
-                            <span>
-                                <strong><?= htmlspecialchars($cargo['nome']) ?></strong>
-                                <small>
-                                    <?= !empty($cargo['codigo']) ? 'Código ' . htmlspecialchars($cargo['codigo']) : 'Catálogo global' ?>
-                                    <?= !empty($cargo['cbo']) ? ' · CBO ' . htmlspecialchars($cargo['cbo']) : '' ?>
-                                </small>
-                            </span>
-                            <em class="org-existing-label d-none"><i class="fa-solid fa-lock"></i> Já vinculado</em>
-                        </label>
+        <div class="row g-3">
+            <div class="col-md-6">
+                <label for="empresa_id" class="form-label fw-semibold small">Empresa *</label>
+                <select class="form-select" name="empresa_id" id="empresa_id" required>
+                    <option value="">Selecione a empresa</option>
+                    <?php foreach ($empresas as $empresa): ?>
+                        <option value="<?= (int)$empresa['id'] ?>" <?= $empresaSelecionada === (string)$empresa['id'] ? 'selected' : '' ?>>
+                            <?= htmlspecialchars($empresa['nome_fantasia'] ?: $empresa['razao_social']) ?>
+                        </option>
                     <?php endforeach; ?>
-                </div>
-            </article>
-        <?php endforeach; ?>
+                </select>
+            </div>
+
+            <div class="col-md-6">
+                <label for="unidade_id" class="form-label fw-semibold small">Unidade vinculada *</label>
+                <select class="form-select" name="unidade_id" id="unidade_id" required>
+                    <option value="">Selecione a unidade</option>
+                    <?php foreach ($unidades as $unidade): ?>
+                        <option
+                            value="<?= (int)$unidade['id'] ?>"
+                            data-empresa="<?= (int)$unidade['empresa_id'] ?>"
+                            <?= $unidadeSelecionada === (string)$unidade['id'] ? 'selected' : '' ?>
+                        >
+                            <?= htmlspecialchars($unidade['nome']) ?>
+                        </option>
+                    <?php endforeach; ?>
+                </select>
+                <div class="form-text" id="unidadeAjuda">Somente as unidades da empresa escolhida serão exibidas.</div>
+            </div>
+        </div>
     </div>
 </section>
 
-<section class="org-form-section org-builder-section org-builder-final-step">
-    <div class="org-section-title">
-        <div class="org-section-icon"><i class="fa-solid fa-users"></i></div>
-        <div><h2>4. Funcionários</h2><p>Após salvar, você será direcionado à estrutura da empresa para selecionar ou mover os funcionários dentro de cada cargo.</p></div>
+<section class="card mb-3">
+    <div class="card-body">
+        <div class="d-flex align-items-center gap-3 mb-3">
+            <span class="d-inline-flex align-items-center justify-content-center bg-primary-subtle text-primary rounded-3 flex-shrink-0" style="width:42px;height:42px">
+                <i class="fa-solid fa-layer-group"></i>
+            </span>
+            <div>
+                <h2 class="h6 fw-bold mb-1">2. Selecione os Setores</h2>
+                <p class="text-secondary small mb-0">Escolha um ou mais setores do catálogo global para utilizar nesta unidade.</p>
+            </div>
+        </div>
+
+        <div class="input-group mb-3">
+            <span class="input-group-text"><i class="fa-solid fa-magnifying-glass"></i></span>
+            <input type="search" class="form-control" id="buscarSetorHierarquia" placeholder="Buscar setor por nome ou código">
+        </div>
+
+        <div class="row row-cols-1 row-cols-sm-2 row-cols-lg-3 g-2" id="setoresSelector">
+            <?php foreach ($setores as $setor): ?>
+                <?php $setorTexto = strtolower(trim(($setor['codigo'] ?? '') . ' ' . ($setor['nome'] ?? ''))); ?>
+                <div class="col" data-setor-search="<?= htmlspecialchars($setorTexto) ?>">
+                    <input type="checkbox" class="btn-check org-sector-checkbox" value="<?= (int)$setor['id'] ?>" id="setor-hier-<?= (int)$setor['id'] ?>" autocomplete="off">
+                    <label class="btn btn-outline-primary w-100 h-100 text-start d-flex align-items-center gap-2 p-2" for="setor-hier-<?= (int)$setor['id'] ?>">
+                        <i class="fa-solid fa-check flex-shrink-0"></i>
+                        <span style="min-width:0">
+                            <span class="d-block fw-bold text-truncate"><?= htmlspecialchars($setor['nome']) ?></span>
+                            <span class="d-block small"><?= !empty($setor['codigo']) ? 'Código ' . htmlspecialchars($setor['codigo']) : 'Catálogo global' ?></span>
+                        </span>
+                    </label>
+                </div>
+            <?php endforeach; ?>
+        </div>
     </div>
-    <div class="org-builder-summary">
-        <div><span>Empresa</span><strong id="resumoEmpresa">Não selecionada</strong></div>
-        <div><span>Unidade</span><strong id="resumoUnidade">Não selecionada</strong></div>
+</section>
+
+<section class="card mb-3">
+    <div class="card-body">
+        <div class="d-flex align-items-center gap-3 mb-3">
+            <span class="d-inline-flex align-items-center justify-content-center bg-primary-subtle text-primary rounded-3 flex-shrink-0" style="width:42px;height:42px">
+                <i class="fa-solid fa-briefcase"></i>
+            </span>
+            <div>
+                <h2 class="h6 fw-bold mb-1">3. Aloque os Cargos nos Setores</h2>
+                <p class="text-secondary small mb-0">Para cada setor selecionado, marque os cargos que existirão na unidade.</p>
+            </div>
+        </div>
+
+        <div id="cargoPanels">
+            <div class="text-center text-secondary p-4 border rounded-3 bg-light" id="cargoPanelsEmpty">
+                <i class="fa-solid fa-arrow-up fs-4 d-block mb-2"></i>
+                <strong class="d-block">Selecione um setor acima</strong>
+                <span class="small">Os cargos disponíveis aparecerão aqui.</span>
+            </div>
+
+            <?php foreach ($setores as $setor): ?>
+                <article class="card mb-3 d-none" data-setor-panel="<?= (int)$setor['id'] ?>">
+                    <div class="card-header d-flex align-items-center justify-content-between gap-3 bg-body-tertiary">
+                        <div>
+                            <span class="text-uppercase text-secondary fw-semibold small">Setor selecionado</span>
+                            <h3 class="h6 fw-bold mb-0"><?= htmlspecialchars($setor['nome']) ?></h3>
+                        </div>
+                        <div class="text-end">
+                            <span class="fs-4 fw-bold text-primary d-block" data-sector-counter>0</span>
+                            <span class="text-secondary small">novos cargos</span>
+                        </div>
+                    </div>
+
+                    <div class="card-body">
+                        <div class="input-group input-group-sm mb-3">
+                            <span class="input-group-text"><i class="fa-solid fa-magnifying-glass"></i></span>
+                            <input type="search" class="form-control" data-cargo-search placeholder="Buscar cargo neste setor">
+                        </div>
+
+                        <div class="row row-cols-1 row-cols-md-2 g-2">
+                            <?php foreach ($cargos as $cargo): ?>
+                                <?php
+                                $valor = (int)$setor['id'] . ':' . (int)$cargo['id'];
+                                $checado = in_array($valor, $vinculosSelecionados, true);
+                                $cargoTexto = strtolower(trim(($cargo['codigo'] ?? '') . ' ' . ($cargo['nome'] ?? '') . ' ' . ($cargo['cbo'] ?? '')));
+                                ?>
+                                <div class="col" data-cargo-search-text="<?= htmlspecialchars($cargoTexto) ?>">
+                                    <input
+                                        type="checkbox"
+                                        class="btn-check"
+                                        name="vinculos[]"
+                                        value="<?= $valor ?>"
+                                        id="vinc-<?= (int)$setor['id'] ?>-<?= (int)$cargo['id'] ?>"
+                                        data-sector-id="<?= (int)$setor['id'] ?>"
+                                        data-cargo-id="<?= (int)$cargo['id'] ?>"
+                                        autocomplete="off"
+                                        <?= $checado ? 'checked' : '' ?>
+                                    >
+                                    <label class="org-role-option btn btn-outline-primary w-100 h-100 text-start d-flex align-items-start gap-2 p-2" for="vinc-<?= (int)$setor['id'] ?>-<?= (int)$cargo['id'] ?>">
+                                        <i class="fa-solid fa-check mt-1 flex-shrink-0"></i>
+                                        <span class="flex-grow-1" style="min-width:0">
+                                            <span class="d-block fw-bold small"><?= htmlspecialchars($cargo['nome']) ?></span>
+                                            <span class="d-block small text-body-secondary">
+                                                <?= !empty($cargo['codigo']) ? 'Código ' . htmlspecialchars($cargo['codigo']) : 'Catálogo global' ?>
+                                                <?= !empty($cargo['cbo']) ? ' &middot; CBO ' . htmlspecialchars($cargo['cbo']) : '' ?>
+                                            </span>
+                                        </span>
+                                        <span class="org-existing-label d-none text-success fw-semibold small text-nowrap flex-shrink-0"><i class="fa-solid fa-lock"></i> Já vinculado</span>
+                                    </label>
+                                </div>
+                            <?php endforeach; ?>
+                        </div>
+                    </div>
+                </article>
+            <?php endforeach; ?>
+        </div>
+    </div>
+</section>
+
+<section class="card mb-3">
+    <div class="card-body">
+        <div class="d-flex align-items-center gap-3 mb-3">
+            <span class="d-inline-flex align-items-center justify-content-center bg-primary-subtle text-primary rounded-3 flex-shrink-0" style="width:42px;height:42px">
+                <i class="fa-solid fa-users"></i>
+            </span>
+            <div>
+                <h2 class="h6 fw-bold mb-1">4. Funcionários</h2>
+                <p class="text-secondary small mb-0">Após salvar, você será direcionado à estrutura da empresa para selecionar ou mover os funcionários dentro de cada cargo.</p>
+            </div>
+        </div>
+        <div class="row row-cols-1 row-cols-sm-3 g-2">
+            <div class="col">
+                <div class="border rounded-3 p-2 bg-light h-100">
+                    <span class="d-block text-uppercase text-secondary fw-semibold small">Empresa</span>
+                    <strong class="d-block" id="resumoEmpresa">Não selecionada</strong>
+                </div>
+            </div>
+            <div class="col">
+                <div class="border rounded-3 p-2 bg-light h-100">
+                    <span class="d-block text-uppercase text-secondary fw-semibold small">Unidade</span>
+                    <strong class="d-block" id="resumoUnidade">Não selecionada</strong>
+                </div>
+            </div>
+            <div class="col">
+                <div class="border rounded-3 p-2 bg-light h-100">
+                    <span class="d-block text-uppercase text-secondary fw-semibold small">Novos vínculos</span>
+                    <strong class="d-block" id="resumoVinculos">0</strong>
+                </div>
+            </div>
+        </div>
+nidade</span><strong id="resumoUnidade">Não selecionada</strong></div>
         <div><span>Novos vínculos</span><strong id="resumoVinculos">0</strong></div>
     </div>
 </section>
